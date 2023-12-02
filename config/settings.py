@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,12 +35,15 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "account.apps.AccountConfig",
+    "community.apps.CommunityConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -78,7 +85,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "edumaxdb",
         "USER": "root",
-        "PASSWORD": "M6nq!d9pYTwk6!3k",
+        "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": "localhost",
         "PORT": "3306",
     }
@@ -102,6 +109,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTH_USER_MODEL = "account.User"
 
 
 # Internationalization
