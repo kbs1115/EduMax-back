@@ -19,7 +19,7 @@ class Post(models.Model):
     category = models.CharField(
         max_length=2, choices=Categories.choices, default=Categories.FREE
     )
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
 
 
 class Comment(models.Model):
