@@ -16,6 +16,7 @@ class Post(models.Model):
     title = models.CharField(max_length=30)
     content = models.TextField()
     created_at = models.DateTimeField()
+    modified_at = models.DateTimeField()
     category = models.CharField(
         max_length=2, choices=Categories.choices, default=Categories.FREE
     )
