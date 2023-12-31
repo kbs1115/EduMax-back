@@ -46,9 +46,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     nicknameValidator = RegexValidator(regex=r"^[a-zA-Z0-9가-힣]{2,10}$",
                                        message="닉네임은 영문, 숫자, 한글로 이루어진 2~10자의 문자열이어야 합니다.")
     
-    login_id = models.CharField(validators = [idValidator], unique=True, null=False, blank=False)
+    login_id = models.CharField(max_length=20, validators = [idValidator], unique=True, null=False, blank=False)
     email = models.EmailField(max_length=30, unique=True, null=False, blank=False)
-    nickname = models.CharField(validators = [nicknameValidator], unique=True, null=False, blank=False)
+    nickname = models.CharField(max_length=20, validators = [nicknameValidator], unique=True, null=False, blank=False)
     is_superuser = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
