@@ -2,3 +2,4 @@ Blog Images/
 db.sqlite3
 __pycache__
 .env
+migrations
