@@ -119,9 +119,13 @@ class Lecture(models.Model):
             "KO": [],
             "En": ["SC", "SA", "GR"],
             "MA": [],
+
+            # eng-depth2
             "SC": ["TB", "EBS", "SCM"],
             "SA": ["SAM"],
             "GR": ["PGR", "BGR"],
+
+            # eng-depth3
             "TB": ["E0", "E1", "E2"],
             "SCM": ["H1", "H2"]
         }
