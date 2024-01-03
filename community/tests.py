@@ -3,7 +3,6 @@ from django.test import TestCase, TransactionTestCase
 from .models import Post
 from account.models import User
 
-
 class PostModelTests(TransactionTestCase):
     def setUp(self):
         User.objects.create(
