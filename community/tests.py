@@ -3,8 +3,6 @@ from django.test import TestCase, TransactionTestCase
 from .models import Post
 from account.models import User
 
-from django.utils import timezone
-
 
 class PostModelTests(TransactionTestCase):
     def setUp(self):
@@ -18,7 +16,8 @@ class PostModelTests(TransactionTestCase):
         Post.objects.create(
             title="Test1Test1Test1Test1Test1Test1",
             content="testtest2",
-            created_at=timezone.now(),
+
+            # created_at=timezone.now(), ->삭제
             author=user1,
         )
         p = Post.objects.get(title="Test1Test1Test1Test1Test1Test1")
@@ -28,6 +27,6 @@ class PostModelTests(TransactionTestCase):
             Post.objects.create(
                 title="Test1Test1Test1Test1Test1Test1!!!!",  # over length 30
                 content="testtest3",
-                created_at=timezone.now(),
+                # created_at=timezone.now(), -> 삭제
                 author=user1,
             )
