@@ -2,10 +2,10 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from .serializers import *
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework import status
+from rest_framework import status, viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
-from django.middleware.csrf import get_token
 
 
 class SignUpAPIView(APIView):
@@ -57,3 +57,9 @@ class AuthAPIView(APIView):
         res = Response({"message": "Logout success"}, status=status.HTTP_202_ACCEPTED)
         res.delete_cookie("refreshToken")
         return res
+
+
+class TestViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticated]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
