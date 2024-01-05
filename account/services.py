@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class SignUpService:
-    def get_user_data(self, request):
+    def get_user_data(request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -15,7 +15,7 @@ class SignUpService:
 
 
 class AuthService:
-    def loginService(self, request):
+    def loginService(request):
         user = authenticate(
             login_id=request.data.get("login_id"), password=request.data.get("password")
         )
