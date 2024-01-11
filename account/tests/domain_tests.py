@@ -1,8 +1,7 @@
 import pytest
-from account.domain import UserValidator, UserManager
+from account.domain import UserValidator
 from django.core.exceptions import ValidationError
 from account.models import User
-from unittest.mock import MagicMock
 
 
 @pytest.fixture

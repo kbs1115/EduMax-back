@@ -20,7 +20,7 @@ class AuthService:
             login_id=request.data.get("login_id"), password=request.data.get("password")
         )
 
-        if user is not None:
+        if user:
             serializer = UserSerializer(user)
 
             token = TokenObtainPairSerializer.get_token(user)

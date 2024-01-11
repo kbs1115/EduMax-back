@@ -7,8 +7,8 @@ router = routers.DefaultRouter()
 router.register("test", TestViewSet)
 
 urlpatterns = [
-    path("signup/", SignUpAPIView.as_view()),
-    path("token/", AuthAPIView.as_view()),
-    path("token/refresh/", TokenRefreshView.as_view()),
+    path("signup/", SignUpAPIView.as_view(), name="signup"),
+    path("token/", AuthAPIView.as_view(), name="token"),
+    path("token/refresh/", TokenRefreshView.as_view(), name="tokenRefresh"),
     path("", include(router.urls)),
 ]
