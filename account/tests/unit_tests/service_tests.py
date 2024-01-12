@@ -1,42 +1,12 @@
 import pytest
+from account.tests.conftests import *
 from account.serializers import UserSerializer
-from account.services import SignUpService
+from account.services import SignUpService, AuthService
+from account.models import User
 from unittest.mock import Mock
 from rest_framework import exceptions
 from rest_framework.validators import UniqueValidator
-
-
-@pytest.fixture
-def valid_request_data():
-    # 유효한 request 데이터를 반환한다.
-    return {
-        "login_id": "bruce1118",
-        "email": "bruce1118@naver.com",
-        "nickname": "KBS3",
-        "password": "Bb3848948389!!!",
-    }
-
-
-@pytest.fixture
-def invalid_request_data_omitted():
-    # 유효하지 않은 request 데이터를 반환한다.
-    return {
-        "login_id": None,
-        "email": "bruce1118@naver.com",
-        "nickname": "KBS3",
-        "password": "Bb3848948389!!!",
-    }
-
-
-@pytest.fixture
-def invalid_request_data_wrong_email():
-    # 유효하지 않은 request 데이터를 반환한다.
-    return {
-        "login_id": "bruce1118",
-        "email": "bruce1118naver.com",
-        "nickname": "KBS3",
-        "password": "Bb3848948389!!!",
-    }
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class TestSignUpService:
@@ -78,3 +48,28 @@ class TestSignUpService:
 
         with pytest.raises(exceptions.ParseError):
             SignUpService.get_user_data(mock_request)
+
+
+class TestAuthService:
+    def test_valid_login(self, valid_login_data, mocker):
+        mock_request = Mock(data=valid_login_data)
+        mock_authenticate = mocker.patch("account.services.authenticate")
+        mock_authenticate.return_value = User(id=1)
+        serializer = UserSerializer(mock_authenticate.return_value)
+
+        actual = AuthService.loginService(mock_request)
+
+        assert mock_authenticate.is_called_once()
+
+        # 각 데이터가 제대로 들어왔는지 존재 여부를 확인한다.(token은 random이므로 정확히 비교하는 것은 옳지 않다.)
+        assert actual["userData"] == serializer.data
+        assert "accessToken" in actual
+        assert "refreshToken" in actual
+
+    def test_invalid_login(self, invalid_login_data, mocker):
+        mock_request = Mock(data=invalid_login_data)
+        mock_authenticate = mocker.patch("account.services.authenticate")
+        mock_authenticate.return_value = None
+
+        with pytest.raises(exceptions.ParseError):
+            AuthService.loginService(mock_request)
