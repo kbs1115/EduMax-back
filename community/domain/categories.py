@@ -13,6 +13,12 @@ class PostCategories(models.TextChoices):
 
 
 TREE_STRUCTURE = {
+    """
+        <설명>
+        - post의 category depth 트리 구조이다.
+        - 현재 english 를 제외한 나머지 과목들은 children이 없으며 추후 추가될 예정이다.
+        - 모든 posts는 각 트리의 리프 노드에 위치에 있다. 
+    """
     # english
     "KOREAN": [],
     "EN": ["SC", "SA", "GR"],
@@ -42,7 +48,6 @@ class CategoryDepth2(models.TextChoices):
     GRAMMAR = "GR"
 
 
-# 12.31 수정: 카테고리 depth 3,4 추가
 class CategoryDepth3(models.TextChoices):
     # children of SCHOOL_TEST
     TEXTBOOK = "TB"

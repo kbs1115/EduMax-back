@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 
-from community.domain.lecture_category import *
+from community.domain.categories import *
 
 
 class CategoryValidator:

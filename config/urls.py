@@ -16,6 +16,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+
+from community.views import PostView, LikeView
+
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # path('posts/<int:post_id>/likes', LikeView.as_view()),
+    path('posts/<int:post_id>', PostView.as_view()),
+    path('posts/', PostView.as_view())
 ]
+
+
