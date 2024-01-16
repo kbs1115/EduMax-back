@@ -1,11 +1,47 @@
+import uuid
+
 import status as status
+from botocore.exceptions import ClientError
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Q, Count
+from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
+
 from community.models import Post
-from community.serializers import PostSerializer
+from community.serializers import PostSerializer, FileSerializer
 from community.service.define import PostSearchFilterParam, PostSortCategoryParam
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
+
+from community.service.validation import restrict_post_create_permission
+
+
+class UploadService:
+    # file을 올리기전에 여러 validation이 필요할것으로 예상되지만 일단 pass
+    @classmethod
+    def upload_files(cls, files, paths):
+        if not len(files) == len(paths):
+            raise ValueError("The number of files and paths must be equal.")
+        for i in range(len(files)):
+            file = files[i]
+            path = paths[i]
+            try:
+                default_storage.save(path, ContentFile(file.read()))
+            except ClientError as e:
+                raise e
+            except Exception as e:
+                raise e
+
+    @classmethod
+    def make_files_path(cls, files):
+        files_path = []
+        unique_id = str(uuid.uuid4())
+        for file in files:
+            file_path = f"{unique_id}_{file.name}"
+            files_path.append(file_path)
+        return files_path
 
 
 class PostService:
@@ -14,6 +50,8 @@ class PostService:
         - post_id를 받아서 select 후 return 한다.
         - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
     """
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
+
     def retrieve_post(self, post_id):
         try:
             post = Post.objects.get(pk=post_id)
@@ -106,10 +144,56 @@ class PostService:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
         return response
 
-    def create_post(self, **form):
+    # category validation 필요함. category, content, title 이 필수적으로 필요하다.
+    # post가 file이랑 같이 원자단위로 트랜잭션이 발생해야함.
+    # 그러려면 이게 file을 먼저 올리고 그다음 하는게 맞아보이는데요.
+    @restrict_post_create_permission
+    def create_post(self, request):
+        try:
+            category = request.data['category']
+            content = request.data['content']
+            title = request.data['title']
+            author = request.user
+        except KeyError as e:
+            return {"status_code": status.HTTP_204_NO_CONTENT, "message": f"필수 필드 누락: {e}"}
+
+        post_data = {'category': category,
+                     'content': content,
+                     'title': title,
+                     'author': author
+                     }
+        post_serializer = PostSerializer(data=post_data)
+        if not post_serializer.is_valid():
+            return {"message": post_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
+
+        files = request.FILES.getlist('files', None)
+        files_path = UploadService.make_files_path(files)
+        serializers = []
+
+        for f_path in files_path:
+            file_data = {"file_url": f_path, "post": post_data}
+            file_serializer = FileSerializer(data=file_data)
+
+            if file_serializer.is_valid():
+                serializers.append(file_serializer)
+            else:
+                return {"message": file_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
+
+        try:
+            with transaction.atomic():
+                post_serializer.save()
+                for file_ser in serializers:
+                    file_ser.save()
+                UploadService.upload_files(files, files_path)
+                return {"message": "create post object successfully", "status_code": status.HTTP_201_CREATED}
+        except ClientError as e:
+            return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
+        except Exception as e:
+            return {"message": str(e), "status_code": status.HTTP_400_BAD_REQUEST}
+
+    def delete_post(self, request, post_id):
         pass
-        # form을 받아서 content,author, title의 경우는 저장을 하고
-        # 만약 file 이 있다면 file 형태는지금 python obj로 되어있을것이고
-        # 이걸 aws로 올리기전에 시리얼라이즈 한후에 올리고 그걸 저장한다음에
-        # 저장된 위치를 따와서 file models의 url에 저장해야한다.
-        # form이 잘 저장되었거나 file 이 잘 저장되었을 경우 201 status return
+
+    def update_post(self, request, post_id):
+        # 프론트에서 해당 게시글을 알아서 수정한다음 수정본을 서버로 던져주는 개념
+        pass

@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
-
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -89,6 +89,23 @@ DATABASES = {
         "PORT": "3306",
     }
 }
+
+# AWS Setting
+AWS_REGION = 'ap-northeast-2'  # AWS서버의 지역
+AWS_STORAGE_BUCKET_NAME = 'edumaxbucket'  # 생성한 버킷 이름
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # 액서스 키 ID
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # 액서스 키 PW
+# 버킷이름.s3.AWS서버지역.amazonaws.com 형식
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
+
+# Static Setting
+STATIC_URL = "http://%s/static/" % AWS_S3_CUSTOM_DOMAIN
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Media Setting
+MEDIA_URL = "http://%s/media/" % AWS_S3_CUSTOM_DOMAIN
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
