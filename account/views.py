@@ -4,10 +4,17 @@ from .services import *
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from .validators import SignupParamModel, LoginParamModel
+from pydantic import ValidationError
 
 
 class SignUpAPIView(APIView):
     def post(self, request):
+        try:
+            e = SignupParamModel(**request.data)
+        except ValidationError as e:
+            raise exceptions.ParseError(str(e))
+
         userData = SignUpService.get_user_data(request)
 
         res = Response(
@@ -22,6 +29,11 @@ class SignUpAPIView(APIView):
 
 class AuthAPIView(APIView):
     def post(self, request):
+        try:
+            e = LoginParamModel(**request.data)
+        except ValidationError as e:
+            raise exceptions.ParseError(str(e))
+
         loginData = AuthService.loginService(request)
         res = Response(
             {

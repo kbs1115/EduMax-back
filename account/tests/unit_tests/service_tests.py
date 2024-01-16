@@ -34,7 +34,7 @@ class TestSignUpService:
             UniqueValidator, "__call__"
         )  # unique 조건을 test하는 Validator의 __call__ method를 mocking한다.
 
-        with pytest.raises(exceptions.ParseError):
+        with pytest.raises(exceptions.ValidationError):
             SignUpService.get_user_data(mock_request)
 
     def test_signup_with_wrong_email_user_data(
@@ -46,7 +46,7 @@ class TestSignUpService:
             UniqueValidator, "__call__"
         )  # unique 조건을 test하는 Validator의 __call__ method를 mocking한다.
 
-        with pytest.raises(exceptions.ParseError):
+        with pytest.raises(exceptions.ValidationError):
             SignUpService.get_user_data(mock_request)
 
 
@@ -71,5 +71,5 @@ class TestAuthService:
         mock_authenticate = mocker.patch("account.services.authenticate")
         mock_authenticate.return_value = None
 
-        with pytest.raises(exceptions.ParseError):
+        with pytest.raises(exceptions.ValidationError):
             AuthService.loginService(mock_request)

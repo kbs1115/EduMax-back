@@ -1,5 +1,5 @@
 import pytest
-from account.domain import UserValidator
+from account.validators import UserValidator
 from django.core.exceptions import ValidationError
 from account.models import User
 
