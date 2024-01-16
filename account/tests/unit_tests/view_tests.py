@@ -10,10 +10,21 @@ from rest_framework import status
 class TestSignupView:
     def test_signup_with_invalid_data(self, mocker, invalid_request_data_wrong_email):
         mocker_get_user_data = mocker.patch.object(SignUpService, "get_user_data")
-        mocker_get_user_data.side_effect = exceptions.ParseError(
+        mocker_get_user_data.side_effect = exceptions.ValidationError(
             "InvalidDataError_signup"
         )
         mock_request = Mock(data=invalid_request_data_wrong_email)
+
+        with pytest.raises(exceptions.ValidationError):
+            signup = SignUpAPIView()
+            signup.post(mock_request)
+
+    def test_signup_with_missing_data(self, mocker, invalid_request_data_omitted):
+        mocker_get_user_data = mocker.patch.object(SignUpService, "get_user_data")
+        mocker_get_user_data.side_effect = exceptions.ParseError(
+            "InvalidDataError_signup"
+        )
+        mock_request = Mock(data=invalid_request_data_omitted)
 
         with pytest.raises(exceptions.ParseError):
             signup = SignUpAPIView()
@@ -60,8 +71,17 @@ class TestAuthView:
 
     def test_login_with_invalid_data(self, mocker, invalid_login_data):
         mocker_loginService = mocker.patch.object(AuthService, "loginService")
-        mocker_loginService.side_effect = exceptions.ParseError("InvalidUserError")
+        mocker_loginService.side_effect = exceptions.ValidationError("InvalidUserError")
         mock_request = Mock(data=invalid_login_data)
+
+        with pytest.raises(exceptions.ValidationError):
+            login = AuthAPIView()
+            login.post(mock_request)
+
+    def test_login_with_strange_key(self, mocker, invalid_login_data_with_strange_key):
+        mocker_loginService = mocker.patch.object(AuthService, "loginService")
+        mocker_loginService.side_effect = exceptions.ValidationError("InvalidUserError")
+        mock_request = Mock(data=invalid_login_data_with_strange_key)
 
         with pytest.raises(exceptions.ParseError):
             login = AuthAPIView()

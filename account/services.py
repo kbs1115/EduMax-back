@@ -11,7 +11,7 @@ class SignUpService:
             serializer.save()
             return serializer.validated_data
         else:
-            raise exceptions.ParseError("InvalidDataError_signup")
+            raise exceptions.ValidationError(serializer.errors)
 
 
 class AuthService:
@@ -33,4 +33,6 @@ class AuthService:
                 "accessToken": accessToken,
             }
         else:
-            raise exceptions.ParseError("InvalidUserError")
+            raise exceptions.ValidationError(
+                "The provided information does not match any user."
+            )
