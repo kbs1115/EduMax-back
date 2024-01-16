@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 from django.db import models, IntegrityError
 from account.models import User
 from community.domain.categories import CategoryDepth1, CategoryDepth2, CategoryDepth3, CategoryDepth4
@@ -71,6 +72,15 @@ class Like(models.Model):
     def clean(self):
         super().clean()
         LikeValidator.validate(self)
+
+
+class File(models.Model):
+    file_url = models.URLField(validators=[URLValidator()])
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name="files")
+    comment = models.ForeignKey(
+        Comment, on_delete=models.CASCADE, null=True, blank=True, related_name="files"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Lecture(models.Model):
