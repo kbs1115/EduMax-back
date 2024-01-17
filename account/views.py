@@ -35,9 +35,12 @@ class AuthAPIView(APIView):
             raise exceptions.ParseError(str(e))
 
         loginData = AuthService.loginService(request)
+        userData = loginData["userData"]
+        userData.pop("password", None)
+
         res = Response(
             {
-                "user": loginData["userData"],
+                "user": userData,
                 "message": "login success",
                 "token": {
                     "access": loginData["accessToken"],
