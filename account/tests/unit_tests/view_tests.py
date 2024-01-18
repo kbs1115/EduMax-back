@@ -16,7 +16,7 @@ class TestSignupView:
         mock_request = Mock(data=invalid_request_data_wrong_email)
 
         with pytest.raises(exceptions.ValidationError):
-            signup = SignUpAPIView()
+            signup = UserAPIView()
             signup.post(mock_request)
 
     def test_signup_with_missing_data(self, mocker, invalid_request_data_omitted):
@@ -27,7 +27,7 @@ class TestSignupView:
         mock_request = Mock(data=invalid_request_data_omitted)
 
         with pytest.raises(exceptions.ParseError):
-            signup = SignUpAPIView()
+            signup = UserAPIView()
             signup.post(mock_request)
 
     def test_signup_with_valid_data(self, mocker, valid_request_data):
@@ -36,7 +36,7 @@ class TestSignupView:
         mocker_get_user_data.return_value = valid_request_data
         mock_request = Mock(data=valid_request_data)
 
-        signup = SignUpAPIView()
+        signup = UserAPIView()
         actualResponse = signup.post(mock_request)
         actualData = actualResponse.data
 

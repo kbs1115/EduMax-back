@@ -1,7 +1,21 @@
 from .serializers import *
-from rest_framework import exceptions
+from rest_framework import exceptions, permissions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+
+class UserPermission(permissions.BasePermission):
+    def has_permission(self, request, view):
+        if request.method is "POST":
+            return not request.user
+        else:
+            return request.user
+
+    def has_object_permission(self, request, view, obj):
+        if request.method is "POST":
+            return True
+        else:
+            return request.user == obj
 
 
 class SignUpService:
