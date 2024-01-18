@@ -31,8 +31,7 @@ class PostView(APIView):
                                 )
 
     # form validation 검사 필요함.
-    # form이 넘어오잖슴. json 이 아니라 multy content type.
-    @login_required
+    # @login_required
     def post(self, request):
         response = self.post_service.create_post(request)
         return JsonResponse(status=response.get("status_code"),

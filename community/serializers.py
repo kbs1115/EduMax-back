@@ -19,8 +19,8 @@ class PostSerializer(serializers.ModelSerializer):
 
 
 class FileSerializer(serializers.ModelSerializer):
-    post = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all())
-    comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all())
+    post = serializers.PrimaryKeyRelatedField(queryset=Post.objects.all(), allow_null=True, required=False)
+    comment = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all(), allow_null=True, required=False)
 
     class Meta:
         model = File

@@ -2,6 +2,7 @@ import uuid
 
 import status as status
 from botocore.exceptions import ClientError
+from django.contrib.auth.hashers import make_password
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
@@ -9,6 +10,8 @@ from django.db import transaction
 from django.db.models import Q, Count
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 
+from account.models import User
+from community.domain.categories import PostCategories
 from community.models import Post
 from community.serializers import PostSerializer, FileSerializer
 from community.service.define import PostSearchFilterParam, PostSortCategoryParam
@@ -36,10 +39,11 @@ class UploadService:
 
     @classmethod
     def make_files_path(cls, files):
+        # s3 에서 해당 파일의 id 역할을 한다.
         files_path = []
-        unique_id = str(uuid.uuid4())
         for file in files:
-            file_path = f"{unique_id}_{file.name}"
+            unique_id = str(uuid.uuid4())
+            file_path = f"media/{unique_id}_{file.name}"
             files_path.append(file_path)
         return files_path
 
@@ -144,47 +148,56 @@ class PostService:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
         return response
 
-    # category validation 필요함. category, content, title 이 필수적으로 필요하다.
-    # post가 file이랑 같이 원자단위로 트랜잭션이 발생해야함.
-    # 그러려면 이게 file을 먼저 올리고 그다음 하는게 맞아보이는데요.
-    @restrict_post_create_permission
     def create_post(self, request):
+        # service layer validation
         try:
             category = request.data['category']
             content = request.data['content']
             title = request.data['title']
-            author = request.user
+
+            # user 가 없어서 임의로 만든다음 집어넣었음
+            author = User.objects.get(id=1)
+            # 만약 user 부분이 merge 되면 윗줄 삭제, 밑의 주석 해체
+            # author = request.user
+
+            # restrict_post_create_permission
+            if category == PostCategories.NOTICE:
+                if not (author.is_superuser or author.is_staff):
+                    return {'message': 'Permission Denied',
+                            "status_code": status.HTTP_403_FORBIDDEN}
         except KeyError as e:
             return {"status_code": status.HTTP_204_NO_CONTENT, "message": f"필수 필드 누락: {e}"}
 
+        # request.data 로 부터 post model 부분 분리
         post_data = {'category': category,
                      'content': content,
                      'title': title,
-                     'author': author
+                     'author': author.id
                      }
         post_serializer = PostSerializer(data=post_data)
         if not post_serializer.is_valid():
             return {"message": post_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
 
+        # file 가져오고 file_path 생성
         files = request.FILES.getlist('files', None)
         files_path = UploadService.make_files_path(files)
-        serializers = []
-
-        for f_path in files_path:
-            file_data = {"file_url": f_path, "post": post_data}
-            file_serializer = FileSerializer(data=file_data)
-
-            if file_serializer.is_valid():
-                serializers.append(file_serializer)
-            else:
-                return {"message": file_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
-
         try:
             with transaction.atomic():
-                post_serializer.save()
-                for file_ser in serializers:
-                    file_ser.save()
-                UploadService.upload_files(files, files_path)
+                post = post_serializer.save()
+
+                if files:
+                    serialized_list = []
+                    for f_path in files_path:
+                        file_data = {"file_location": f_path, "post": post.id}
+                        file_serializer = FileSerializer(data=file_data)
+
+                        if file_serializer.is_valid():
+                            serialized_list.append(file_serializer)
+                        else:
+                            return {"message": file_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
+                    for file_ser in serialized_list:
+                        file_ser.save()
+                    UploadService.upload_files(files, files_path)
                 return {"message": "create post object successfully", "status_code": status.HTTP_201_CREATED}
         except ClientError as e:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
