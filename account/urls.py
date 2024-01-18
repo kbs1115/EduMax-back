@@ -3,6 +3,9 @@ from .views import AuthAPIView, SignUpAPIView, TestViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework import routers
 
+
+app_name = "account"
+
 router = routers.DefaultRouter()
 router.register("test", TestViewSet)
 

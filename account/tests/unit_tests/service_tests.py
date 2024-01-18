@@ -6,7 +6,6 @@ from account.models import User
 from unittest.mock import Mock
 from rest_framework import exceptions
 from rest_framework.validators import UniqueValidator
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 class TestSignUpService:

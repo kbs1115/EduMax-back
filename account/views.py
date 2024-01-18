@@ -32,7 +32,7 @@ class AuthAPIView(APIView):
         try:
             e = LoginParamModel(**request.data)
         except ValidationError as e:
-            raise exceptions.ParseError(str(e))
+            raise exceptions.ParseError("invalid data form")
 
         loginData = AuthService.loginService(request)
         userData = loginData["userData"]
