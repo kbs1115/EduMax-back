@@ -49,7 +49,8 @@ def restrict_post_create_permission(service_func):
     """
 
     @wraps(service_func)
-    def wrapper(request, *args, **kwargs):
+    def wrapper(*args, **kwargs):
+        request = args[1]
         category = request.data.get('category')  # json body내에서 category를 찾는다.
         if category == PostCategories.NOTICE:
             user = request.user
@@ -58,7 +59,7 @@ def restrict_post_create_permission(service_func):
                                     status=status.HTTP_403_FORBIDDEN)
             else:
                 # 만약 카테고리가 notice_board가 아니거나 notice_board지만 user가 staff이상이라면 view 엑세스
-                return service_func(request, *args, **kwargs)
+                return service_func(*args, **kwargs)
 
     return wrapper
 
@@ -116,27 +117,4 @@ def validate_path_params(model: Type[BaseModel]):
 
     return decorated_func
 
-def validate_path_params(model: Type[BaseModel]):
-    """
-        <설명>
-        만약 path_param이 없을시 넘어간다.
-        잘못된 path_param일시 400 response를 return 한다.
-    """
 
-    def decorated_func(f):
-        @wraps(f)
-        def wrapper(*args, **kwargs):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
-            if kwargs:
-                try:
-                    model(**kwargs)
-                except ValueError as e:
-                    return JsonResponse(
-                        status=status.HTTP_400_BAD_REQUEST,
-                        data={"message": str(e)},
-                    )
-
-            return f(*args, **kwargs)
-
-        return wrapper
-
-    return decorated_func

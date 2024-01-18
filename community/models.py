@@ -75,10 +75,10 @@ class Like(models.Model):
 
 
 class File(models.Model):
-    file_url = models.URLField(validators=[URLValidator()])
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name="files")
+    file_location = models.TextField()
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name="files", default=None)
     comment = models.ForeignKey(
-        Comment, on_delete=models.CASCADE, null=True, blank=True, related_name="files"
+        Comment, on_delete=models.CASCADE, null=True, blank=True, related_name="files", default=None
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
