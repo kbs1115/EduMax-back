@@ -13,7 +13,6 @@ class TestUserSerializer:
             "login_id": "kbs1115",
             "email": "bruce1115@naver.com",
             "nickname": "KKKBBBSSS",
-            "password": "pwpwpwpw",
         }
 
     def test_model_deserialization(self, valid_serialized_data, mocker):

@@ -8,7 +8,9 @@ from .validators import SignupParamModel, LoginParamModel
 from pydantic import ValidationError
 
 
-class SignUpAPIView(APIView):
+class UserAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser, UserPermission]
+
     def post(self, request):
         try:
             e = SignupParamModel(**request.data)
@@ -26,6 +28,43 @@ class SignUpAPIView(APIView):
         )
         return res
 
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+
+        res = Response(serializer.data, status=status.HTTP_200_OK)
+        return res
+
+
+class CertainUserAPIView(APIView):
+    permission_classes = [permissions.IsAdminUser, UserPermission]
+
+    def get_user(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise exceptions.NotFound("user not found")
+
+    def get(self, request, pk):
+        user = self.get_user(pk)
+        serializer = UserSerializer(user)
+
+        res = Response(serializer.data, status=status.HTTP_200_OK)
+        return res
+
+    def put(self, request, pk):
+        user = self.get_user(pk)
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        user = self.get_user(pk)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class AuthAPIView(APIView):
     def post(self, request):
@@ -35,12 +74,10 @@ class AuthAPIView(APIView):
             raise exceptions.ParseError("invalid data form")
 
         loginData = AuthService.loginService(request)
-        userData = loginData["userData"]
-        userData.pop("password", None)
 
         res = Response(
             {
-                "user": userData,
+                "user": loginData["userData"],
                 "message": "login success",
                 "token": {
                     "access": loginData["accessToken"],
