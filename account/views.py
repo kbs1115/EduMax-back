@@ -4,12 +4,18 @@ from .services import *
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .validators import SignupParamModel, LoginParamModel
+from .validators import SignupParamModel, LoginParamModel, PatchUserModel
 from pydantic import ValidationError
 
 
 class UserAPIView(APIView):
     permission_classes = [permissions.IsAdminUser, UserPermission]
+
+    def get(self, request):
+        dataOfMe = UserService.get_serializer_data(request, None)
+        res = Response(dataOfMe, status=status.HTTP_200_OK)
+
+        return res
 
     def post(self, request):
         try:
@@ -28,42 +34,51 @@ class UserAPIView(APIView):
         )
         return res
 
-    def get(self, request):
-        user = request.user
-        serializer = UserSerializer(user)
+    def patch(self, request):
+        try:
+            e = PatchUserModel(**request.data)
+        except ValidationError as e:
+            raise exceptions.ParseError(str(e))
 
-        res = Response(serializer.data, status=status.HTTP_200_OK)
+        if request.data["email"] == None and request.data["nickname"] == None:
+            raise exceptions.ParseError("There is no data to update")
+
+        updatedDataOfMe = UserService.update_user(request, None)
+        res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
+
         return res
+
+    def delete(self, request):
+        UserService.delete_user(request, None)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class CertainUserAPIView(APIView):
     permission_classes = [permissions.IsAdminUser, UserPermission]
 
-    def get_user(self, pk):
-        try:
-            return User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            raise exceptions.NotFound("user not found")
-
     def get(self, request, pk):
-        user = self.get_user(pk)
-        serializer = UserSerializer(user)
+        userData = UserService.get_serializer_data(request, pk)
+        res = Response(userData, status=status.HTTP_200_OK)
 
-        res = Response(serializer.data, status=status.HTTP_200_OK)
         return res
 
-    def put(self, request, pk):
-        user = self.get_user(pk)
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def patch(self, request, pk):
+        try:
+            e = PatchUserModel(**request.data)
+        except ValidationError as e:
+            raise exceptions.ParseError(str(e))
+
+        if request.data["email"] == None and request.data["nickname"] == None:
+            raise exceptions.ParseError("There is no data to update")
+
+        updatedUserData = UserService.update_me(request, pk)
+        res = Response(updatedUserData, status=status.HTTP_200_OK)
+
+        return res
 
     def delete(self, request, pk):
-        user = self.get_user(pk)
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        UserService.delete_user(request, pk)
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class AuthAPIView(APIView):
