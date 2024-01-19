@@ -1,5 +1,6 @@
 from django.core.validators import RegexValidator
 from pydantic import BaseModel
+from typing import Optional
 
 
 class UserValidator:
@@ -23,3 +24,8 @@ class SignupParamModel(BaseModel):
 class LoginParamModel(BaseModel):
     login_id: str
     password: str
+
+
+class PatchUserModel(BaseModel):
+    email: Optional[str]
+    nickname: Optional[str]
