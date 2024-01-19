@@ -194,10 +194,12 @@ class PostService:
                         if file_serializer.is_valid():
                             serialized_list.append(file_serializer)
                         else:
+                            transaction.set_rollback(True)
                             return {"message": file_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
                     for file_ser in serialized_list:
                         file_ser.save()
                     UploadService.upload_files(files, files_path)
+
                 return {"message": "create post object successfully", "status_code": status.HTTP_201_CREATED}
         except ClientError as e:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}

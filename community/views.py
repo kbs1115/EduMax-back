@@ -30,8 +30,7 @@ class PostView(APIView):
                                     "data": response.get("data", None)},
                                 )
 
-    # form validation 검사 필요함.
-    # @login_required
+    @login_required
     def post(self, request):
         response = self.post_service.create_post(request)
         return JsonResponse(status=response.get("status_code"),
@@ -39,8 +38,6 @@ class PostView(APIView):
                                 "message": response.get("message", None),
                                 "data": response.get("data", None)},
                             )
-        # content type 이 json이 아니므로 파싱 필요함
-        # 파싱이후 file은 aws에 저장하고 나머지는 db에 저장함.(service 단에서 처리)
 
     @validate_path_params(PostPathParam)
     @login_required
