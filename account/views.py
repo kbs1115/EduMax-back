@@ -40,10 +40,10 @@ class UserAPIView(APIView):
         try:
             e = PatchUserModel(**request.data)
         except ValidationError as e:
-            raise exceptions.ParseError(str(e))
+            raise exceptions.ParseError("invalid data format")
 
-        if request.data["email"] == None and request.data["nickname"] == None:
-            raise exceptions.ParseError("There is no data to update")
+        if request.data.get("email") == None and request.data.get("nickname") == None:
+            raise exceptions.ParseError("invalid data format")
 
         updatedDataOfMe = self.userService.update_user(self, request, None)
         res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
@@ -72,7 +72,7 @@ class CertainUserAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
 
-        if request.data["email"] == None and request.data["nickname"] == None:
+        if request.data.get("email") == None and request.data.get("nickname") == None:
             raise exceptions.ParseError("There is no data to update")
 
         updatedUserData = self.userService.update_user(self, request, pk)
