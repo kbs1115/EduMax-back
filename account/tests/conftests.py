@@ -1,11 +1,27 @@
 import pytest
 from account.models import User
 from rest_framework.test import APIClient
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
 @pytest.fixture
 def client():
     return APIClient()
+
+
+@pytest.fixture
+def logined_client():
+    client = APIClient()
+    user = User.objects.create_user(
+        login_id="kbs1115",
+        email="bruce1115@naver.com",
+        nickname="KKKBBBSSS",
+        password="pwpwpwpw",
+    )
+    token = TokenObtainPairSerializer.get_token(user)
+    client.credentials(HTTP_AUTHORIZATION=f"Bearer {token.access_token}")
+
+    return client
 
 
 @pytest.fixture

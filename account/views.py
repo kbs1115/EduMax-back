@@ -9,10 +9,12 @@ from pydantic import ValidationError
 
 
 class UserAPIView(APIView):
-    permission_classes = [permissions.IsAdminUser, UserPermission]
+    permission_classes = [UserPermission]
+
+    userService = UserService()
 
     def get(self, request):
-        dataOfMe = UserService.get_serializer_data(request, None)
+        dataOfMe = self.userService.get_serializer_data(self, request, None)
         res = Response(dataOfMe, status=status.HTTP_200_OK)
 
         return res
@@ -43,21 +45,23 @@ class UserAPIView(APIView):
         if request.data["email"] == None and request.data["nickname"] == None:
             raise exceptions.ParseError("There is no data to update")
 
-        updatedDataOfMe = UserService.update_user(request, None)
+        updatedDataOfMe = self.userService.update_user(self, request, None)
         res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
 
         return res
 
     def delete(self, request):
-        UserService.delete_user(request, None)
+        self.userService.delete_user(self, request, None)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class CertainUserAPIView(APIView):
-    permission_classes = [permissions.IsAdminUser, UserPermission]
+    permission_classes = [UserPermission]
+
+    userService = UserService()
 
     def get(self, request, pk):
-        userData = UserService.get_serializer_data(request, pk)
+        userData = self.userService.get_serializer_data(self, request, pk)
         res = Response(userData, status=status.HTTP_200_OK)
 
         return res
@@ -71,13 +75,13 @@ class CertainUserAPIView(APIView):
         if request.data["email"] == None and request.data["nickname"] == None:
             raise exceptions.ParseError("There is no data to update")
 
-        updatedUserData = UserService.update_me(request, pk)
+        updatedUserData = self.userService.update_user(self, request, pk)
         res = Response(updatedUserData, status=status.HTTP_200_OK)
 
         return res
 
     def delete(self, request, pk):
-        UserService.delete_user(request, pk)
+        self.userService.delete_user(self, request, pk)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
