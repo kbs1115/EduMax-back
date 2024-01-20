@@ -2,6 +2,7 @@ import pytest
 from account.tests.conftests import *
 from account.serializers import UserSerializer
 from account.services import *
+from account.views import *
 from account.models import User
 from unittest.mock import Mock
 from rest_framework import exceptions
@@ -50,14 +51,16 @@ class TestSignUpService:
 
 
 class TestUserService:
+    mock_request = Mock()
+    mock_view = Mock()
+
     # get_user에 관련된 함수를 한번에 테스트
     def test_get_serializer_data(self, mocker, user_instance):
         mock_get_user = mocker.patch.object(UserService, "get_user")
         mock_get_user.return_value = user_instance
-        mock_request = Mock()
 
         userService = UserService()
-        data = userService.get_serializer_data(mock_request, 1)
+        data = userService.get_serializer_data(self.mock_view, self.mock_request, 1)
 
         assert data == {
             "login_id": "kbs1115",
@@ -73,7 +76,7 @@ class TestUserService:
         mock_save = mocker.patch.object(User, "save")
 
         userService = UserService()
-        data = userService.update_user(mock_request, 1)
+        data = userService.update_user(self.mock_view, mock_request, 1)
 
         mock_save.assert_called_once()
         assert data == {
@@ -91,7 +94,7 @@ class TestUserService:
 
         with pytest.raises(exceptions.ValidationError):
             userService = UserService()
-            data = userService.update_user(mock_request, 1)
+            data = userService.update_user(self.mock_view, mock_request, 1)
 
     def test_delete_user(self, mocker, user_instance):
         mock_get_user = mocker.patch.object(UserService, "get_user")
@@ -100,7 +103,7 @@ class TestUserService:
         mock_delete = mocker.patch.object(User, "delete")
 
         userService = UserService()
-        userService.delete_user(mock_request, 1)
+        userService.delete_user(self.mock_view, mock_request, 1)
 
         mock_delete.assert_called_once()
 
@@ -113,7 +116,7 @@ class TestUserService:
 
         with pytest.raises(exceptions.APIException):
             userService = UserService()
-            userService.delete_user(mock_request, 1)
+            userService.delete_user(self.mock_view, mock_request, 1)
 
 
 class TestAuthService:
