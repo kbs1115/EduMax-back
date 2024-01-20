@@ -12,12 +12,16 @@ def client():
 @pytest.fixture
 def logined_client():
     client = APIClient()
-    user = User.objects.create_user(
+    user = User(
+        id=1,
         login_id="kbs1115",
         email="bruce1115@naver.com",
         nickname="KKKBBBSSS",
         password="pwpwpwpw",
     )
+    user.save()
+    user2 = User(id=2)
+    user2.save()
     token = TokenObtainPairSerializer.get_token(user)
     client.credentials(HTTP_AUTHORIZATION=f"Bearer {token.access_token}")
 

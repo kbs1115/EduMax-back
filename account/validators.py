@@ -27,5 +27,5 @@ class LoginParamModel(BaseModel):
 
 
 class PatchUserModel(BaseModel):
-    email: Optional[str]
-    nickname: Optional[str]
+    email: Optional[str] = None
+    nickname: Optional[str] = None

@@ -76,6 +76,10 @@ class TestUserView:
         assert res.data == valid_user_data
         assert res.status_code == 200
 
+        mock_request = Mock(user=user_instance, data={"nickname": "KKBBBS"})
+        res = api.patch(mock_request)
+        assert res.status_code == 200
+
         with pytest.raises(exceptions.ParseError):
             mock_request = Mock(user=user_instance, data=invalid_patch_data)
             res = api.patch(mock_request)
