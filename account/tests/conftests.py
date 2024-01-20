@@ -91,3 +91,27 @@ def invalid_serialized_data():
         "nickname": "KKKBBBSSS",
         "password": "pwpwpwpw",
     }
+
+
+@pytest.fixture
+def valid_user_data():
+    return {
+        "login_id": "kbs1115",
+        "email": "bruce1115@naver.com",
+        "nickname": "KKKBBBSSS",
+    }
+
+
+@pytest.fixture
+def valid_patch_data():
+    return {
+        "email": "bruce1116@naver.com",
+        "nickname": "KKKBBBSSS",
+    }
+
+
+@pytest.fixture
+def invalid_patch_data():
+    return {
+        "emaile": "bruce1116@naver.com",
+    }
