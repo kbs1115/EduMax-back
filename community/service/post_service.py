@@ -1,5 +1,5 @@
 import uuid
-
+from django.forms.models import model_to_dict
 import status as status
 from botocore.exceptions import ClientError
 from django.contrib.auth.hashers import make_password
@@ -8,17 +8,18 @@ from django.core.files.storage import default_storage
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q, Count
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 
 from account.models import User
 from community.domain.categories import PostCategories
-from community.models import Post
-from community.serializers import PostSerializer, FileSerializer
-from community.service.define import PostSearchFilterParam, PostSortCategoryParam
+from community.models import Post, File
+from community.serializers import PostSerializer, FileSerializer, PostListSerializer
+from community.service.define import PostSearchFilterParam, PostSortCategoryParam, PostPageNumberPagination
 from rest_framework import status
 from django.core.exceptions import ObjectDoesNotExist
 
-from community.service.validation import restrict_post_create_permission
+
 
 
 class UploadService:
@@ -31,11 +32,16 @@ class UploadService:
             file = files[i]
             path = paths[i]
             try:
-                default_storage.save(path, ContentFile(file.read()))
+                default_storage.save(path, ContentFile(file.read()))  # 장고에서 모든 request.Files는 contentFile instance에 속함
             except ClientError as e:
                 raise e
             except Exception as e:
                 raise e
+
+    @classmethod
+    def download_files(cls, paths):
+        # front 에서 file path 만 주고 직접 다운로드 할수 있게 한다.
+        pass
 
     @classmethod
     def make_files_path(cls, files):
@@ -49,23 +55,23 @@ class UploadService:
 
 
 class PostService:
-    """
-        <설명>
-        - post_id를 받아서 select 후 return 한다.
-        - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
-    """
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def retrieve_post(self, post_id):
+        """
+            <설명>
+            - post_id를 받아서 select 후 return 한다.
+            - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
+        """
         try:
             post = Post.objects.get(pk=post_id)
             serializer = PostSerializer(post)
-
             # view 함수로 넘겨주기
             return {"status": status.HTTP_200_OK,
                     "message": "post retrieve successfully",
                     "data": serializer.data,
                     }
+
         # 해당 게시글이 존재하지않을 때
         except Post.DoesNotExist:
             # view 함수로 넘겨주기
@@ -79,7 +85,7 @@ class PostService:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
                     "message": str(e)}
 
-    def list_posts(self, validated_query_params):
+    def list_posts(self, request, validated_query_params):
         """
             <설명>
                 - validator을 지난 param을 가지고 조건에 맞게 select후 return.
@@ -96,9 +102,8 @@ class PostService:
         category = validated_query_params.category
         search_filter = validated_query_params.search_filter
         kw = validated_query_params.q
-        page = validated_query_params.page
         sort = validated_query_params.sort
-
+        page = validated_query_params.page
         try:
             # category에 따른 정렬
             posts = Post.objects.filter(category=category).all()
@@ -115,8 +120,8 @@ class PostService:
                 posts = posts.filter(Q(title__icontains=kw))
 
             # posts가 빈 쿼리셋이 아닐시 sort에 맞게 정렬
-            if posts and sort == PostSortCategoryParam.CREATE_AT:
-                posts = posts.order("-" + str(PostSortCategoryParam.CREATE_AT))
+            if posts and sort == PostSortCategoryParam.CREATED_AT:
+                posts = posts.order_by("-" + str(PostSortCategoryParam.CREATED_AT))
             elif posts and sort == PostSortCategoryParam.MOST_LIKE:
                 posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
 
@@ -125,28 +130,18 @@ class PostService:
 
         # paging 처리
         try:
-            paginator = Paginator(posts, 15)
-            page_obj = paginator.get_page(page)
+            pagination = Paginator(posts, 15)
+            page_obj = pagination.page(page).object_list
         except Exception as e:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
-
-        # 시리얼라이즈
         try:
-            if page_obj:
-                serializer = PostSerializer(page_obj)
-                response = {"status_code": status.HTTP_200_OK,
-                            "message": "posts listed successfully",
-                            "data": serializer.data,
-                            }
-            else:
-                # 만약 없으면 빈배열
-                response = {"status_code": status.HTTP_200_OK,
-                            "message": "there are no posts at all",
-                            "data": {},
-                            }
+            post_serializer = PostListSerializer(page_obj, many=True)
+            return {"status": status.HTTP_200_OK,
+                    "message": f"page: {page} list successfully",
+                    "data": post_serializer.data,
+                    }
         except Exception as e:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
-        return response
 
     def create_post(self, request):
         # service layer validation
@@ -154,6 +149,7 @@ class PostService:
             category = request.data['category']
             content = request.data['content']
             title = request.data['title']
+            html_content = request.data['html_content']
 
             # user 가 없어서 임의로 만든다음 집어넣었음
             author = User.objects.get(id=1)
@@ -170,6 +166,7 @@ class PostService:
 
         # request.data 로 부터 post model 부분 분리
         post_data = {'category': category,
+                     'html_content': html_content,
                      'content': content,
                      'title': title,
                      'author': author.id

@@ -1,23 +1,32 @@
 from enum import Enum
 
+from rest_framework.pagination import PageNumberPagination
+
 """----------------------------------------------------------------------------"""
 
 
 # query_param 정의
 
-class PostSearchFilterParam(str, Enum):
+class PostSearchFilterParam(Enum):
+    # name 이 왼쪽, value 가 오른쪽
     AUTHOR = "AUTHOR"
     CONTENT = "CONTENT"
     TITLE = "TITLE"
     TOTAL = "TOTAL"
 
+    def __str__(self):
+        return self.value
 
-class PostSortCategoryParam(str, Enum):
-    CREATE_AT = "create_at"
+
+class PostSortCategoryParam(Enum):
+    CREATED_AT = "created_at"
     MOST_LIKE = "MOST_LIKE"
 
+    def __str__(self):
+        return self.value
 
-class PostCategoriesParam(str, Enum):
+
+class PostCategoriesParam(Enum):
     FREE = "FR"
     NOTICE = "NO"
     KOREAN_QUESTION = "KQ"
@@ -27,5 +36,12 @@ class PostCategoriesParam(str, Enum):
     ENG_DATA = "ED"
     MATH_DATA = "MD"
 
+    def __str__(self):
+        return self.value
+
 
 """----------------------------------------------------------------------------"""
+
+
+class PostPageNumberPagination(PageNumberPagination):
+    page_size = 15
