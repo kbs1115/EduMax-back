@@ -1,6 +1,4 @@
-from django.core.exceptions import ValidationError
-from django.core.validators import URLValidator
-from django.db import models, IntegrityError
+from django.db import models
 from account.models import User
 from community.domain.categories import CategoryDepth1, CategoryDepth2, CategoryDepth3, CategoryDepth4
 from community.domain.validation import CategoryValidator, LikeValidator, PostCategories
@@ -10,13 +8,22 @@ class Post(models.Model):
     """
     <설명>
     커뮤니티의 게시글이다. 모든 게시글의 종류는 category field로 인해 정해진다.
+    ckeditor로 부터 받은 html 형식을 html_content에 저장후 해당 게시글을 요청할때 돌려준다.
 
     <필드>
     category: 게시글의 종류를 나타내는 category field이다.
               community.domain.categories에서 정의하고있다.
+    html_content: tag 등이 그대로 남아있는 상태의 content
+    content: tag 등이 js redux로 제거된 상태의 content
+
+    <고려사항>
+    ckeditor에서 content 뿐만 아니라 title 도 포함할 수 있다.
+    -> 해당 아이디어 적용시 html_content 에는 title 도 포함(필드 네임 수정 하는게 좋아 보임)
     """
+
     title = models.CharField(max_length=30)
     content = models.TextField()
+    html_content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
     category = models.CharField(
@@ -33,8 +40,11 @@ class Comment(models.Model):
         <필드>
         parent_comment: 대댓글 기능으로 같은 comment model 클래스의 인스턴스를 외래키로 참조하고있다.
                         depth 는 모델에서 따로 제한하지 않는다.
+        html_content: tag 등이 그대로 남아있는 상태의 content
+        content: tag 등이 js redux로 제거된 상태의 content
     """
     content = models.TextField()
+    html_content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     parent_comment = models.ForeignKey("self", on_delete=models.CASCADE)
@@ -68,7 +78,7 @@ class Like(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # valid시 like model의 필드 validator 실행
+    # valid시 like model의 필드 validator 실행 -> 수정 필요 serializer의 validate 에 들어가야함.
     def clean(self):
         super().clean()
         LikeValidator.validate(self)
@@ -106,7 +116,7 @@ class Lecture(models.Model):
         max_length=3, choices=CategoryDepth4.choices, null=True, blank=True
     )
 
-    # db 저장전 category의 validation을 실행
+    # db 저장전 category의 validation을 실행 -> 수정 필요 serializer의 validate 에 들어가야함.
     def save(self, *args, **kwargs):
         CategoryValidator.validate(self)
         super().save(*args, **kwargs)
