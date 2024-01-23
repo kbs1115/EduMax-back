@@ -140,7 +140,7 @@ class PostService:
         except KeyError as e:
             return {"status_code": status.HTTP_400_BAD_REQUEST, "message": f"필수 필드 누락: {e}"}
 
-        # request.data 로 부터 post model부분 분리
+        # request.data 로 부터 post model 분리
         post_data = {'category': category,
                      'html_content': html_content,
                      'content': content,
@@ -187,8 +187,8 @@ class PostService:
         try:
             with transaction.atomic():
                 instance = FileService()
-                instance.delete_files(post)
-                post.delete()
+                instance.delete_files(post)  # file 삭제
+                post.delete()  # post 삭제
                 return {"message": "Resource deleted successfully", "status_code": status.HTTP_204_NO_CONTENT}
         except Exception as e:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
