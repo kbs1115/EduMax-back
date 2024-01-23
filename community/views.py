@@ -13,7 +13,6 @@ class PostView(APIView):
     def __init__(self):
         self.post_service = PostService()
 
-    # need validation query_param
     @validate_path_params(PostPathParam)
     @validate_query_params(PostQueryParam)
     def get(self, request, post_id=None, validated_query_params=None):
