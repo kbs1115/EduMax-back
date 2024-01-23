@@ -22,7 +22,7 @@ class PostService:
     def retrieve_post(self, post_id):
         """
             <설명>
-            - post_id를 받아서 select 후 return 한다.
+            - post_id를 받아서 select 후 알맞은 file model instances와 같이 return 한다.
             - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
         """
         try:
@@ -94,6 +94,8 @@ class PostService:
             list_size = len(page_obj)
         except Exception as e:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
+
+        # 직렬화
         try:
             post_serializer = PostListSerializer(page_obj, many=True)
             return {"status": status.HTTP_200_OK,
@@ -107,6 +109,17 @@ class PostService:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
 
     def create_post(self, request):
+        """
+            <설명>
+                - post를 생성할때 쓰인다.
+                - files 와 post에 필요한 form을 받아서 저장한다.
+            <로직>
+                1. service 단 validation ->필수필드 확인, category에 맞는 permision 확인
+                2. post model 부분 분리 후 시리얼라이즈 유효성 검사
+                3. 트랜잭션 단위 설정 후 post 저장
+                4. file 부분 분리후 FileSerivce 인스턴스 생성
+                5. file 부분 저장
+        """
         # service layer validation
         try:
             category = request.data['category']
@@ -141,7 +154,7 @@ class PostService:
             with transaction.atomic():
                 post = post_serializer.save()
 
-                # file 처리
+                # file 생성
                 files = request.FILES.getlist('files', None)
                 if files:
                     instance = FileService()
@@ -153,6 +166,17 @@ class PostService:
             return {"message": str(e), "status_code": status.HTTP_400_BAD_REQUEST}
 
     def delete_post(self, post_id):
+        """
+            <설명>
+                - post를 삭제할때 쓰인다.
+                - post와 연관있는 파일들도 같이 삭제된다.
+            <로직>
+                1. service 단 validation -> post_id가 존재하는지 확인
+                2. post 삭제전 s3의 file 리소스 위치 확인
+                3. post_id 관련된 s3 files 삭제
+                4. file model instances 삭제
+                5. post model instance 삭제
+        """
         try:
             post = Post.objects.get(pk=post_id)
         except Post.DoesNotExist:
@@ -170,6 +194,19 @@ class PostService:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
     def update_post(self, request, post_id):
+        """
+            <설명>
+                - post를 수정할때 쓰인다.
+                - post와 연관있는 파일들도 같이 수정된다.
+                - files_state 라는 keyword는 파일의 operation을 나타낸다.
+                  -> value 종류: delete, replace
+            <로직>
+                1. request.data에서 post의 변경될 필드를 확인
+                2. 변경해야하는 필드값를 시리얼라이즈
+                3. 트랜잭션 단위 설정 후 post 부분 저장
+                4. file부분 분리후 FileSerivce 인스턴스 생성
+                5. file 부분 수정
+        """
         try:
             post_data_for_serialize = dict()
             post_field_mapping = {
@@ -184,6 +221,7 @@ class PostService:
 
         except Exception as e:
             return {"message": str(e), "status_code": status.HTTP_400_BAD_REQUEST}
+
         try:
             post = Post.objects.get(pk=post_id)
         except Post.DoesNotExist:
@@ -191,16 +229,24 @@ class PostService:
                 "status": status.HTTP_400_BAD_REQUEST,
                 "message": "악악악악 post_id가 없는게 말이되냐",
             }
+        # 직렬화
         post_serializer = PostCreateSerializer(post, data=post_data_for_serialize, partial=True)
         if not post_serializer.is_valid():
             return {"message": post_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
         try:
             with transaction.atomic():
                 post = post_serializer.save()
+
+                # file 수정 또는 삭제
                 files_state = request.data.get('files_state', None)
                 if files_state:
                     instance = FileService()
-                    instance.put_files(request, post)
+                    if files_state == 'replace':
+                        instance.put_files(request, post)
+                    elif files_state == 'delete':
+                        instance.delete_files(post)
+                    else:
+                        return {"message": "files_state is wrong", "status_code": status.HTTP_400_BAD_REQUEST}
                 return {"message": "Resource updated successfully", "status_code": status.HTTP_200_OK}
         except ClientError as e:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
