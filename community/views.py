@@ -40,6 +40,7 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
+    # permission 설정 필요
     @validate_path_params(PostPathParam)
     @login_required
     def patch(self, request, post_id):
@@ -50,8 +51,9 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
+    # permission 설정 필요
     @validate_path_params(PostPathParam)
-    # @login_required
+    @login_required
     def delete(self, request, post_id):
         response = self.post_service.delete_post(post_id)
         return JsonResponse(status=response.get("status_code"),

@@ -33,11 +33,14 @@ def login_required(view_func):
     """
 
     @wraps(view_func)
-    def wrapper(request, *args, **kwargs):
+    def wrapper(*args, **kwargs):
+        request = args[1]
         if not request.user.is_authenticated:
-            return JsonResponse(message={"error": "Authentication required"},
-                                status=status.HTTP_401_UNAUTHORIZED)
-        return view_func(request, *args, **kwargs)
+            return JsonResponse(status=status.HTTP_401_UNAUTHORIZED,
+                                data={"message": "login required"}
+                                )
+
+        return view_func(*args, **kwargs)
 
     return wrapper
 
