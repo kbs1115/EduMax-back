@@ -31,7 +31,7 @@ class PostView(APIView):
                                 )
 
     # 고려해야할점: html_content 때문에 xss 방어가 작동할지 모르겠음
-    # @login_required
+    @login_required
     def post(self, request):
         response = self.post_service.create_post(request)
         return JsonResponse(status=response.get("status_code"),
@@ -43,12 +43,22 @@ class PostView(APIView):
     @validate_path_params(PostPathParam)
     @login_required
     def patch(self, request, post_id):
-        response = self.post_service.create_post(request, post_id)
+        response = self.post_service.update_post(request, post_id)
+        return JsonResponse(status=response.get("status_code"),
+                            data={
+                                "message": response.get("message", None),
+                                "data": response.get("data", None)},
+                            )
 
     @validate_path_params(PostPathParam)
-    @login_required
+    # @login_required
     def delete(self, request, post_id):
-        response = self.post_service.create_post(request, post_id)
+        response = self.post_service.delete_post(post_id)
+        return JsonResponse(status=response.get("status_code"),
+                            data={
+                                "message": response.get("message", None),
+                                "data": response.get("data", None)},
+                            )
 
 
 class LikeView(APIView):

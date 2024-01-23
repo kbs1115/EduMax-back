@@ -1,7 +1,5 @@
 from enum import Enum
 
-from rest_framework.pagination import PageNumberPagination
-
 """----------------------------------------------------------------------------"""
 
 
@@ -42,6 +40,5 @@ class PostCategoriesParam(Enum):
 
 """----------------------------------------------------------------------------"""
 
-
-class PostPageNumberPagination(PageNumberPagination):
-    page_size = 15
+# post list 의 페이지 size
+POST_LIST_PAGE_SIZE = 15

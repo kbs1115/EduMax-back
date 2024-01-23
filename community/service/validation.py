@@ -13,10 +13,10 @@ from community.service.define import PostCategoriesParam, PostSearchFilterParam,
 # post view 에 들어오는 query_param을 validate 하기위한 임의의 model
 class PostQueryParam(BaseModel):
     page: int = Field(default=1, ge=1)
-    category: str = Field(default=PostCategoriesParam.ENG_QUESTION)
-    search_filter: str = Field(default=PostSearchFilterParam.TOTAL)
+    category: PostCategoriesParam = Field(default=PostCategoriesParam.ENG_QUESTION)
+    search_filter: PostSearchFilterParam = Field(default=PostSearchFilterParam.TOTAL)
     q: str = Field(default=None)
-    sort: str = Field(default=PostSortCategoryParam.CREATED_AT)
+    sort: PostSortCategoryParam = Field(default=PostSortCategoryParam.CREATED_AT)
 
 
 class PostPathParam(BaseModel):
@@ -40,28 +40,6 @@ def login_required(view_func):
         return view_func(request, *args, **kwargs)
 
     return wrapper
-
-
-# def restrict_post_create_permission(service_func):
-#     """
-#         <설명>
-#         staff 권한 이상이 아닌 user가 notice_board에 접근시 제한한다.
-#     """
-#
-#     @wraps(service_func)
-#     def wrapper(*args, **kwargs):
-#         request = args[1]
-#         category = request.data.get('category')  # json body내에서 category를 찾는다.
-#         if category == PostCategories.NOTICE:
-#             user = request.user
-#             if not (user.is_superuser or user.is_staff):
-#                 return JsonResponse(message={'message': 'Permission Denied'},
-#                                     status=status.HTTP_403_FORBIDDEN)
-#             else:
-#                 # 만약 카테고리가 notice_board가 아니거나 notice_board지만 user가 staff이상이라면 view 엑세스
-#                 return service_func(*args, **kwargs)
-#
-#     return wrapper
 
 
 # query_param validator
