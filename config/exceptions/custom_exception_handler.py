@@ -31,3 +31,11 @@ def custom_exception_handler(exc, context):
             },
             status=res.status_code,
         )
+    else:
+        return Response(
+            {
+                "code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                "errors": "internal server error",
+            },
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )

@@ -4,3 +4,4 @@ __pycache__
 .env
 migrations
 .pytest_cache
+.vscode
