@@ -1,7 +1,10 @@
+**/migrations/
+migrations
+**/venv/
 Blog Images/
 db.sqlite3
-__pycache__
 .env
-migrations
-.pytest_cache
+*.pyc
+__pycache__/
+.idea/
 .vscode
