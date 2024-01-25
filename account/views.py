@@ -25,7 +25,7 @@ class UserAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
 
-        userData = SignUpService.get_user_data(request)
+        userData = SignUpService.create_user(request)
 
         res = Response(
             {

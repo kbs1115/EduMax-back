@@ -9,8 +9,8 @@ from rest_framework import status
 
 class TestSignupView:
     def test_signup_with_invalid_data(self, mocker, invalid_request_data_wrong_email):
-        mocker_get_user_data = mocker.patch.object(SignUpService, "get_user_data")
-        mocker_get_user_data.side_effect = exceptions.ValidationError(
+        mocker_create_user = mocker.patch.object(SignUpService, "create_user")
+        mocker_create_user.side_effect = exceptions.ValidationError(
             "InvalidDataError_signup"
         )
         mock_request = Mock(data=invalid_request_data_wrong_email)
@@ -20,8 +20,8 @@ class TestSignupView:
             signup.post(mock_request)
 
     def test_signup_with_missing_data(self, mocker, invalid_request_data_omitted):
-        mocker_get_user_data = mocker.patch.object(SignUpService, "get_user_data")
-        mocker_get_user_data.side_effect = exceptions.ParseError(
+        mocker_create_user = mocker.patch.object(SignUpService, "create_user")
+        mocker_create_user.side_effect = exceptions.ParseError(
             "InvalidDataError_signup"
         )
         mock_request = Mock(data=invalid_request_data_omitted)
@@ -31,9 +31,9 @@ class TestSignupView:
             signup.post(mock_request)
 
     def test_signup_with_valid_data(self, mocker, valid_request_data):
-        mocker_get_user_data = mocker.patch.object(SignUpService, "get_user_data")
+        mocker_create_user = mocker.patch.object(SignUpService, "create_user")
         # mocking으로 valid_request_data를 그대로 반환한다고 가정한다. 실제로는 다른 정보도 더 들어 있음.
-        mocker_get_user_data.return_value = valid_request_data
+        mocker_create_user.return_value = valid_request_data
         mock_request = Mock(data=valid_request_data)
 
         signup = UserAPIView()
@@ -48,8 +48,8 @@ class TestSignupView:
 # pk를 인자로 받는 경우와 받지 않는 경우가 있는데, 어짜피 service 단을 mocking할거라 하나의 class로 같이 테스트한다.
 class TestUserView:
     def test_UserAPIView_get(self, mocker, valid_user_data, user_instance):
-        mocker_get_user_data = mocker.patch.object(UserService, "get_serializer_data")
-        mocker_get_user_data.return_value = valid_user_data
+        mocker_create_user = mocker.patch.object(UserService, "get_serializer_data")
+        mocker_create_user.return_value = valid_user_data
         mock_request = Mock(user=user_instance)
 
         api = UserAPIView()
@@ -66,8 +66,8 @@ class TestUserView:
         valid_patch_data,
         invalid_patch_data,
     ):
-        mocker_get_user_data = mocker.patch.object(UserService, "update_user")
-        mocker_get_user_data.return_value = valid_user_data
+        mocker_create_user = mocker.patch.object(UserService, "update_user")
+        mocker_create_user.return_value = valid_user_data
         mock_request = Mock(user=user_instance, data=valid_patch_data)
 
         api = UserAPIView()
@@ -89,8 +89,8 @@ class TestUserView:
             res = api.patch(mock_request)
 
     def test_UserAPIView_delete(self, mocker, valid_user_data, user_instance):
-        mocker_get_user_data = mocker.patch.object(UserService, "delete_user")
-        mocker_get_user_data.return_value = valid_user_data
+        mocker_create_user = mocker.patch.object(UserService, "delete_user")
+        mocker_create_user.return_value = valid_user_data
         mock_request = Mock(user=user_instance)
 
         api = UserAPIView()
