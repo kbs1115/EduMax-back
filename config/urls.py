@@ -14,17 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path, include
 
 
 from community.views import PostView, LikeView, GetPostsView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    # path('posts/<int:post_id>/likes', LikeView.as_view()),
+
+    path("admin/", admin.site.urls),
+    path("auth/", include("account.urls")),
+  # path('posts/<int:post_id>/likes', LikeView.as_view()),
     path('post/<int:post_id>', PostView.as_view()),
     path('post/', PostView.as_view()),
     path('posts/', GetPostsView.as_view())
 ]
 
-
+handler404 = "config.exceptions.custom_exception_views.url_not_found"
