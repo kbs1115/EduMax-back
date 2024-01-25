@@ -16,10 +16,8 @@ from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -31,7 +29,6 @@ SECRET_KEY = "django-insecure-sa#+-nqjhy2hi)_3z81)lznf3f4(84*^=+&!l*y+tkwns-=5!^
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -45,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -55,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -77,20 +76,35 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "edumaxdb",
+        "NAME": "edumax",
         "USER": "root",
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": "localhost",
         "PORT": "3306",
     }
 }
+
+# AWS Setting
+AWS_REGION = 'ap-northeast-2'  # AWS서버의 지역
+AWS_STORAGE_BUCKET_NAME = 'edumaxbucket'  # 생성한 버킷 이름
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")  # 액서스 키 ID
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")  # 액서스 키 PW
+# 버킷이름.s3.AWS서버지역.amazonaws.com 형식
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.%s.amazonaws.com' % (AWS_STORAGE_BUCKET_NAME, AWS_REGION)
+
+# Static Setting
+STATIC_URL = "http://%s/static/" % AWS_S3_CUSTOM_DOMAIN
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+# Media Setting
+MEDIA_URL = "http://%s/media/" % AWS_S3_CUSTOM_DOMAIN
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 
 # Password validation
@@ -113,7 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "account.User"
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
@@ -126,7 +139,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
