@@ -20,7 +20,7 @@ TREE_STRUCTURE = {
         - 모든 posts는 각 트리의 리프 노드에 위치에 있다. 
     """
     # english
-    "KOREAN": [],
+    "KO": [],
     "EN": ["SC", "SA", "GR"],
     "MA": [],
 

@@ -57,7 +57,7 @@ class PostListSerializer(serializers.ModelSerializer):
         - author의 닉네임을 보내줌
     """
     author = serializers.SlugRelatedField(
-        queryset=File.objects.all(),
+        queryset=User.objects.all(),
         slug_field='nickname'
     )
 

@@ -38,6 +38,14 @@ class PostCategoriesParam(Enum):
         return self.value
 
 
+class PostFilesState(Enum):
+    REPLACE = "REPLACE"
+    DELETE = "DELETE"
+
+    def __str__(self):
+        return self.value
+
+
 """----------------------------------------------------------------------------"""
 
 # post list 의 페이지 size

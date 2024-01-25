@@ -10,41 +10,16 @@ from community.domain.categories import PostCategories
 from community.models import Post
 from community.serializers import PostRetrieveSerializer, PostListSerializer, PostCreateSerializer
 from community.service.define import PostSearchFilterParam, PostSortCategoryParam, \
-    POST_LIST_PAGE_SIZE
+    POST_LIST_PAGE_SIZE, PostFilesState
 from rest_framework import status
 
 from community.service.file_service import FileService
 
 
-class PostService:
-    parser_classes = [JSONParser, FormParser, MultiPartParser]
+class PostsService:
+    parser_classes = [JSONParser]
 
-    def retrieve_post(self, post_id):
-        """
-            <설명>
-            - post_id를 받아서 select 후 알맞은 file model instances와 같이 return 한다.
-            - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
-        """
-        try:
-            post = Post.objects.get(pk=post_id)
-            serializer = PostRetrieveSerializer(post)
-            # view 함수로 넘겨주기
-            return {"status": status.HTTP_200_OK,
-                    "message": "post retrieve successfully",
-                    "data": serializer.data,
-                    }
-        # 해당 게시글이 존재하지않을 때
-        except Post.DoesNotExist:
-            return {
-                "status": status.HTTP_404_NOT_FOUND,
-                "message": f"post id = {post_id} does not exist",
-            }
-        # 그외의 에러
-        except Exception as e:
-            return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "message": str(e)}
-
-    def list_posts(self, request, validated_query_params):
+    def get_posts(self, category, search_filter, kw, sort, page):
         """
             <설명>
                 - validator을 지난 param을 가지고 조건에 맞게 select후 return.
@@ -57,12 +32,7 @@ class PostService:
                 5. 직렬화 후 return
 
         """
-        # validation 이후의 쿼리 파라매터
-        category = validated_query_params.category
-        search_filter = validated_query_params.search_filter
-        kw = validated_query_params.q
-        sort = validated_query_params.sort
-        page = validated_query_params.page
+
         try:
             # category에 따른 정렬
             posts = Post.objects.filter(category=category).all()
@@ -108,7 +78,36 @@ class PostService:
         except Exception as e:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
 
-    def create_post(self, request):
+
+class PostService:
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
+
+    def get_post(self, post_id):
+        """
+            <설명>
+            - post_id를 받아서 select 후 알맞은 file model instances와 같이 return 한다.
+            - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
+        """
+        try:
+            post = Post.objects.get(pk=post_id)
+            serializer = PostRetrieveSerializer(post)
+            # view 함수로 넘겨주기
+            return {"status": status.HTTP_200_OK,
+                    "message": "post retrieve successfully",
+                    "data": serializer.data,
+                    }
+        # 해당 게시글이 존재하지않을 때
+        except Post.DoesNotExist:
+            return {
+                "status": status.HTTP_404_NOT_FOUND,
+                "message": f"post id = {post_id} does not exist",
+            }
+        # 그외의 에러
+        except Exception as e:
+            return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    "message": str(e)}
+
+    def create_post(self, category, title, content, html_content, files, author):
         """
             <설명>
                 - post를 생성할때 쓰인다.
@@ -120,25 +119,12 @@ class PostService:
                 4. file 부분 분리후 FileSerivce 인스턴스 생성
                 5. file 부분 저장
         """
-        # service layer validation
-        try:
-            category = request.data['category']
-            content = request.data['content']
-            title = request.data['title']
-            html_content = request.data['html_content']
 
-            # user 가 없어서 임의로 만든다음 집어넣었음
-            author = User.objects.get(id=1)
-            # 만약 user 부분이 merge 되면 윗줄 삭제, 밑의 주석 해체
-            # author = request.user
-
-            # restrict_post_create_permission
-            if category == PostCategories.NOTICE:
-                if not (author.is_superuser or author.is_staff):
-                    return {'message': 'Permission Denied',
-                            "status_code": status.HTTP_403_FORBIDDEN}
-        except KeyError as e:
-            return {"status_code": status.HTTP_400_BAD_REQUEST, "message": f"필수 필드 누락: {e}"}
+        # restrict_post_create_permission
+        # if category == PostCategories.NOTICE:
+        #     if not (author.is_superuser or author.is_staff):
+        #         return {'message': 'Permission Denied',
+        #                 "status_code": status.HTTP_403_FORBIDDEN}
 
         # request.data 로 부터 post model 분리
         post_data = {'category': category,
@@ -155,10 +141,9 @@ class PostService:
                 post = post_serializer.save()
 
                 # file 생성
-                files = request.FILES.getlist('files', None)
                 if files:
                     instance = FileService()
-                    instance.create_files(request, post)
+                    instance.create_files(files, post)
                 return {"message": "Resource created successfully", "status_code": status.HTTP_201_CREATED}
         except ClientError as e:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
@@ -193,34 +178,31 @@ class PostService:
         except Exception as e:
             return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
 
-    def update_post(self, request, post_id):
+    def update_post(self, post_id, category, title, content, html_content, files_state, files, author):
         """
             <설명>
                 - post를 수정할때 쓰인다.
                 - post와 연관있는 파일들도 같이 수정된다.
                 - files_state 라는 keyword는 파일의 operation을 나타낸다.
-                  -> value 종류: delete, replace
+                  -> value 종류: DELETE, REPLACE
+                  -> service.define에 정의되어있음
             <로직>
-                1. request.data에서 post의 변경될 필드를 확인
+                1. 인자로 받은 값을 토대로 변경될 필드를 확인
+                   -> 변경되지않은 필드는 NONE이 들어가있음
                 2. 변경해야하는 필드값를 시리얼라이즈
                 3. 트랜잭션 단위 설정 후 post 부분 저장
                 4. file부분 분리후 FileSerivce 인스턴스 생성
                 5. file 부분 수정
         """
-        try:
-            post_data_for_serialize = dict()
-            post_field_mapping = {
-                'title': 'title',
-                'content': 'content',
-                'html_content': 'html_content',
-                'category': 'category',
-            }
-            for field in post_field_mapping.keys():
-                if request.data.get(field, None):
-                    post_data_for_serialize[field] = request.data[field]
-
-        except Exception as e:
-            return {"message": str(e), "status_code": status.HTTP_400_BAD_REQUEST}
+        post_data_for_serialize = dict()
+        if category:
+            post_data_for_serialize["category"] = category
+        if title:
+            post_data_for_serialize["title"] = title
+        if content:
+            post_data_for_serialize["content"] = content
+        if html_content:
+            post_data_for_serialize["html_content"] = html_content
 
         try:
             post = Post.objects.get(pk=post_id)
@@ -238,12 +220,11 @@ class PostService:
                 post = post_serializer.save()
 
                 # file 수정 또는 삭제
-                files_state = request.data.get('files_state', None)
                 if files_state:
                     instance = FileService()
-                    if files_state == 'replace':
-                        instance.put_files(request, post)
-                    elif files_state == 'delete':
+                    if files_state == PostFilesState.REPLACE and files:
+                        instance.put_files(files, post)
+                    elif files_state == PostFilesState.DELETE:
                         instance.delete_files(post)
                     else:
                         return {"message": "files_state is wrong", "status_code": status.HTTP_400_BAD_REQUEST}
