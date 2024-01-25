@@ -3,6 +3,7 @@ import uuid
 from botocore.exceptions import ClientError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.db import transaction
 
 from community.models import Post, Comment, File
 from community.serializers import FileSerializer
@@ -48,22 +49,22 @@ class FileService:
         if isinstance(related_model_instance, Comment):
             pass
 
-    def create_files(self, request, related_model_instance):
-        # files 만들기-file s3저장, file model 저장
-        try:
-            files = request.FILES.getlist('files')
-        except Exception as e:
-            return e
+    def create_files(self, files, related_model_instance):
+        # files s3저장, file model 저장
         try:
             for file in files:
                 f_path = self.make_file_path(file)
-                self.s3_upload_file(file, f_path)
-
                 dict_data = self.make_dict_for_serialize(f_path, related_model_instance)
                 serializer = FileSerializer(data=dict_data)
                 if not serializer.is_valid():
                     raise serializer.errors
-                serializer.save()
+
+                with transaction.atomic():
+                    serializer.save()
+
+                    # If s3_upload_file에서 에러발생하면 롤백
+                    self.s3_upload_file(file, f_path)
+
         except ClientError as e:
             return e
         except Exception as e:
@@ -76,9 +77,12 @@ class FileService:
             for file_id in files_id:
                 instance = File.objects.get(pk=file_id)
                 file_path = instance.file_location
+                with transaction.atomic():
+                    instance.delete()
 
-                self.s3_delete_file(file_path)
-                instance.delete()
+                    # If s3_delete_file에서 에러발생하면 롤백
+                    self.s3_delete_file(file_path)
+
         except File.DoesNotExist as e:
             return e
         except ClientError as e:
@@ -86,11 +90,11 @@ class FileService:
         except Exception as e:
             return e
 
-    def put_files(self, request, related_model_instance):
+    def put_files(self, files, related_model_instance):
         # file 수정 - put 방식을 사용, 기존꺼 삭제, 새로운거 생성
         try:
             self.delete_files(related_model_instance)
-            self.create_files(request, related_model_instance)
+            self.create_files(files, related_model_instance)
         except Exception as e:
             return e
 
