@@ -21,7 +21,7 @@ class TestSignUpService:
         assert serializer.is_valid() == True
         validated_data = serializer.validated_data
 
-        result = SignUpService.get_user_data(mock_request)
+        result = SignUpService.create_user(mock_request)
 
         # save 호출 여부를 확인하고, validated_data를 잘 반환하는지 테스트한다.
         mock_save.assert_called_once()
@@ -35,7 +35,7 @@ class TestSignUpService:
         )  # unique 조건을 test하는 Validator의 __call__ method를 mocking한다.
 
         with pytest.raises(exceptions.ValidationError):
-            SignUpService.get_user_data(mock_request)
+            SignUpService.create_user(mock_request)
 
     def test_signup_with_wrong_email_user_data(
         self, invalid_request_data_wrong_email, mocker
@@ -47,7 +47,7 @@ class TestSignUpService:
         )  # unique 조건을 test하는 Validator의 __call__ method를 mocking한다.
 
         with pytest.raises(exceptions.ValidationError):
-            SignUpService.get_user_data(mock_request)
+            SignUpService.create_user(mock_request)
 
 
 class TestUserService:

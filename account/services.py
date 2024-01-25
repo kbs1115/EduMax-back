@@ -20,7 +20,7 @@ class UserPermission(permissions.BasePermission):
 
 
 class SignUpService:
-    def get_user_data(request):
+    def create_user(request):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
