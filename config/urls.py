@@ -22,10 +22,7 @@ urlpatterns = [
 
     path("admin/", admin.site.urls),
     path("auth/", include("account.urls")),
-    # path('posts/<int:post_id>/likes', LikeView.as_view()),
-    path('post/<int:post_id>', PostView.as_view()),
-    path('post/', PostView.as_view()),
-    path('posts/', GetPostsView.as_view())
+    path("", include("community.urls")),
 ]
 
 handler404 = "config.exceptions.custom_exception_views.url_not_found"
