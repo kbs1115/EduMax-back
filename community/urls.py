@@ -1,7 +1,6 @@
-from django.contrib import admin
 from django.urls import path
 
-from community.views import PostView, GetPostsView
+from community.view.post_view import PostView, GetPostsView
 
 urlpatterns = [
 
