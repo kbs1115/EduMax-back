@@ -20,8 +20,8 @@ class UserPermission(permissions.BasePermission):
 
 
 class SignUpService:
-    def create_user(request):
-        serializer = UserSerializer(data=request.data)
+    def create_user(data):
+        serializer = UserSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return serializer.validated_data
@@ -30,43 +30,37 @@ class SignUpService:
 
 
 class UserService:
-    def get_user(self, view, request, pk):
-        if pk:
-            user = self.get_user_with_pk(pk)
-        else:
-            user = self.get_me(request)
-        view.check_object_permissions(request, user)
-        return user
-
-    def get_me(self, request):
+    @classmethod
+    def get_me(cls, request):
         user = request.user
         if user is None:
             raise exceptions.NotFound("user not found")
 
         return user
 
-    def get_user_with_pk(self, pk):
+    @classmethod
+    def get_user_with_pk(cls, pk):
         try:
             return User.objects.get(id=pk)
         except User.DoesNotExist:
             raise exceptions.NotFound("user not found")
 
-    def get_serializer_data(self, view, request, pk):
-        user = self.get_user(view, request, pk)
+    @classmethod
+    def get_serializer_data(cls, user):
         serializer = UserSerializer(user)
         return serializer.data
 
-    def update_user(self, view, request, pk):
-        user = self.get_user(view, request, pk)
-        serializer = UserSerializer(user, data=request.data, partial=True)
+    @classmethod
+    def update_user(cls, user, data):
+        serializer = UserSerializer(user, data=data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return serializer.data
         else:
             raise exceptions.ValidationError(serializer.errors)
 
-    def delete_user(self, view, request, pk):
-        user = self.get_user(view, request, pk)
+    @classmethod
+    def delete_user(cls, user):
         try:
             user.delete()
         except:
@@ -74,9 +68,9 @@ class UserService:
 
 
 class AuthService:
-    def loginService(request):
+    def loginService(data):
         user = authenticate(
-            login_id=request.data.get("login_id"), password=request.data.get("password")
+            login_id=data.get("login_id"), password=data.get("password")
         )
 
         if user:
