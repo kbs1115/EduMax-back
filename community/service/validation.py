@@ -2,10 +2,9 @@ from functools import wraps
 from typing import Type
 from django.http import JsonResponse
 from rest_framework import status
-from community.domain.categories import PostCategories
 from pydantic import BaseModel, Field
 
-from community.service.define import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, PostFilesState
+from community.domain.define import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, PostFilesState
 
 """validator에 사용되는 임시 model class"""
 

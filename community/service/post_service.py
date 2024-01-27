@@ -5,11 +5,9 @@ from django.db import transaction
 from django.db.models import Q, Count
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 
-from account.models import User
-from community.domain.categories import PostCategories
 from community.models import Post
 from community.serializers import PostRetrieveSerializer, PostListSerializer, PostCreateSerializer
-from community.service.define import PostSearchFilterParam, PostSortCategoryParam, \
+from community.domain.define import PostSearchFilterParam, PostSortCategoryParam, \
     POST_LIST_PAGE_SIZE, PostFilesState
 from rest_framework import status
 
