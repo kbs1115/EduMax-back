@@ -21,7 +21,7 @@ class TestSignUpService:
         assert serializer.is_valid() == True
         validated_data = serializer.validated_data
 
-        result = SignUpService.create_user(mock_request)
+        result = SignUpService.create_user(mock_request.data)
 
         # save 호출 여부를 확인하고, validated_data를 잘 반환하는지 테스트한다.
         mock_save.assert_called_once()
@@ -55,12 +55,8 @@ class TestUserService:
     mock_view = Mock()
 
     # get_user에 관련된 함수를 한번에 테스트
-    def test_get_serializer_data(self, mocker, user_instance):
-        mock_get_user = mocker.patch.object(UserService, "get_user")
-        mock_get_user.return_value = user_instance
-
-        userService = UserService()
-        data = userService.get_serializer_data(self.mock_view, self.mock_request, 1)
+    def test_get_serializer_data(self, user_instance):
+        data = UserService.get_serializer_data(user_instance)
 
         assert data == {
             "login_id": "kbs1115",
@@ -69,14 +65,11 @@ class TestUserService:
         }
 
     def test_update_user_with_valid_data(self, mocker, user_instance):
-        mock_get_user = mocker.patch.object(UserService, "get_user")
-        mock_get_user.return_value = user_instance
         mock_request = Mock(data={"email": "abcdetest123@naver.com"})
         mocker.patch.object(UniqueValidator, "__call__")
         mock_save = mocker.patch.object(User, "save")
 
-        userService = UserService()
-        data = userService.update_user(self.mock_view, mock_request, 1)
+        data = UserService.update_user(user_instance, mock_request.data)
 
         mock_save.assert_called_once()
         assert data == {
@@ -86,37 +79,28 @@ class TestUserService:
         }
 
     def test_update_user_with_invalid_data(self, mocker, user_instance):
-        mock_get_user = mocker.patch.object(UserService, "get_user")
-        mock_get_user.return_value = user_instance
         mock_request = Mock(data={"email": "abcdetest123naver.com"})
         mocker.patch.object(UniqueValidator, "__call__")
         mock_save = mocker.patch.object(User, "save")
 
         with pytest.raises(exceptions.ValidationError):
-            userService = UserService()
-            data = userService.update_user(self.mock_view, mock_request, 1)
+            data = UserService.update_user(user_instance, mock_request.data)
 
     def test_delete_user(self, mocker, user_instance):
-        mock_get_user = mocker.patch.object(UserService, "get_user")
-        mock_get_user.return_value = user_instance
         mock_request = Mock()
         mock_delete = mocker.patch.object(User, "delete")
 
-        userService = UserService()
-        userService.delete_user(self.mock_view, mock_request, 1)
+        UserService.delete_user(user_instance)
 
         mock_delete.assert_called_once()
 
     def test_delete_invalid_user(self, mocker, user_instance):
-        mock_get_user = mocker.patch.object(UserService, "get_user")
-        mock_get_user.return_value = user_instance
         mock_request = Mock()
         mock_delete = mocker.patch.object(User, "delete")
         mock_delete.side_effect = Exception()
 
         with pytest.raises(exceptions.APIException):
-            userService = UserService()
-            userService.delete_user(self.mock_view, mock_request, 1)
+            UserService.delete_user(user_instance)
 
 
 class TestAuthService:
