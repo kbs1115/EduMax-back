@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 
-from community.domain.define import TREE_STRUCTURE
+from community.domain.definition import TREE_STRUCTURE
 
 
 class CategoryValidator:

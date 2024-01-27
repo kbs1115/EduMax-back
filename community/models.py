@@ -1,7 +1,7 @@
 from django.db import models
 from account.models import User
 from community.domain.validation import CategoryValidator, LikeValidator
-from community.domain.define import PostCategories, CategoryDepth1, CategoryDepth2, CategoryDepth3, CategoryDepth4
+from community.domain.definition import PostCategories, CategoryDepth1, CategoryDepth2, CategoryDepth3, CategoryDepth4
 
 
 class Post(models.Model):
