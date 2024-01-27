@@ -7,7 +7,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 
 from community.models import Post
 from community.serializers import PostRetrieveSerializer, PostListSerializer, PostCreateSerializer
-from community.domain.define import PostSearchFilterParam, PostSortCategoryParam, \
+from community.domain.definition import PostSearchFilterParam, PostSortCategoryParam, \
     POST_LIST_PAGE_SIZE, PostFilesState
 from rest_framework import status
 

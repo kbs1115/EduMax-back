@@ -4,7 +4,7 @@ from django.http import JsonResponse
 from rest_framework import status
 from pydantic import BaseModel, Field
 
-from community.domain.define import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, PostFilesState
+from community.domain.definition import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, PostFilesState
 
 """validator에 사용되는 임시 model class"""
 
