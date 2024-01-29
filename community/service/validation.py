@@ -1,10 +1,11 @@
 from functools import wraps
 from typing import Type
 from django.http import JsonResponse
-from rest_framework import status
+from rest_framework import status, exceptions
 from pydantic import BaseModel, Field
 
-from community.domain.definition import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, PostFilesState
+from community.domain.definition import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, \
+    PostFilesState
 
 """validator에 사용되는 임시 model class"""
 
@@ -41,25 +42,6 @@ class UpdatePostRequestBody(BaseModel):
     """validator 모음"""
 
 
-def login_required(view_func):
-    """
-        <설명>
-        로그인을 하지않은 유저를 제한하고 401 response를 return 한다.
-    """
-
-    @wraps(view_func)
-    def wrapper(*args, **kwargs):
-        request = args[1]
-        if not request.user.is_authenticated:
-            return JsonResponse(status=status.HTTP_401_UNAUTHORIZED,
-                                data={"message": "login required"}
-                                )
-
-        return view_func(*args, **kwargs)
-
-    return wrapper
-
-
 # query_param validator
 def validate_query_params(model: Type[BaseModel]):
     """
@@ -76,10 +58,7 @@ def validate_query_params(model: Type[BaseModel]):
             try:
                 validated_params = model.model_validate(params)
             except ValueError as e:
-                return JsonResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={"message": str(e)}
-                )
+                raise exceptions.ParseError(str(e))
 
             return f(*args, **kwargs, validated_query_params=validated_params)
 
@@ -92,22 +71,17 @@ def validate_query_params(model: Type[BaseModel]):
 def validate_path_params(model: Type[BaseModel]):
     """
         <설명>
-        만약 path_param이 없을시 넘어간다.
+        만약 path_param이 없을시 에러
         잘못된 path_param일시 400 response를 return 한다.
     """
 
     def decorated_func(f):
         @wraps(f)
         def wrapper(*args, **kwargs):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
-            if kwargs:
-                try:
-                    model(**kwargs)
-                except ValueError as e:
-                    return JsonResponse(
-                        status=status.HTTP_400_BAD_REQUEST,
-                        data={"message": str(e)},
-                    )
-
+            try:
+                model(**kwargs)
+            except ValueError as e:
+                raise exceptions.ParseError(str(e))
             return f(*args, **kwargs)
 
         return wrapper
@@ -130,10 +104,7 @@ def validate_body_request(model: Type[BaseModel]):
             try:
                 validated_params = model.model_validate(body_data)
             except ValueError as e:
-                return JsonResponse(
-                    status=status.HTTP_400_BAD_REQUEST,
-                    data={"message": str(e)},
-                )
+                raise exceptions.ParseError(str(e))
             return f(*args, **kwargs, validated_request_body=validated_params)
 
         return wrapper

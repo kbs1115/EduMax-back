@@ -4,6 +4,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
 from rest_framework.views import APIView
 
+from account.models import User
 from community.service.validation import validate_query_params, \
     PostQueryParam, PostPathParam, validate_path_params, validate_body_request, CreatePostRequestBody, \
     UpdatePostRequestBody
@@ -30,7 +31,6 @@ class GetPostsView(APIView):
     def __init__(self):
         self.post_service = PostsService()
 
-    @validate_path_params(PostPathParam)
     @validate_query_params(PostQueryParam)
     def get(self, request, validated_query_params):
         params = {
@@ -66,7 +66,6 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-    # 고려해야할점: html_content 때문에 xss 방어가 작동할지 모르겠음
     @validate_body_request(CreatePostRequestBody)
     def post(self, request, validated_request_body):
         body = {
@@ -84,7 +83,6 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-    # permission 설정 필요
     @validate_body_request(UpdatePostRequestBody)
     @validate_path_params(PostPathParam)
     def patch(self, request, post_id, validated_request_body):
@@ -108,7 +106,6 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-    # permission 설정 필요
     @validate_path_params(PostPathParam)
     def delete(self, request, post_id):
         # instance permission 확인

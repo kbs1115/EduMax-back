@@ -1,15 +1,15 @@
 import status as status
-from botocore.exceptions import ClientError
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Q, Count
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 
 from community.models import Post
 from community.serializers import PostRetrieveSerializer, PostListSerializer, PostCreateSerializer
 from community.domain.definition import PostSearchFilterParam, PostSortCategoryParam, \
     POST_LIST_PAGE_SIZE, PostFilesState, PostCategories
-from rest_framework import status
+from rest_framework import status, exceptions
 
 from community.service.file_service import FileService
 
@@ -27,7 +27,7 @@ class PostsService:
     ):
         """
             <설명>
-                - validator을 지난 param을 가지고 조건에 맞게 select후 return.
+                - validator을 통과한 query_param을 가지고 조건에 맞게 select후 return.
                 - param에 대한 정의 -> community.service.define
             <로직>
                 1. category에 맞는 게시글들 select
@@ -38,50 +38,40 @@ class PostsService:
 
         """
 
-        try:
-            # category에 따른 정렬
-            posts = Post.objects.filter(category=category).all()
+        # category에 따른 정렬
+        posts = Post.objects.filter(category=category).all()
 
-            # kw에 따른 정렬
-            if kw and search_filter == PostSearchFilterParam.TOTAL:
-                posts = posts.filter(
-                    Q(author__nickname__icontains=kw) | Q(content__icontains=kw) | Q(title__icontains=kw)).distinct()
-            elif kw and search_filter == PostSearchFilterParam.AUTHOR:
-                posts = posts.filter(Q(author__nickname__icontains=kw))
-            elif kw and search_filter == PostSearchFilterParam.CONTENT:
-                posts = posts.filter(Q(content__icontains=kw))
-            elif kw and search_filter == PostSearchFilterParam.TITLE:
-                posts = posts.filter(Q(title__icontains=kw))
+        # kw에 따른 정렬
+        if kw and search_filter == PostSearchFilterParam.TOTAL:
+            posts = posts.filter(
+                Q(author__nickname__icontains=kw) | Q(content__icontains=kw) | Q(title__icontains=kw)).distinct()
+        elif kw and search_filter == PostSearchFilterParam.AUTHOR:
+            posts = posts.filter(Q(author__nickname__icontains=kw))
+        elif kw and search_filter == PostSearchFilterParam.CONTENT:
+            posts = posts.filter(Q(content__icontains=kw))
+        elif kw and search_filter == PostSearchFilterParam.TITLE:
+            posts = posts.filter(Q(title__icontains=kw))
 
-            # posts가 빈 쿼리셋이 아닐시 sort에 맞게 정렬
-            if posts and sort == PostSortCategoryParam.CREATED_AT:
-                posts = posts.order_by("-" + str(PostSortCategoryParam.CREATED_AT))
-            elif posts and sort == PostSortCategoryParam.MOST_LIKE:
-                posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
-
-        except Exception as e:
-            return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
+        # posts가 빈 쿼리셋이 아닐시 sort에 맞게 정렬
+        if posts and sort == PostSortCategoryParam.CREATED_AT:
+            posts = posts.order_by("-" + str(PostSortCategoryParam.CREATED_AT))
+        elif posts and sort == PostSortCategoryParam.MOST_LIKE:
+            posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
 
         # paging 처리
-        try:
-            pagination = Paginator(posts, POST_LIST_PAGE_SIZE)
-            page_obj = pagination.page(page).object_list
-            list_size = len(page_obj)
-        except Exception as e:
-            return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
+        pagination = Paginator(posts, POST_LIST_PAGE_SIZE)
+        page_obj = pagination.page(page).object_list
+        list_size = len(page_obj)
 
         # 직렬화
-        try:
-            post_serializer = PostListSerializer(page_obj, many=True)
-            return {"status": status.HTTP_200_OK,
-                    "message": "post list successfully}",
-                    "data": {"page": page,  # 현재 페이지
-                             "page_size": POST_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
-                             "list_size": list_size,  # 게시글 개수
-                             "post_list": post_serializer.data},
-                    }
-        except Exception as e:
-            return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR, "message": str(e)}
+        post_serializer = PostListSerializer(page_obj, many=True)
+        return {"status": status.HTTP_200_OK,
+                "message": "post list successfully",
+                "data": {"page": page,  # 현재 페이지
+                         "page_size": POST_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
+                         "list_size": list_size,  # 게시글 개수
+                         "post_list": post_serializer.data},
+                }
 
 
 class PostService:
@@ -93,7 +83,7 @@ class PostService:
             post = Post.objects.get(pk=post_id)
             return post.author.id
         except Post.DoesNotExist:
-            return None
+            raise exceptions.NotFound("post not found")
 
     def get_post(self, post_id):
         """
@@ -112,15 +102,7 @@ class PostService:
                     }
         # 해당 게시글이 존재하지않을 때
         except Post.DoesNotExist:
-            return {
-                "status": status.HTTP_404_NOT_FOUND,
-                "message": f"post id = {post_id} does not exist",
-            }
-
-        # 그외의 에러
-        except Exception as e:
-            return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    "message": str(e)}
+            raise exceptions.NotFound("post not found")
 
     def create_post(
             self,
@@ -136,7 +118,7 @@ class PostService:
                 - post를 생성할때 쓰인다.
                 - files 와 post에 필요한 form을 받아서 저장한다.
             <로직>
-                1. service 단 validation ->필수필드 확인, category에 맞는 permision 확인
+                1. service 단 validation -> category에 맞는 permision 확인
                 2. post model 부분 분리 후 시리얼라이즈 유효성 검사
                 3. 트랜잭션 단위 설정 후 post 저장
                 4. file 부분 분리후 FileSerivce 인스턴스 생성
@@ -145,9 +127,8 @@ class PostService:
 
         # restrict_post_create_permission
         if category == PostCategories.NOTICE:
-            if not author.is_staff:
-                return {'message': 'Permission Denied',
-                        "status_code": status.HTTP_403_FORBIDDEN}
+            if not (author.is_staff or author.is_superuser):
+                raise PermissionDenied()
 
         # request.data 로 부터 post model 분리
         post_data = {'category': category,
@@ -158,20 +139,17 @@ class PostService:
                      }
         post_serializer = PostCreateSerializer(data=post_data)
         if not post_serializer.is_valid():
-            return {"message": post_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
-        try:
-            with transaction.atomic():
-                post = post_serializer.save()
+            raise exceptions.ValidationError(post_serializer.errors)
 
-                # file 생성
-                if files:
-                    instance = FileService()
-                    instance.create_files(files, post)
-                return {"message": "Resource created successfully", "status_code": status.HTTP_201_CREATED}
-        except ClientError as e:
-            return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
-        except Exception as e:
-            return {"message": str(e), "status_code": status.HTTP_400_BAD_REQUEST}
+        # 트랜잭션 처리
+        with transaction.atomic():
+            post = post_serializer.save()
+
+            # file 생성
+            if files:
+                instance = FileService()
+                instance.create_files(files, post)
+            return {"message": "Resource created successfully", "status_code": status.HTTP_201_CREATED}
 
     def delete_post(self, post_id):
         """
@@ -189,18 +167,13 @@ class PostService:
             post = Post.objects.get(pk=post_id)
 
         except Post.DoesNotExist:
-            return {
-                "status": status.HTTP_404_NOT_FOUND,
-                "message": f"post id = {post_id} does not exist or already delete",
-            }
-        try:
-            with transaction.atomic():
-                instance = FileService()
-                instance.delete_files(post)  # file 삭제
-                post.delete()  # post 삭제
-                return {"message": "Resource deleted successfully", "status_code": status.HTTP_204_NO_CONTENT}
-        except Exception as e:
-            return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
+            raise exceptions.NotFound("post not found")
+
+        with transaction.atomic():
+            instance = FileService()
+            instance.delete_files(post)  # file 삭제
+            post.delete()  # post 삭제
+            return {"message": "Resource deleted successfully", "status_code": status.HTTP_204_NO_CONTENT}
 
     def update_post(
             self,
@@ -210,8 +183,7 @@ class PostService:
             content,
             html_content,
             files_state,
-            files,
-            author
+            files
     ):
         """
             <설명>
@@ -226,7 +198,7 @@ class PostService:
                 2. 변경해야하는 필드값를 시리얼라이즈
                 3. 트랜잭션 단위 설정 후 post 부분 저장
                 4. file부분 분리후 FileSerivce 인스턴스 생성
-                5. file 부분 수정
+                5. files_state에 따라 file 부분 수정 혹은 삭제
         """
         post_data_for_serialize = dict()
         if category:
@@ -241,29 +213,22 @@ class PostService:
         try:
             post = Post.objects.get(pk=post_id)
         except Post.DoesNotExist:
-            return {
-                "status": status.HTTP_400_BAD_REQUEST,
-                "message": "악악악악 post_id가 없는게 말이되냐",
-            }
+            raise exceptions.NotFound("post not found")
         # 직렬화
         post_serializer = PostCreateSerializer(post, data=post_data_for_serialize, partial=True)
         if not post_serializer.is_valid():
-            return {"message": post_serializer.errors, "status_code": status.HTTP_400_BAD_REQUEST}
-        try:
-            with transaction.atomic():
-                post = post_serializer.save()
+            raise exceptions.ValidationError(post_serializer.errors)
 
-                # file 수정 또는 삭제
-                if files_state:
-                    instance = FileService()
-                    if files_state == PostFilesState.REPLACE and files:
-                        instance.put_files(files, post)
-                    elif files_state == PostFilesState.DELETE:
-                        instance.delete_files(post)
-                    else:
-                        return {"message": "files_state is wrong", "status_code": status.HTTP_400_BAD_REQUEST}
-                return {"message": "Resource updated successfully", "status_code": status.HTTP_200_OK}
-        except ClientError as e:
-            return {"message": str(e), "status_code": status.HTTP_500_INTERNAL_SERVER_ERROR}
-        except Exception as e:
-            return {"message": str(e), "status_code": status.HTTP_400_BAD_REQUEST}
+        with transaction.atomic():
+            post = post_serializer.save()
+
+            # file 수정 또는 삭제
+            if files_state:
+                instance = FileService()
+                if files_state == PostFilesState.REPLACE and files:
+                    instance.put_files(files, post)
+                elif files_state == PostFilesState.DELETE:
+                    instance.delete_files(post)
+                else:
+                    return {"message": "files_state is wrong", "status_code": status.HTTP_400_BAD_REQUEST}
+            return {"message": "Resource updated successfully", "status_code": status.HTTP_200_OK}
