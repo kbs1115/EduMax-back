@@ -8,7 +8,7 @@ from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 from community.models import Post
 from community.serializers import PostRetrieveSerializer, PostListSerializer, PostCreateSerializer
 from community.domain.definition import PostSearchFilterParam, PostSortCategoryParam, \
-    POST_LIST_PAGE_SIZE, PostFilesState
+    POST_LIST_PAGE_SIZE, PostFilesState, PostCategories
 from rest_framework import status
 
 from community.service.file_service import FileService
@@ -17,7 +17,14 @@ from community.service.file_service import FileService
 class PostsService:
     parser_classes = [JSONParser]
 
-    def get_posts(self, category, search_filter, kw, sort, page):
+    def get_posts(
+            self,
+            category,
+            search_filter,
+            kw,
+            sort,
+            page
+    ):
         """
             <설명>
                 - validator을 지난 param을 가지고 조건에 맞게 select후 return.
@@ -80,6 +87,14 @@ class PostsService:
 class PostService:
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
+    @classmethod
+    def get_post_user_id(cls, post_id):
+        try:
+            post = Post.objects.get(pk=post_id)
+            return post.author.id
+        except Post.DoesNotExist:
+            return None
+
     def get_post(self, post_id):
         """
             <설명>
@@ -89,6 +104,7 @@ class PostService:
         try:
             post = Post.objects.get(pk=post_id)
             serializer = PostRetrieveSerializer(post)
+
             # view 함수로 넘겨주기
             return {"status": status.HTTP_200_OK,
                     "message": "post retrieve successfully",
@@ -100,12 +116,21 @@ class PostService:
                 "status": status.HTTP_404_NOT_FOUND,
                 "message": f"post id = {post_id} does not exist",
             }
+
         # 그외의 에러
         except Exception as e:
             return {"status_code": status.HTTP_500_INTERNAL_SERVER_ERROR,
                     "message": str(e)}
 
-    def create_post(self, category, title, content, html_content, files, author):
+    def create_post(
+            self,
+            category,
+            title,
+            content,
+            html_content,
+            files,
+            author
+    ):
         """
             <설명>
                 - post를 생성할때 쓰인다.
@@ -119,10 +144,10 @@ class PostService:
         """
 
         # restrict_post_create_permission
-        # if category == PostCategories.NOTICE:
-        #     if not (author.is_superuser or author.is_staff):
-        #         return {'message': 'Permission Denied',
-        #                 "status_code": status.HTTP_403_FORBIDDEN}
+        if category == PostCategories.NOTICE:
+            if not author.is_staff:
+                return {'message': 'Permission Denied',
+                        "status_code": status.HTTP_403_FORBIDDEN}
 
         # request.data 로 부터 post model 분리
         post_data = {'category': category,
@@ -162,6 +187,7 @@ class PostService:
         """
         try:
             post = Post.objects.get(pk=post_id)
+
         except Post.DoesNotExist:
             return {
                 "status": status.HTTP_404_NOT_FOUND,
