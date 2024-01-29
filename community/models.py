@@ -119,6 +119,17 @@ class Like(models.Model):
 
 
 class File(models.Model):
+    """
+        <설명>
+        현재는 post나 comment에 붙어서 종속적으로 존재한다.
+        삭제 시그널 별도로 x
+        비지니스 로직상 file을 우선 삭제후 post 혹은 comment 삭제이므로
+        delete = CasCade에 의해 삭제된 파일에 추가적인 작업 필요x
+
+        <필드>
+        file_location = s3의 파일 리소스 위치이다.
+        ->file_service.make_file_path에 의해 만들어진다.
+    """
     id = models.AutoField(primary_key=True)
     file_location = models.TextField()
     post = models.ForeignKey(
