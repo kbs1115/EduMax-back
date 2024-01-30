@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
+from rest_framework import exceptions
 
 from community.models import Post, Comment, File
 from community.serializers import FileSerializer
@@ -16,19 +17,15 @@ class FileService:
         # s3에 파일을 업로드한다
         try:
             default_storage.save(path, ContentFile(file.read()))  # 장고에서 모든 request.Files는 contentFile instance에 속함
-        except ClientError as e:
-            raise e
-        except Exception as e:
-            raise e
+        except ClientError:
+            raise ClientError
 
     @classmethod
     def s3_delete_file(cls, file_path):
         try:
             default_storage.delete(file_path)
-        except ClientError as e:
-            raise e
-        except Exception as e:
-            raise e
+        except ClientError:
+            raise ClientError
 
     @classmethod
     def make_file_path(cls, file):
@@ -57,7 +54,7 @@ class FileService:
                 dict_data = self.make_dict_for_serialize(f_path, related_model_instance)
                 serializer = FileSerializer(data=dict_data)
                 if not serializer.is_valid():
-                    raise serializer.errors
+                    raise exceptions.ValidationError(serializer.errors)
 
                 with transaction.atomic():
                     serializer.save()
@@ -65,10 +62,8 @@ class FileService:
                     # If s3_upload_file에서 에러발생하면 롤백
                     self.s3_upload_file(file, f_path)
 
-        except ClientError as e:
-            return e
-        except Exception as e:
-            return e
+        except ClientError:
+            raise ClientError
 
     def delete_files(self, related_model_instance):
         # files 삭제- s3삭제, file model 삭제
@@ -84,11 +79,7 @@ class FileService:
                     self.s3_delete_file(file_path)
 
         except File.DoesNotExist as e:
-            return e
-        except ClientError as e:
-            return e
-        except Exception as e:
-            return e
+            raise exceptions.NotFound(str(e))
 
     def put_files(self, files, related_model_instance):
         # file 수정 - put 방식을 사용, 기존꺼 삭제, 새로운거 생성
@@ -96,7 +87,7 @@ class FileService:
             self.delete_files(related_model_instance)
             self.create_files(files, related_model_instance)
         except Exception as e:
-            return e
+            raise e
 
     # 서버에서 직접 다운로드 할때 ->아직 필요x
     def download_files(self, paths):

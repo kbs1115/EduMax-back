@@ -17,9 +17,10 @@ class UserAPIView(APIView):
         return user
 
     def get(self, request):
+
         user = self.get_authenticated_user(request)
 
-        dataOfMe = UserService.get_serializer_data(user)
+        data_of_me = UserService.get_serializer_data(user)
         res = Response(dataOfMe, status=status.HTTP_200_OK)
 
         return res
@@ -30,11 +31,12 @@ class UserAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
 
-        userData = SignUpService.create_user(request.data)
+
+        user_data = SignUpService.create_user(request.data)
 
         res = Response(
             {
-                "user": userData,
+                "user": user_data,
                 "message": "signup success",
             },
             status=status.HTTP_200_OK,
@@ -47,12 +49,12 @@ class UserAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError("invalid data format")
 
-        if request.data.get("email") == None and request.data.get("nickname") == None:
+        if request.data.get("email") is None and request.data.get("nickname") is None:
             raise exceptions.ParseError("invalid data format")
 
         user = self.get_authenticated_user(request)
 
-        updatedDataOfMe = UserService.update_user(user, request.data)
+        updated_data_of_me = UserService.update_user(user, request.data)
         res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
 
         return res
@@ -75,8 +77,8 @@ class CertainUserAPIView(APIView):
     def get(self, request, pk):
         user = self.get_authenticated_user(request, pk)
 
-        dataOfMe = UserService.get_serializer_data(user)
-        res = Response(dataOfMe, status=status.HTTP_200_OK)
+        user_data = UserService.get_serializer_data(user)
+        res = Response(user_data, status=status.HTTP_200_OK)
 
         return res
 
@@ -91,8 +93,8 @@ class CertainUserAPIView(APIView):
 
         user = self.get_authenticated_user(request, pk)
 
-        updatedDataOfMe = UserService.update_user(user, request.data)
-        res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
+        updated_user_data = UserService.update_user(user, request.data)
+        res = Response(updated_user_data, status=status.HTTP_200_OK)
 
         return res
 
@@ -110,20 +112,20 @@ class AuthAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError("invalid data form")
 
-        loginData = AuthService.loginService(request.data)
+        login_data = AuthService.loginService(request.data)
 
         res = Response(
             {
-                "user": loginData["userData"],
+                "user": login_data["userData"],
                 "message": "login success",
                 "token": {
-                    "access": loginData["accessToken"],
-                    "refresh": loginData["refreshToken"],
+                    "access": login_data["accessToken"],
+                    "refresh": login_data["refreshToken"],
                 },
             },
             status=status.HTTP_200_OK,
         )
-        res.set_cookie("refreshToken", loginData["refreshToken"], httponly=True)
+        res.set_cookie("refreshToken", login_data["refreshToken"], httponly=True)
         return res
 
     def delete(self, request):
