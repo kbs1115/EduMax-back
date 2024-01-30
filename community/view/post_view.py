@@ -1,11 +1,28 @@
 from django.http import JsonResponse
+from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
+from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
 from rest_framework.views import APIView
 
-from community.service.validation import login_required, validate_query_params, \
+from account.models import User
+from community.service.validation import validate_query_params, \
     PostQueryParam, PostPathParam, validate_path_params, validate_body_request, CreatePostRequestBody, \
     UpdatePostRequestBody
 from community.service.post_service import PostService, PostsService
+
+
+class ReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS
+
+
+class IsOwner(BasePermission):
+    def has_object_permission(self, request, view, obj_id):
+        if request.user:
+            if obj_id == request.user.id:
+                return True
+            raise PermissionDenied()
+        raise NotAuthenticated()
 
 
 class GetPostsView(APIView):
@@ -14,7 +31,6 @@ class GetPostsView(APIView):
     def __init__(self):
         self.post_service = PostsService()
 
-    @validate_path_params(PostPathParam)
     @validate_query_params(PostQueryParam)
     def get(self, request, validated_query_params):
         params = {
@@ -35,6 +51,7 @@ class GetPostsView(APIView):
 
 class PostView(APIView):
     parser_classes = [JSONParser, FormParser, MultiPartParser]
+    permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
 
     def __init__(self):
         self.post_service = PostService()
@@ -49,7 +66,6 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-    # 고려해야할점: html_content 때문에 xss 방어가 작동할지 모르겠음
     @validate_body_request(CreatePostRequestBody)
     def post(self, request, validated_request_body):
         body = {
@@ -67,10 +83,13 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-    # permission 설정 필요
     @validate_body_request(UpdatePostRequestBody)
     @validate_path_params(PostPathParam)
     def patch(self, request, post_id, validated_request_body):
+        # instance permission 확인
+        obj_id = PostService.get_post_user_id(post_id)
+        self.check_object_permissions(request, obj_id)
+
         body = {
             "category": validated_request_body.category,
             "content": validated_request_body.content,
@@ -87,10 +106,12 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-    # permission 설정 필요
     @validate_path_params(PostPathParam)
-    @login_required
     def delete(self, request, post_id):
+        # instance permission 확인
+        obj_id = PostService.get_post_user_id(post_id)
+        self.check_object_permissions(request, obj_id)
+
         response = self.post_service.delete_post(post_id)
         return JsonResponse(status=response.get("status_code"),
                             data={
