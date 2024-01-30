@@ -21,7 +21,7 @@ class UserAPIView(APIView):
         user = self.get_authenticated_user(request)
 
         data_of_me = UserService.get_serializer_data(user)
-        res = Response(dataOfMe, status=status.HTTP_200_OK)
+        res = Response(data_of_me, status=status.HTTP_200_OK)
 
         return res
 
@@ -30,7 +30,6 @@ class UserAPIView(APIView):
             e = SignupParamModel(**request.data)
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
-
 
         user_data = SignUpService.create_user(request.data)
 
@@ -55,7 +54,7 @@ class UserAPIView(APIView):
         user = self.get_authenticated_user(request)
 
         updated_data_of_me = UserService.update_user(user, request.data)
-        res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
+        res = Response(updated_data_of_me, status=status.HTTP_200_OK)
 
         return res
 
@@ -88,7 +87,7 @@ class CertainUserAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError("invalid data format")
 
-        if request.data.get("email") == None and request.data.get("nickname") == None:
+        if request.data.get("email") is None and request.data.get("nickname") is None:
             raise exceptions.ParseError("invalid data format")
 
         user = self.get_authenticated_user(request, pk)
