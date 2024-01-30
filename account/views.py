@@ -11,11 +11,17 @@ from pydantic import ValidationError
 class UserAPIView(APIView):
     permission_classes = [UserPermission]
 
-    userService = UserService()
+    def get_authenticated_user(self, request):
+        user = UserService.get_me(request)
+        self.check_object_permissions(request, user)
+        return user
 
     def get(self, request):
-        data_of_me = self.userService.get_serializer_data(self, request, None)
-        res = Response(data_of_me, status=status.HTTP_200_OK)
+
+        user = self.get_authenticated_user(request)
+
+        data_of_me = UserService.get_serializer_data(user)
+        res = Response(dataOfMe, status=status.HTTP_200_OK)
 
         return res
 
@@ -25,7 +31,8 @@ class UserAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
 
-        user_data = SignUpService.create_user(request)
+
+        user_data = SignUpService.create_user(request.data)
 
         res = Response(
             {
@@ -45,23 +52,32 @@ class UserAPIView(APIView):
         if request.data.get("email") is None and request.data.get("nickname") is None:
             raise exceptions.ParseError("invalid data format")
 
-        updated_data_of_me = self.userService.update_user(self, request, None)
-        res = Response(updated_data_of_me, status=status.HTTP_200_OK)
+        user = self.get_authenticated_user(request)
+
+        updated_data_of_me = UserService.update_user(user, request.data)
+        res = Response(updatedDataOfMe, status=status.HTTP_200_OK)
 
         return res
 
     def delete(self, request):
-        self.userService.delete_user(self, request, None)
+        user = self.get_authenticated_user(request)
+
+        UserService.delete_user(user)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
 class CertainUserAPIView(APIView):
     permission_classes = [UserPermission]
 
-    userService = UserService()
+    def get_authenticated_user(self, request, pk):
+        user = UserService.get_user_with_pk(pk)
+        self.check_object_permissions(request, user)
+        return user
 
     def get(self, request, pk):
-        user_data = self.userService.get_serializer_data(self, request, pk)
+        user = self.get_authenticated_user(request, pk)
+
+        user_data = UserService.get_serializer_data(user)
         res = Response(user_data, status=status.HTTP_200_OK)
 
         return res
@@ -70,18 +86,22 @@ class CertainUserAPIView(APIView):
         try:
             e = PatchUserModel(**request.data)
         except ValidationError as e:
-            raise exceptions.ParseError(str(e))
+            raise exceptions.ParseError("invalid data format")
 
-        if request.data.get("email") is None and request.data.get("nickname") is None:
-            raise exceptions.ParseError("There is no data to update")
+        if request.data.get("email") == None and request.data.get("nickname") == None:
+            raise exceptions.ParseError("invalid data format")
 
-        updated_user_data = self.userService.update_user(self, request, pk)
+        user = self.get_authenticated_user(request, pk)
+
+        updated_user_data = UserService.update_user(user, request.data)
         res = Response(updated_user_data, status=status.HTTP_200_OK)
 
         return res
 
     def delete(self, request, pk):
-        self.userService.delete_user(self, request, pk)
+        user = self.get_authenticated_user(request, pk)
+
+        UserService.delete_user(user)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
@@ -92,7 +112,7 @@ class AuthAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError("invalid data form")
 
-        login_data = AuthService.loginService(request)
+        login_data = AuthService.loginService(request.data)
 
         res = Response(
             {
