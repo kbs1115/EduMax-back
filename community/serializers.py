@@ -43,12 +43,10 @@ class PostCreateSerializer(serializers.ModelSerializer):
     """
         - post model에 들어가는 input 시리얼라이저
     """
-    author = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
 
     class Meta:
         model = Post
-        fields = ['title', 'html_content', 'created_at', 'modified_at', 'category',
-                  'author']
+        fields = '__all__'
 
 
 class PostListSerializer(serializers.ModelSerializer):

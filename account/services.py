@@ -83,13 +83,13 @@ class AuthService:
             serializer = UserSerializer(user)
 
             token = TokenObtainPairSerializer.get_token(user)
-            refreshToken = str(token)
-            accessToken = str(token.access_token)
+            refresh_token = str(token)
+            access_token = str(token.access_token)
 
             return {
                 "userData": serializer.data,
-                "refreshToken": refreshToken,
-                "accessToken": accessToken,
+                "refreshToken": refresh_token,
+                "accessToken": access_token,
             }
         else:
             raise exceptions.ValidationError(
