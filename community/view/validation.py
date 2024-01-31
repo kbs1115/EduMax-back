@@ -1,5 +1,5 @@
 from functools import wraps
-from typing import Type
+from typing import Type, ClassVar
 from django.http import JsonResponse
 from rest_framework import status, exceptions
 from pydantic import BaseModel, Field
@@ -12,6 +12,12 @@ from community.domain.definition import PostCategoriesParam, PostSearchFilterPar
 
 # post view 에 들어오는 query_param을 validate 하기위한 임의의 model
 class PostQueryParam(BaseModel):
+    PAGE: ClassVar[str] = "page"
+    CATEGORY: ClassVar[str] = "category"
+    SEARCH_FILTER: ClassVar[str] = "search_filter"
+    Q: ClassVar[str] = "q"
+    SORT: ClassVar[str] = "sort"
+
     page: int = Field(default=1, ge=1)
     category: PostCategoriesParam = Field(default=PostCategoriesParam.ENG_QUESTION)
     search_filter: PostSearchFilterParam = Field(default=PostSearchFilterParam.TOTAL)
@@ -20,10 +26,15 @@ class PostQueryParam(BaseModel):
 
 
 class PostPathParam(BaseModel):
-    post_id: int = Field(ge=0)
+    post_id: int = Field(gt=0)
 
 
 class CreatePostRequestBody(BaseModel):
+    CATEGORY: ClassVar[str] = "category"
+    CONTENT: ClassVar[str] = "content"
+    TITLE: ClassVar[str] = "title"
+    HTML_CONTENT: ClassVar[str] = "html_content"
+
     category: PostCategoriesParam = Field(default=PostCategoriesParam.ENG_QUESTION)
     content: str = Field(min_length=1)
     title: str = Field(max_length=30)
@@ -32,6 +43,12 @@ class CreatePostRequestBody(BaseModel):
 
 
 class UpdatePostRequestBody(BaseModel):
+    CATEGORY: ClassVar[str] = "category"
+    CONTENT: ClassVar[str] = "content"
+    TITLE: ClassVar[str] = "title"
+    HTML_CONTENT: ClassVar[str] = "html_content"
+    FILES_STATE: ClassVar[str] = "files_state"
+
     category: PostCategoriesParam = Field(default=None)
     content: str = Field(min_length=1, default=None)
     title: str = Field(max_length=30, default=None)

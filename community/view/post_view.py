@@ -4,8 +4,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
 from rest_framework.views import APIView
 
-from account.models import User
-from community.service.validation import validate_query_params, \
+from community.view.validation import validate_query_params, \
     PostQueryParam, PostPathParam, validate_path_params, validate_body_request, CreatePostRequestBody, \
     UpdatePostRequestBody
 from community.service.post_service import PostService, PostsService
@@ -51,7 +50,7 @@ class GetPostsView(APIView):
 
 class PostView(APIView):
     parser_classes = [JSONParser, FormParser, MultiPartParser]
-    permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
+    # permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
 
     def __init__(self):
         self.post_service = PostService()
