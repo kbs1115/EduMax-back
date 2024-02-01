@@ -50,7 +50,7 @@ class GetPostsView(APIView):
 
 class PostView(APIView):
     parser_classes = [JSONParser, FormParser, MultiPartParser]
-    # permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
+    permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
 
     def __init__(self):
         self.post_service = PostService()

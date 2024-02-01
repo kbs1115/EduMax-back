@@ -1,9 +1,11 @@
+from unittest.mock import MagicMock
+
 from rest_framework import exceptions
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.request import Request
 
 from community.tests.conftests import *
-from rest_framework.test import APIRequestFactory
+from rest_framework.test import APIRequestFactory, force_authenticate
 from community.service.post_service import PostService, PostsService
 from community.view.post_view import PostView, GetPostsView
 
@@ -174,11 +176,57 @@ class TestPostView:
         response = PostView().delete(request, post_id=valid_post_path_param)
         assert response
 
+    # middleware test로 빠져야함
     def test_authentication_permission(self):
         pass
 
-    def test_instance_permission(self):
-        pass
+    def test_instance_permission_if_has_permission(
+            self,
+            mocker,
+            valid_reqeust_post_body_for_method_post,
+            valid_post_path_param,
+            mocked_service_response
+    ):
+        get_post_user_id_mocker = mocker.patch.object(PostService, "get_post_user_id")
+        get_post_user_id_mocker.return_value = 1
+
+        fake_user = MagicMock(User)
+        fake_user.id = 1
+
+        update_post_mocker = mocker.patch.object(PostService, "update_post")
+        update_post_mocker.return_value = mocked_service_response
+
+        for request_body in valid_reqeust_post_body_for_method_post:
+            factory = APIRequestFactory()
+            request = factory.patch(self.PostViewPath, data=request_body)
+            force_authenticate(request, user=fake_user)
+            request = Request(request, parsers=[MultiPartParser()])
+            response = PostView().patch(request, post_id=valid_post_path_param)
+            assert response
+
+    def test_instance_permission_if_do_not_have_permission(
+            self,
+            mocker,
+            valid_reqeust_post_body_for_method_post,
+            valid_post_path_param,
+            mocked_service_response
+    ):
+        get_post_user_id_mocker = mocker.patch.object(PostService, "get_post_user_id")
+        get_post_user_id_mocker.return_value = 1
+
+        fake_user = MagicMock(User)
+        fake_user.id = 2
+
+        update_post_mocker = mocker.patch.object(PostService, "update_post")
+        update_post_mocker.return_value = mocked_service_response
+
+        for request_body in valid_reqeust_post_body_for_method_post:
+            factory = APIRequestFactory()
+            request = factory.patch(self.PostViewPath, data=request_body)
+            force_authenticate(request, user=fake_user)
+            request = Request(request, parsers=[MultiPartParser()])
+            with pytest.raises(exceptions.PermissionDenied):
+                PostView().patch(request, post_id=valid_post_path_param)
 
 
 class TestPostsView:
