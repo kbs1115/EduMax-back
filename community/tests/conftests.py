@@ -1,11 +1,24 @@
+from typing import List, Type
+
 import pytest
+from django.db.models import QuerySet
 from rest_framework import status
 
 from account.models import User
 
 from community.domain.definition import PostFilesState, PostCategoriesParam, PostSearchFilterParam, \
     PostSortCategoryParam
+from community.models import Post, Comment
 from community.view.validation import PostQueryParam, CreatePostRequestBody, UpdatePostRequestBody
+
+
+def queryset_factory(model_class: Type[Post], instances=None):
+    if instances:
+        queryset = QuerySet(model=model_class)
+        queryset._result_cache = [inst for inst in instances]
+        return queryset
+    else:
+        return model_class.objects.none()
 
 
 @pytest.fixture
@@ -24,7 +37,7 @@ def super_user_instance():
 @pytest.fixture
 def staff_user_instance():
     staff_user = User(
-        id=1,
+        id=2,
         login_id="kbs1115",
         email="bruce1115@naver.com",
         nickname="KKKBBBSSS",
@@ -37,13 +50,34 @@ def staff_user_instance():
 @pytest.fixture
 def common_user_instance():
     user = User(
-        id=1,
+        id=3,
         login_id="kbs1115",
         email="bruce1115@naver.com",
         nickname="KKKBBBSSS",
         password="pwpwpwpw",
     )
     return user
+
+
+@pytest.fixture
+def valid_post_instance_list(common_user_instance):
+    return [
+        Post(
+            id=1,
+            title="test1",
+            content="test1",
+            html_content="test1",
+            category="EQ",
+            author=common_user_instance
+        ), Post(
+            id=2,
+            title="test2",
+            content="test2",
+            html_content="test2",
+            category="EQ",
+            author=common_user_instance
+        )
+    ]
 
 
 @pytest.fixture
