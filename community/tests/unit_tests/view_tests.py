@@ -45,7 +45,7 @@ class TestPostView:
             valid_post_path_param,
             mocked_service_response
     ):
-        mocker = mocker.patch.object(PostService, "get_post")
+        mocker = mocker.patch.object(PostService, "retrieve_post")
         mocker.return_value = mocked_service_response
 
         factory = APIRequestFactory()

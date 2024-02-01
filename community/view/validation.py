@@ -110,7 +110,6 @@ def validate_body_request(model: Type[BaseModel]):
     """
         <설명>
         request의 body에 있는 데이터를 검증한다.
-
     """
 
     def decorated_func(f):

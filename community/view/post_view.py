@@ -58,7 +58,7 @@ class PostView(APIView):
     @validate_path_params(PostPathParam)
     def get(self, request, post_id):
         # retrieve
-        response = self.post_service.get_post(post_id)
+        response = self.post_service.retrieve_post(post_id)
         return JsonResponse(status=response.get("status_code"),
                             data={
                                 "message": response.get("message", None),
