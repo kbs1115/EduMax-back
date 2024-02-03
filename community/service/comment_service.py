@@ -6,9 +6,18 @@ from community.serializers import CommentCreateSerializer, CommentRetrieveSerial
 from community.service.file_service import FileService
 from community.model.access import get_post_from_id, get_parent_post_id
 from community.model.models import Comment
+from community.domain.definition import PostFilesState
 
 
 class CommentService:
+    @classmethod
+    def get_comment_user_id(cls, comment_id):
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+            return comment.author.id
+        except Comment.DoesNotExist:
+            raise NotFound("Comment not found")
+
     @classmethod
     def get_comment(cls, comment_id):
         try:
@@ -65,4 +74,63 @@ class CommentService:
                     "post_id": comment.post.id,
                     "author": comment.author.login_id,
                 },
+            }
+
+    @classmethod
+    def update_comment(cls, comment_id, content, html_content, files, files_state):
+        serializer_data = {
+            "content": content,
+            "html_content": html_content,
+        }
+
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            raise NotFound("comment not found")
+
+        comment_update_serializer = CommentCreateSerializer(
+            comment, data=serializer_data, partial=True
+        )
+        if not comment_update_serializer.is_valid():
+            raise ValidationError(comment_update_serializer.errors)
+
+        with transaction.atomic():
+            comment = comment_update_serializer.save()
+
+            # file 수정 또는 삭제
+            if files_state:
+                instance = FileService()
+                if files_state == PostFilesState.REPLACE and files:
+                    instance.put_files(files, comment)
+                elif files_state == PostFilesState.DELETE:
+                    instance.delete_files(comment)
+                else:
+                    return {
+                        "message": "files_state is wrong",
+                        "status_code": status.HTTP_400_BAD_REQUEST,
+                    }
+            return {
+                "message": "Resource updated successfully",
+                "status_code": status.HTTP_200_OK,
+                "data": {
+                    "id": comment.id,
+                    "post_id": comment.post.id,
+                    "author": comment.author.login_id,
+                },
+            }
+
+    @classmethod
+    def delete_comment(cls, comment_id):
+        try:
+            comment = Comment.objects.get(pk=comment_id)
+        except Comment.DoesNotExist:
+            raise NotFound("comment not found")
+
+        with transaction.atomic():
+            instance = FileService()
+            instance.delete_files(comment)  # file 삭제
+            comment.delete()  # post 삭제
+            return {
+                "message": "Resource deleted successfully",
+                "status_code": status.HTTP_204_NO_CONTENT,
             }

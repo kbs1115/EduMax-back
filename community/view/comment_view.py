@@ -8,6 +8,7 @@ from community.service.validation import (
     validate_body_request,
     validate_path_params,
     CreateCommentRequestBody,
+    UpdateCommentRequestBody,
     PostPathParam,
     CommentPathParam,
 )
@@ -73,5 +74,40 @@ class CommentView(APIView):
             data={
                 "message": response.get("message", None),
                 "data": response.get("data", None),
+            },
+        )
+
+    @validate_body_request(UpdateCommentRequestBody)
+    @validate_path_params(CommentPathParam)
+    def patch(self, request, comment_id, validated_request_body):
+        obj_id = CommentService.get_comment_user_id(comment_id)
+        self.check_object_permissions(request, obj_id)
+
+        body = {
+            "content": validated_request_body.content,
+            "html_content": validated_request_body.html_content,
+            "files": request.FILES.getlist("files", None),
+            "files_state": validated_request_body.files_state,
+        }
+
+        response = CommentService.update_comment(comment_id, **body)
+        return Response(
+            status=response.get("status_code"),
+            data={
+                "message": response.get("message", None),
+                "data": response.get("data", None),
+            },
+        )
+
+    @validate_path_params(CommentPathParam)
+    def delete(self, request, comment_id):
+        obj_id = CommentService.get_comment_user_id(comment_id)
+        self.check_object_permissions(request, obj_id)
+
+        response = CommentService.delete_comment(comment_id)
+        return Response(
+            status=response.get("status_code"),
+            data={
+                "message": response.get("message", None),
             },
         )

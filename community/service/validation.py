@@ -53,6 +53,13 @@ class CreateCommentRequestBody(BaseModel):
 class CommentPathParam(BaseModel):
     comment_id: int = Field(ge=0)
 
+
+class UpdateCommentRequestBody(BaseModel):
+    content: str = Field(min_length=1)
+    html_content: str = Field(min_length=1)
+    files_state: PostFilesState = Field(default=None)
+    # files 도 valid 하면 좋을듯
+
     """validator 모음"""
 
 
