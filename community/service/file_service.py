@@ -43,7 +43,8 @@ class FileService:
             post = related_model_instance
             return {"post": post.id, "file_location": file_path}
         if isinstance(related_model_instance, Comment):
-            pass
+            comment = related_model_instance
+            return {"comment": comment.id, "file_location": file_path}
 
     def create_files(self, files, related_model_instance):
         # files s3저장, file model 저장
@@ -67,9 +68,15 @@ class FileService:
     def delete_files(self, related_model_instance):
         # files 삭제- s3삭제, file model 삭제
         try:
-            files_id = File.objects.filter(post=related_model_instance).values_list(
-                "id", flat=True
-            )
+            if isinstance(related_model_instance, Post):
+                files_id = File.objects.filter(post=related_model_instance).values_list(
+                    "id", flat=True
+                )
+            elif isinstance(related_model_instance, Comment):
+                files_id = File.objects.filter(
+                    comment=related_model_instance
+                ).values_list("id", flat=True)
+
             for file_id in files_id:
                 instance = File.objects.get(pk=file_id)
                 file_path = instance.file_location
