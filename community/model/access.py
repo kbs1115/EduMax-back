@@ -13,8 +13,6 @@ def get_post_from_id(id):
 def get_parent_post_id(comment_id):
     try:
         comment = Comment.objects.get(pk=comment_id)
-        if not comment.post.id:
-            raise NotFound("Post_id not found")
         return comment.post.id
     except Comment.DoesNotExist:
         raise NotFound("Parent Comment does not exists")
