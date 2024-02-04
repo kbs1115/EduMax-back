@@ -102,7 +102,7 @@ class PostService:
             raise exceptions.NotFound("post not found")
 
     @classmethod
-    def get_post_obj(cls, post_id):
+    def get_post_instance(cls, post_id):
         try:
             return Post.objects.get(pk=post_id)
 
@@ -117,7 +117,7 @@ class PostService:
             - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
         """
 
-        post = self.get_post_obj(post_id)
+        post = self.get_post_instance(post_id)
         serializer = PostRetrieveSerializer(post)
         # view 함수로 넘겨주기
         return {"status": status.HTTP_200_OK,
@@ -131,8 +131,8 @@ class PostService:
             title,
             content,
             html_content,
-            files,
-            author
+            author,
+            files=None
     ):
         """
             <설명>
@@ -183,7 +183,7 @@ class PostService:
                 5. post model instance 삭제
         """
 
-        post = self.get_post_obj(post_id)
+        post = self.get_post_instance(post_id)
 
         with transaction.atomic():
             instance = FileService()
@@ -194,11 +194,11 @@ class PostService:
     def update_post(
             self,
             post_id,
-            files=None,
             category=None,
             title=None,
             content=None,
             html_content=None,
+            files=None,
             files_state=None,
     ):
         """
@@ -227,7 +227,7 @@ class PostService:
             post_data_for_serialize["html_content"] = html_content
 
         # 해당 post 가져옴
-        post = self.get_post_obj(post_id)
+        post = self.get_post_instance(post_id)
 
         # 직렬화
         post_serializer = PostCreateSerializer(post, data=post_data_for_serialize, partial=True)
@@ -240,9 +240,9 @@ class PostService:
             # file 수정 또는 삭제
             if files_state:
                 instance = FileService()
-                if files_state == PostFilesState.REPLACE and files:
+                if files_state == PostFilesState.REPLACE and files is not None:
                     instance.put_files(files, post)
-                elif files_state == PostFilesState.DELETE:
+                elif files_state == PostFilesState.DELETE and files is None:
                     instance.delete_files(post)
                 else:
                     return {"message": "files_state is wrong", "status_code": status.HTTP_400_BAD_REQUEST}
