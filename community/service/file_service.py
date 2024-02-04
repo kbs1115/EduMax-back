@@ -46,48 +46,50 @@ class FileService:
         if isinstance(related_model_instance, Comment):
             pass
 
+    @classmethod
+    def get_files_id_list(cls, related_model_instance):
+        return File.objects.filter(post=related_model_instance).values_list('id', flat=True)
+
+    @classmethod
+    def get_file_instance(cls, file_id):
+        try:
+            return File.objects.get(pk=file_id)
+        except File.DoesNotExist:
+            raise exceptions.NotFound("file not found")
+
     def create_files(self, files, related_model_instance):
         # files s3저장, file model 저장
-        try:
-            for file in files:
-                f_path = self.make_file_path(file)
-                dict_data = self.make_dict_for_serialize(f_path, related_model_instance)
-                serializer = FileSerializer(data=dict_data)
-                if not serializer.is_valid():
-                    raise exceptions.ValidationError(serializer.errors)
 
-                with transaction.atomic():
-                    serializer.save()
+        for file in files:
+            f_path = self.make_file_path(file)
+            dict_data = self.make_dict_for_serialize(f_path, related_model_instance)
+            serializer = FileSerializer(data=dict_data)
+            if not serializer.is_valid():
+                raise exceptions.ValidationError(serializer.errors)
 
-                    # If s3_upload_file에서 에러발생하면 롤백
-                    self.s3_upload_file(file, f_path)
+            with transaction.atomic():
+                serializer.save()
 
-        except ClientError:
-            raise ClientError
+                # If s3_upload_file에서 에러발생하면 롤백
+                self.s3_upload_file(file, f_path)
 
     def delete_files(self, related_model_instance):
         # files 삭제- s3삭제, file model 삭제
-        try:
-            files_id = File.objects.filter(post=related_model_instance).values_list('id', flat=True)
-            for file_id in files_id:
-                instance = File.objects.get(pk=file_id)
-                file_path = instance.file_location
-                with transaction.atomic():
-                    instance.delete()
 
-                    # If s3_delete_file에서 에러발생하면 롤백
-                    self.s3_delete_file(file_path)
+        files_id = self.get_files_id_list(related_model_instance)
+        for file_id in files_id:
+            instance = self.get_file_instance(file_id)
+            file_path = instance.file_location
+            with transaction.atomic():
+                instance.delete()
 
-        except File.DoesNotExist as e:
-            raise exceptions.NotFound(str(e))
+                # If s3_delete_file에서 에러발생하면 롤백
+                self.s3_delete_file(file_path)
 
     def put_files(self, files, related_model_instance):
         # file 수정 - put 방식을 사용, 기존꺼 삭제, 새로운거 생성
-        try:
-            self.delete_files(related_model_instance)
-            self.create_files(files, related_model_instance)
-        except Exception as e:
-            raise e
+        self.delete_files(related_model_instance)
+        self.create_files(files, related_model_instance)
 
     # 서버에서 직접 다운로드 할때 ->아직 필요x
     def download_files(self, paths):
