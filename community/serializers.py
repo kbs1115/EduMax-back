@@ -90,15 +90,10 @@ class CommentCreateSerializer(serializers.ModelSerializer):
 
 
 class CommentRetrieveSerializer(serializers.ModelSerializer):
-    """
-    - PostRetrieve 를 위한 output 시리얼라이저
-    - 해당 post_id를 외래키로 가지고있는 files도 같이 보내줌.
-    - author의 닉네임을 보내줌
-    """
-
     author = serializers.SlugRelatedField(
         queryset=User.objects.all(), slug_field="nickname"
     )
+
     # 해당 post_id 와 관련된 files
     files = FileSerializer(many=True, read_only=True)
 
