@@ -18,3 +18,19 @@ def get_parent_post_id(comment_id):
         return comment.post.id
     except Comment.DoesNotExist:
         raise NotFound("Parent Comment does not exists")
+
+
+def get_comment_user_id(comment_id):
+    try:
+        comment = Comment.objects.get(pk=comment_id)
+        return comment.author.id
+    except Comment.DoesNotExist:
+        raise NotFound("Comment not found")
+
+
+def get_comment_from_id(comment_id):
+    try:
+        comment = Comment.objects.get(pk=comment_id)
+        return comment
+    except Comment.DoesNotExist:
+        raise NotFound("comment not found")
