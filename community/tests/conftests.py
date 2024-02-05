@@ -18,6 +18,7 @@ from community.service.post_service import PostService, PostsService
 from community.view.validation import PostQueryParam, CreatePostRequestBody, UpdatePostRequestBody
 
 
+# 팩토리 함수
 def queryset_factory(model_class: Type[Post], instances=None):
     if instances:
         queryset = QuerySet(model=model_class)
@@ -27,10 +28,7 @@ def queryset_factory(model_class: Type[Post], instances=None):
         return model_class.objects.none()
 
 
-# mocked class
-
-
-# mocked instance
+# 모델 인스턴스, 각종 django request
 @pytest.fixture
 def files_form_of_request_dot_files():
     image1 = Image.new('RGB', (100, 100), color='red')
@@ -67,89 +65,6 @@ def files_form_of_request_dot_files():
 
 
 @pytest.fixture
-def mocked_delete_files_method(mocker):
-    mocker = mocker.patch.object(FileService, 'delete_files')
-    return mocker
-
-
-@pytest.fixture
-def mocked_create_files_method(mocker):
-    mocker = mocker.patch.object(FileService, 'create_files')
-    return mocker
-
-
-@pytest.fixture
-def mocked_update_files_method(mocker):
-    mocker = mocker.patch.object(FileService, 'put_files')
-    return mocker
-
-
-@pytest.fixture
-def mocked_s3_upload_file_method(mocker):
-    mocker = mocker.patch.object(FileService, 's3_upload_file')
-    return mocker
-
-
-@pytest.fixture
-def mocked_s3_delete_file_method(mocker):
-    mocker = mocker.patch.object(FileService, 's3_delete_file')
-    return mocker
-
-
-@pytest.fixture
-def mocked_serializer_save(mocker):
-    mock_save = mocker.patch.object(PostCreateSerializer, "save")
-    return mock_save
-
-
-@pytest.fixture
-def mocked_get_post_obj(mocker, valid_post_instance_list):
-    mocker = mocker.patch.object(PostService, "get_post_instance")
-    mocker.return_value = valid_post_instance_list[0]
-
-    return mocker
-
-
-@pytest.fixture
-def mocked_get_post_user_id(mocker):
-    mocker = mocker.patch.object(PostsService, "get_post_user_id")
-    mocker.return_value = 1
-    return mocker
-
-
-@pytest.fixture
-def mocked_get_files_id_list(mocker):
-    mocker = mocker.patch.object(FileService, "get_files_id_list")
-    mocker.return_value = [1, 2, 3]
-    return mocker
-
-
-@pytest.fixture
-def mocked_get_file_instance(mocker, valid_file_instance_list):
-    mocker = mocker.patch.object(FileService, "get_file_instance")
-    mocker.return_value = valid_file_instance_list[0]
-    return mocker
-
-
-@pytest.fixture
-def mocked_get_posts_from_db_return_queryset(mocker, valid_post_instance_list):
-    mocker = mocker.patch.object(PostsService, "get_posts_from_db")
-    mocked_posts = queryset_factory(Post, valid_post_instance_list)
-    mocker.return_value = mocked_posts
-
-    return mocker
-
-
-@pytest.fixture
-def mocked_get_posts_from_db_return_empty_queryset(mocker, valid_post_instance_list):
-    mocker = mocker.patch.object(PostsService, "get_posts_from_db")
-    mocked_posts = queryset_factory(Post)
-    mocker.return_value = mocked_posts
-
-    return mocker
-
-
-@pytest.fixture
 def super_user_instance():
     superuser = User(
         id=1,
@@ -162,7 +77,7 @@ def super_user_instance():
     return superuser
 
 
-@pytest.fixture
+@pytest.fixture(scope="class")
 def staff_user_instance():
     staff_user = User(
         id=2,
@@ -223,6 +138,114 @@ def valid_post_instance_list(common_user_instance):
     ]
 
 
+# service layer 메소드 모킹
+
+@pytest.fixture
+def mocked_delete_files_method(mocker):
+    mocker = mocker.patch.object(FileService, 'delete_files')
+    return mocker
+
+
+@pytest.fixture
+def mocked_create_files_method(mocker):
+    mocker = mocker.patch.object(FileService, 'create_files')
+    return mocker
+
+
+@pytest.fixture
+def mocked_update_files_method(mocker):
+    mocker = mocker.patch.object(FileService, 'put_files')
+    return mocker
+
+
+@pytest.fixture
+def mocked_s3_upload_file_method(mocker):
+    mocker = mocker.patch.object(FileService, 's3_upload_file')
+    return mocker
+
+
+@pytest.fixture
+def mocked_s3_delete_file_method(mocker):
+    mocker = mocker.patch.object(FileService, 's3_delete_file')
+    return mocker
+
+
+# service layer 메소드 모킹- orm
+@pytest.fixture
+def mocked_get_post_obj(mocker, valid_post_instance_list):
+    mocker = mocker.patch.object(PostService, "get_post_instance")
+    mocker.return_value = valid_post_instance_list[0]
+
+    return mocker
+
+
+@pytest.fixture
+def mocked_get_post_user_id(mocker):
+    mocker = mocker.patch.object(PostsService, "get_post_user_id")
+    mocker.return_value = 1
+    return mocker
+
+
+@pytest.fixture
+def mocked_get_files_id_list(mocker):
+    mocker = mocker.patch.object(FileService, "get_files_id_list")
+    mocker.return_value = [1, 2, 3]
+    return mocker
+
+
+@pytest.fixture
+def mocked_get_file_instance(mocker, valid_file_instance_list):
+    mocker = mocker.patch.object(FileService, "get_file_instance")
+    mocker.return_value = valid_file_instance_list[0]
+    return mocker
+
+
+@pytest.fixture
+def mocked_get_posts_from_db_return_queryset(mocker, valid_post_instance_list):
+    mocker = mocker.patch.object(PostsService, "get_posts_from_db")
+    mocked_posts = queryset_factory(Post, valid_post_instance_list)
+    mocker.return_value = mocked_posts
+
+    return mocker
+
+
+@pytest.fixture
+def mocked_get_posts_from_db_return_empty_queryset(mocker, valid_post_instance_list):
+    mocker = mocker.patch.object(PostsService, "get_posts_from_db")
+    mocked_posts = queryset_factory(Post)
+    mocker.return_value = mocked_posts
+
+    return mocker
+
+
+# api test용 세팅
+@pytest.fixture(scope='class')
+def set_up_for_posts_api(generate_posts_for_set_up):
+    pass
+
+
+@pytest.mark.django_db(transaction=True)
+@pytest.fixture(scope='class')
+def set_up_create_posts(staff_user_instance):
+    staff_user_instance.save()
+
+    posts = []
+    for category in PostCategoriesParam:
+        cnt = 1
+        while cnt < 4:
+            posts.append({
+                'id': cnt,
+                'title': f'title{cnt}',
+                'content': f'content{cnt}',
+                'html_content': f'html_content{cnt}',
+                'category': category.value,
+                'author': staff_user_instance
+            })
+            cnt += 1
+    PostCreateSerializer(many=True, data=posts).save()
+
+
+# 테스트용 각종 파라매터
 @pytest.fixture
 def valid_post_path_param():
     return 1
