@@ -1,7 +1,4 @@
-import pytest
 from account.tests.conftests import *
-from account.serializers import UserSerializer
-from account.services import *
 from account.views import *
 from account.models import User
 from unittest.mock import Mock
@@ -106,7 +103,7 @@ class TestUserService:
 class TestAuthService:
     def test_valid_login(self, valid_login_data, mocker):
         mock_request = Mock(data=valid_login_data)
-        mock_authenticate = mocker.patch("account.services.authenticate")
+        mock_authenticate = mocker.patch("account.service.services.authenticate")
         mock_authenticate.return_value = User(id=1)
         serializer = UserSerializer(mock_authenticate.return_value)
 
@@ -121,7 +118,7 @@ class TestAuthService:
 
     def test_invalid_login(self, invalid_login_data, mocker):
         mock_request = Mock(data=invalid_login_data)
-        mock_authenticate = mocker.patch("account.services.authenticate")
+        mock_authenticate = mocker.patch("account.service.services.authenticate")
         mock_authenticate.return_value = None
 
         with pytest.raises(exceptions.ValidationError):
