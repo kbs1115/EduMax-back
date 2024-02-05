@@ -1,4 +1,6 @@
 import pytest
+from unittest.mock import patch
+from django.http import QueryDict
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
@@ -6,6 +8,7 @@ from account.models import User
 from community.model.models import Comment, Post, File
 from community.domain.definition import PostCategories
 from community.service.comment_service import *
+from community.view.comment_view import CommentView
 
 
 @pytest.fixture
@@ -100,6 +103,11 @@ def mocked_get_parent_post_id(mocker):
 
 
 @pytest.fixture
+def mocked_get_comment_user_id(mocker):
+    return mocker.patch("community.service.comment_service.get_comment_user_id")
+
+
+@pytest.fixture
 def mocked_get_post_from_id(mocker):
     return mocker.patch(
         "community.service.comment_service.get_post_from_id",
@@ -179,3 +187,53 @@ def invalid_serialized_comment_data(user_instance, post_instance):
             "post": post_instance.id,
         },
     ]
+
+
+@pytest.fixture
+def validated_create_comment_request_body(mocker):
+    return mocker.Mock(content="testcontent", html_content="testhtmlcontent")
+
+
+@pytest.fixture
+def validated_update_comment_request_body(mocker):
+    return mocker.Mock(
+        content="testcontent",
+        html_content="testhtmlcontent",
+        files_state=PostFilesState.REPLACE,
+    )
+
+
+@pytest.fixture
+def mocked_post_request(user_instance, mocker):
+    query_dict = QueryDict("files=test1.txt&files=test2.txt&files=test3.txt")
+    return mocker.Mock(user=user_instance, FILES=query_dict)
+
+
+@pytest.fixture
+def mocked_get_request(mocker):
+    return mocker.Mock()
+
+
+@pytest.fixture
+def mocked_create_comment(mocker):
+    return mocker.patch.object(CommentService, "create_comment")
+
+
+@pytest.fixture
+def mocked_get_comment(mocker):
+    return mocker.patch.object(CommentService, "get_comment")
+
+
+@pytest.fixture
+def mocked_update_comment(mocker):
+    return mocker.patch.object(CommentService, "update_comment")
+
+
+@pytest.fixture
+def mocked_delete_comment(mocker):
+    return mocker.patch.object(CommentService, "delete_comment")
+
+
+@pytest.fixture
+def mocked_check_object_permissions(mocker):
+    return mocker.patch.object(CommentView, "check_object_permissions")
