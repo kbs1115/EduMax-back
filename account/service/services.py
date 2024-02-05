@@ -1,4 +1,4 @@
-from .serializers import *
+from account.serializers import *
 from rest_framework import exceptions, permissions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -28,8 +28,32 @@ class SignUpService:
         else:
             raise exceptions.ValidationError(serializer.errors)
 
+    def check_duplicate_field_value(
+            self,
+            login_id=None,
+            email=None,
+            nickname=None
+    ):
+        if login_id is not None:
+            return UserService.user_exists_with_field(User.USERNAME_FIELD, login_id)
+        elif email is not None:
+            return UserService.user_exists_with_field(User.EMAIL_FIELD, email)
+        elif nickname is not None:
+            return UserService.user_exists_with_field(User.NICKNAME_FIELD, nickname)
+        else:
+            raise exceptions.APIException("there is no field")
+
 
 class UserService:
+    @classmethod
+    def user_exists_with_field(cls, field, value):
+        if field == User.EMAIL_FIELD:
+            return User.objects.filter(email=value).exists()
+        elif field == User.NICKNAME_FIELD:
+            return User.objects.filter(nickname=value).exists()
+        elif field == User.USERNAME_FIELD:
+            return User.objects.filter(login_id=value).exists()
+
     @classmethod
     def get_me(cls, request):
         user = request.user

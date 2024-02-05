@@ -224,6 +224,20 @@ def set_up_for_posts_api(generate_posts_for_set_up):
     pass
 
 
+@pytest.fixture
+@pytest.mark.django_db
+def example():
+    user = User(
+        id=3,
+        login_id="kbs1115",
+        email="bruce1115@naver.com",
+        nickname="KKKBBBSSS",
+        password="pwpwpwpw",
+    )
+    user.save()
+    return user
+
+
 @pytest.mark.django_db(transaction=True)
 @pytest.fixture(scope='class')
 def set_up_create_posts(staff_user_instance):

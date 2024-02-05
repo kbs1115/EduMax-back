@@ -1,5 +1,5 @@
 from django.core.validators import RegexValidator
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 
@@ -12,6 +12,12 @@ class UserValidator:
         regex=r"^[a-zA-Z0-9가-힣]{2,10}$",
         message="닉네임은 영문, 숫자, 한글로 이루어진 2~10자의 문자열이어야 합니다.",
     )
+
+
+class UserModelUniqueField(BaseModel):
+    nickname: str = Field(default=None)
+    login_id: str = Field(default=None)
+    email: str = Field(default=None)
 
 
 class SignupParamModel(BaseModel):

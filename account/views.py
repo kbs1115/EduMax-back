@@ -1,10 +1,11 @@
 from rest_framework.views import APIView
-from .serializers import *
-from .services import *
+from account.service.services import *
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .validators import SignupParamModel, LoginParamModel, PatchUserModel
+
+from community.view.validation import validate_body_request
+from .validators import SignupParamModel, LoginParamModel, PatchUserModel, UserModelUniqueField
 from pydantic import ValidationError
 
 
@@ -63,6 +64,19 @@ class UserAPIView(APIView):
 
         UserService.delete_user(user)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+
+class DuplicateCheckerAPIView(APIView):
+    @validate_body_request(UserModelUniqueField)
+    def post(self, request, validated_request_body):
+        field = {'login_id': validated_request_body.nickname,
+                 'email': validated_request_body.login_id,
+                 'nickname': validated_request_body.email}
+        response = SignUpService().check_duplicate_field_value(**field)
+        if response is True:
+            return Response(status=status.HTTP_200_OK, data={"message": "duplicate"})
+        elif response is False:
+            return Response(status=status.HTTP_200_OK, data={"message": "no duplicate"})
 
 
 class CertainUserAPIView(APIView):

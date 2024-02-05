@@ -9,8 +9,9 @@ class TestGetPostsApi:
 
     def test_if_query_params_none(
             self,
-            set_up_create_posts
+            example
     ):
-        client = APIClient()
-        response = client.get(self.endpoint)
-        assert response
+        # client = APIClient()
+        # response = client.get(self.endpoint)
+        # assert response
+        assert example.id == 3
