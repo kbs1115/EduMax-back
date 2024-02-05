@@ -49,7 +49,7 @@ class CommentView(APIView):
     def get(self, request, comment_id):
         res = CommentService.get_comment(comment_id)
         return Response(
-            status=res.get("status_code"),
+            status=res.get("status"),
             data={
                 "message": res.get("message", None),
                 "data": res.get("data", None),
