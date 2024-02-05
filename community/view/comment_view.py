@@ -16,7 +16,7 @@ from community.service.comment_service import CommentService
 
 
 class MakeCommentToPostView(APIView):
-    permission_class = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     @validate_body_request(CreateCommentRequestBody)
