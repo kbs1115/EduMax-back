@@ -8,7 +8,7 @@ from community.model.models import File, Comment
 class TestMakeCommentToPostAPI:
     @pytest.mark.django_db
     def test_create_comment(
-        self, client, logined_client, setup_data, setup_files, mocked_create_files
+        self, client, logined_client, setup_data, setup_files, mocked_s3_upload_file
     ):
         endpoint = reverse("community:post_comment", kwargs={"post_id": 2})
 
@@ -26,11 +26,14 @@ class TestMakeCommentToPostAPI:
                 format="multipart",
             )
 
+        comment = Comment.objects.get(post_id=2)
+
         assert response.status_code == 201
         assert response.data["data"]["post_id"] == 2
         assert response.data["data"]["author"] == setup_data[4].login_id
-        assert Comment.objects.get(post_id=2)
-        mocked_create_files.assert_called_once()
+
+        assert File.objects.filter(comment_id=comment.id)
+        assert mocked_s3_upload_file.call_count == 2
 
         # 로그인 안 된 유저 테스트
         response = client.post(
@@ -65,7 +68,12 @@ class TestCommentAPI:
 
     @pytest.mark.django_db
     def test_create_comment(
-        self, client, logined_client, setup_data, setup_files, mocked_create_files
+        self,
+        client,
+        logined_client,
+        setup_data,
+        setup_files,
+        mocked_s3_upload_file,
     ):
         endpoint = reverse("community:comment", kwargs={"comment_id": 1})
 
@@ -81,11 +89,14 @@ class TestCommentAPI:
                 format="multipart",
             )
 
+        comment = Comment.objects.get(parent_comment_id=1)
+
         assert response.status_code == 201
         assert response.data["data"]["post_id"] == setup_data[0].id
         assert response.data["data"]["author"] == setup_data[4].login_id
-        assert Comment.objects.all().count() == 3
-        mocked_create_files.assert_called_once()
+
+        mocked_s3_upload_file.assert_called_once()
+        assert File.objects.get(comment_id=comment.id)
 
         # 로그인 안 된 유저 테스트
         response = client.post(
@@ -103,30 +114,13 @@ class TestCommentAPI:
         logined_client,
         setup_data,
         setup_files,
-        mocked_delete_files,
-        mocked_put_files,
+        mocked_s3_upload_file,
+        mocked_s3_delete_file,
+        save_file_model,
     ):
         endpoint = reverse("community:comment", kwargs={"comment_id": 2})
 
         # 로그인된 유저 테스트(자신의 댓글)
-        with open(setup_files[0].name, "rb") as image:
-            response = logined_client[0].patch(
-                endpoint,
-                {
-                    "content": "testcontent_updated",
-                    "html_content": "htmltestcontent_updated",
-                    "files_state": "DELETE",
-                    "files": image,
-                },
-                format="multipart",
-            )
-
-        assert response.status_code == 200
-        assert response.data["data"]["post_id"] == setup_data[0].id
-        assert response.data["data"]["author"] == setup_data[4].login_id
-        assert Comment.objects.get(id=2).content == "testcontent_updated"
-        mocked_delete_files.assert_called_once()
-
         with open(setup_files[0].name, "rb") as image:
             response = logined_client[0].patch(
                 endpoint,
@@ -139,7 +133,29 @@ class TestCommentAPI:
                 format="multipart",
             )
 
-        mocked_put_files.assert_called_once()
+        file = File.objects.get(comment_id=2)
+
+        assert file.file_location != "testlocation1"
+        mocked_s3_upload_file.assert_called_once()
+        mocked_s3_delete_file.assert_called_once()
+
+        response = logined_client[0].patch(
+            endpoint,
+            {
+                "content": "testcontent_updated2",
+                "html_content": "htmltestcontent_updated",
+                "files_state": "DELETE",
+            },
+            format="multipart",
+        )
+
+        assert response.status_code == 200
+        assert response.data["data"]["post_id"] == setup_data[0].id
+        assert response.data["data"]["author"] == setup_data[4].login_id
+        assert Comment.objects.get(id=2).content == "testcontent_updated2"
+
+        assert mocked_s3_delete_file.call_count == 2
+        assert File.objects.all().count() == 0
 
         # 로그인된 유저 테스트(자신의 댓글) - File state wrong
         response = logined_client[0].patch(
@@ -182,7 +198,12 @@ class TestCommentAPI:
 
     @pytest.mark.django_db
     def test_delete_comment(
-        self, client, logined_client, setup_data, mocked_delete_files
+        self,
+        client,
+        logined_client,
+        setup_data,
+        mocked_s3_delete_file,
+        save_file_model,
     ):
         endpoint = reverse("community:comment", kwargs={"comment_id": 2})
 
@@ -201,7 +222,9 @@ class TestCommentAPI:
 
         assert response.status_code == 204
         assert response.data["message"] == "Comment deleted successfully"
-        mocked_delete_files.assert_called_once()
+
+        mocked_s3_delete_file.assert_called_once()
+        assert File.objects.all().count() == 0
 
         with pytest.raises(Comment.DoesNotExist):
             comment = Comment.objects.get(id=2)
