@@ -3,11 +3,9 @@ import io
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from PIL import Image
-from django.core.files.uploadedfile import SimpleUploadedFile, InMemoryUploadedFile
-from django.utils.datastructures import MultiValueDict
 
 from account.models import User
-from community.model.models import Post, Comment
+from community.model.models import Post, Comment, File
 from community.domain.definition import PostCategories
 from community.service.file_service import FileService
 
@@ -96,7 +94,7 @@ def setup_data():
         html_content="htmltestcomment2",
         author=user1,
         post=post1,
-        parent_comment=comment1,
+        parent_comment=None,
     )
     comment2.save()
 
@@ -109,15 +107,22 @@ def validated_create_comment_request_body(mocker):
 
 
 @pytest.fixture
-def mocked_create_files(mocker):
-    return mocker.patch.object(FileService, "create_files")
+def mocked_s3_upload_file(mocker):
+    return mocker.patch.object(FileService, "s3_upload_file")
 
 
 @pytest.fixture
-def mocked_put_files(mocker):
-    return mocker.patch.object(FileService, "put_files")
+def mocked_s3_delete_file(mocker):
+    return mocker.patch.object(FileService, "s3_delete_file")
 
 
 @pytest.fixture
-def mocked_delete_files(mocker):
-    return mocker.patch.object(FileService, "delete_files")
+def save_file_model(setup_data):
+    file1 = File(
+        id=1,
+        file_location="testlocation1",
+        post=None,
+        comment=setup_data[3],
+    )
+    file1.save()
+    return file1
