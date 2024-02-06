@@ -1,11 +1,15 @@
-import pytest
-
+import pytest, tempfile
+import io
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from PIL import Image
+from django.core.files.uploadedfile import SimpleUploadedFile, InMemoryUploadedFile
+from django.utils.datastructures import MultiValueDict
 
 from account.models import User
 from community.model.models import Post, Comment
 from community.domain.definition import PostCategories
+from community.service.file_service import FileService
 
 
 @pytest.fixture
@@ -39,6 +43,19 @@ def logined_client():
     client2.credentials(HTTP_AUTHORIZATION=f"Bearer {token.access_token}")
 
     return [client, client2]
+
+
+@pytest.fixture
+def setup_files():
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp_file:
+        image = Image.new("RGB", (100, 100), "#ddd")
+        image.save(tmp_file)
+
+    with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as tmp_file2:
+        image = Image.new("RGB", (100, 100), color="blue")
+        image.save(tmp_file2)
+
+    return [tmp_file, tmp_file2]
 
 
 @pytest.fixture
@@ -92,5 +109,15 @@ def validated_create_comment_request_body(mocker):
 
 
 @pytest.fixture
-def retrieved_comment_data():
-    return
+def mocked_create_files(mocker):
+    return mocker.patch.object(FileService, "create_files")
+
+
+@pytest.fixture
+def mocked_put_files(mocker):
+    return mocker.patch.object(FileService, "put_files")
+
+
+@pytest.fixture
+def mocked_delete_files(mocker):
+    return mocker.patch.object(FileService, "delete_files")
