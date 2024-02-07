@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from community.view.validation import validate_body_request
-from .validators import SignupParamModel, LoginParamModel, PatchUserModel, UserModelUniqueField
+from .validators import SignupParamModel, LoginParamModel, PatchUserModel, UserUniqueFieldModel, EmailFieldModel
 from pydantic import ValidationError
 
 
@@ -64,19 +64,6 @@ class UserAPIView(APIView):
 
         UserService.delete_user(user)
         return Response({}, status=status.HTTP_204_NO_CONTENT)
-
-
-class DuplicateCheckerAPIView(APIView):
-    @validate_body_request(UserModelUniqueField)
-    def post(self, request, validated_request_body):
-        field = {'login_id': validated_request_body.nickname,
-                 'email': validated_request_body.login_id,
-                 'nickname': validated_request_body.email}
-        response = SignUpService().check_duplicate_field_value(**field)
-        if response is True:
-            return Response(status=status.HTTP_200_OK, data={"message": "duplicate"})
-        elif response is False:
-            return Response(status=status.HTTP_200_OK, data={"message": "no duplicate"})
 
 
 class CertainUserAPIView(APIView):
@@ -145,6 +132,34 @@ class AuthAPIView(APIView):
         res = Response({"message": "logout success"}, status=status.HTTP_202_ACCEPTED)
         res.delete_cookie("refreshToken")
         return res
+
+
+class DuplicateCheckerAPIView(APIView):
+    @validate_body_request(UserUniqueFieldModel)
+    def post(self, request, validated_request_body):
+        field = {'login_id': validated_request_body.nickname,
+                 'email': validated_request_body.login_id,
+                 'nickname': validated_request_body.email}
+        response = SignUpService().check_duplicate_field_value(**field)
+        if response is True:
+            return Response(status=status.HTTP_200_OK, data={"message": "duplicate"})
+        elif response is False:
+            return Response(status=status.HTTP_200_OK, data={"message": "no duplicate"})
+
+
+class EmailSenderApiView(APIView):
+    @validate_body_request(EmailFieldModel)
+    def post(self, request, validated_request_body):
+        email = {'email': validated_request_body.email}
+        EmailService().send_email(**email)
+        return Response(status=status.HTTP_200_OK, data={"message": "sent email successfully"})
+
+
+class EmailAuthenticationApiView(APIView):
+
+    # @validate_body_request()
+    def post(self):
+        pass
 
 
 class TestViewSet(viewsets.ModelViewSet):

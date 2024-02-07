@@ -1,7 +1,16 @@
-from account.serializers import *
+import random
+from datetime import timedelta, datetime, timezone
+from smtplib import SMTPException
+
+from django.db import transaction
 from rest_framework import exceptions, permissions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.core.mail import EmailMessage
+from account.tasks import delete_email_key_instance, add
+from account.models import EmailTemporaryKey
+from account.serializers import *
+from config.settings import EMAIL_HOST_USER
 
 
 class UserPermission(permissions.BasePermission):
@@ -113,3 +122,63 @@ class AuthService:
             raise exceptions.ValidationError(
                 "The provided information does not match any user."
             )
+
+
+class EmailService:
+    @classmethod
+    def generate_random_number(cls):
+        return ''.join(random.choice('0123456789') for _ in range(6))
+
+    @classmethod
+    def create_email_key_model_instance(cls, email, auth_key):
+        return EmailTemporaryKey.objects.create(email=email, key=auth_key)
+
+    @classmethod
+    def validate_email_key(cls, email, auth_key):
+        queryset = EmailTemporaryKey.objects.filter(email=email)
+        if queryset.exists():
+            email_key_instance = queryset.latest('created_at')
+            if email_key_instance.key == auth_key:
+                return True
+            else:
+                raise exceptions.ValidationError(
+                    "인증번호가 틀렸습니다."
+                )
+        else:
+            raise exceptions.ValidationError(  # 물론 이부분은 프론트에서 이메일 전송을 안누르면 인증하기를 불가능하게 만들어놔야함
+                "이메일 시간이 만료됐거나, 이메일 전송이 필요합니다."
+            )
+
+    """
+    추가로 고려해줘야할점:
+    1. 이메일 전송 제한을 걸어야함.(기준은 ip, 혹은 토큰이 될거같음)
+    """
+    def send_email(self, email):
+        subject = "EduMax 이메일 인증"  # 타이틀
+        to = [email]  # 수신할 이메일 주소
+        from_email = EMAIL_HOST_USER  # 발신할 이메일 주소
+        auth_key = self.generate_random_number()
+        message = f"인증번호: \n{auth_key}"  # 본문 내용
+
+        try:
+            with transaction.atomic():
+                inst = self.create_email_key_model_instance(email, auth_key)
+                EmailMessage(
+                    subject=subject,
+                    body=message,
+                    to=to,
+                    from_email=from_email
+                ).send()  # 만약 없는 메일이라고 하면 아무런 응답이 없음 에러도 안뜸
+
+                eta = datetime.now(timezone.utc) + timedelta(minutes=5)
+                delete_email_key_instance.apply_async((inst.id,), eta=eta)  # 5분후에 worker에게 삭제 명령
+        except SMTPException as e:
+            raise exceptions.APIException(str(e))
+
+    """
+        추가로 고려해줘야할점:
+        1. 횟수제한 걸어야함.(3번이상 틀리면 ip차단시킨다던가)
+    """
+    def check_authentication(self, email, auth_key):
+        self.validate_email_key(email=email, auth_key=auth_key)
+# if auth_key is None:

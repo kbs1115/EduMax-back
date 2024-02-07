@@ -1,5 +1,5 @@
 from django.core.validators import RegexValidator
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
 
@@ -14,10 +14,16 @@ class UserValidator:
     )
 
 
-class UserModelUniqueField(BaseModel):
+# 추가) 중복체크를 위한 validate model
+class UserUniqueFieldModel(BaseModel):
     nickname: str = Field(default=None)
     login_id: str = Field(default=None)
     email: str = Field(default=None)
+
+
+# 추가) email sending 을 위한 validate model
+class EmailFieldModel(BaseModel):
+    email: EmailStr = Field(max_length=30)
 
 
 class SignupParamModel(BaseModel):

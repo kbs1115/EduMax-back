@@ -36,3 +36,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     class Meta:
         db_table = "user"
+
+
+class EmailTemporaryKey(models.Model):
+    email = models.EmailField(max_length=30, null=False, blank=False)
+    key = models.CharField(max_length=6, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
