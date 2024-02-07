@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from dotenv import load_dotenv
 import os
 from pathlib import Path
+from decouple import config
 
 load_dotenv(verbose=True)
 
@@ -43,6 +44,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "storages",
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 MIDDLEWARE = [
@@ -72,9 +75,7 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = "config.wsgi.application"
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
@@ -88,6 +89,23 @@ DATABASES = {
         "PORT": "3306",
     }
 }
+
+# celery 세팅
+CELERY_RESULT_BACKEND = "django-db"
+# This configures Redis as the datastore between Django + Celery
+CELERY_BROKER_URL = config('CELERY_BROKER_REDIS_URL', default='redis://localhost:6379')
+# if you out to use os.environ the config is:
+# CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_REDIS_URL', 'redis://localhost:6379')
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+
+# email setting
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.naver.com'  # gmail 2024년부터 smtp 안됨. Oauth로만 가능
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # -> email id
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")  # -> email pw
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # AWS Setting
 AWS_REGION = "ap-northeast-2"  # AWS서버의 지역
@@ -104,7 +122,6 @@ STATICFILES_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
 # Media Setting
 MEDIA_URL = "http://%s/media/" % AWS_S3_CUSTOM_DOMAIN
 DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
