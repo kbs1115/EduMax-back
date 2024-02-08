@@ -3,7 +3,7 @@ from datetime import timedelta, datetime, timezone
 from smtplib import SMTPException
 
 from django.db import transaction
-from rest_framework import exceptions, permissions
+from rest_framework import exceptions, permissions, status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.mail import EmailMessage
@@ -151,7 +151,7 @@ class EmailService:
 
     """
     추가로 고려해줘야할점:
-    1. 이메일 전송 제한을 걸어야함.(기준은 ip, 혹은 토큰이 될거같음)
+    1. 이메일 전송 제한을 걸어야함.(기준은 ip, 혹은 토큰이 될거같음)->service 단 validator
     """
     def send_email(self, email):
         subject = "EduMax 이메일 인증"  # 타이틀
@@ -172,13 +172,25 @@ class EmailService:
 
                 eta = datetime.now(timezone.utc) + timedelta(minutes=5)
                 delete_email_key_instance.apply_async((inst.id,), eta=eta)  # 5분후에 worker에게 삭제 명령
+                return {"message": "email sent successfully", "status_code": status.HTTP_200_OK}
         except SMTPException as e:
             raise exceptions.APIException(str(e))
 
     """
         추가로 고려해줘야할점:
-        1. 횟수제한 걸어야함.(3번이상 틀리면 ip차단시킨다던가)
+        1. 횟수제한 걸어야함.(3번이상 틀리면 ip차단시킨다던가) ->service 단 validator
     """
     def check_authentication(self, email, auth_key):
-        self.validate_email_key(email=email, auth_key=auth_key)
-# if auth_key is None:
+        if self.validate_email_key(email=email, auth_key=auth_key):
+            return {"message": "email authenticated successfully", "status_code": status.HTTP_200_OK}
+
+
+
+
+
+
+
+
+
+
+
