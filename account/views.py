@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.views import APIView
 from account.service.services import *
 from rest_framework import status, viewsets
@@ -5,7 +6,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from community.view.validation import validate_body_request
-from .validators import SignupParamModel, LoginParamModel, PatchUserModel, UserUniqueFieldModel, EmailFieldModel
+from .validators import SignupParamModel, LoginParamModel, PatchUserModel, UserUniqueFieldModel, EmailFieldModel, \
+    EmailCheckFieldModel
 from pydantic import ValidationError
 
 
@@ -151,15 +153,28 @@ class EmailSenderApiView(APIView):
     @validate_body_request(EmailFieldModel)
     def post(self, request, validated_request_body):
         email = {'email': validated_request_body.email}
-        EmailService().send_email(**email)
-        return Response(status=status.HTTP_200_OK, data={"message": "sent email successfully"})
+        response = EmailService().send_email(**email)
+        return JsonResponse(status=response.get("status_code"),
+                            data={
+                                "message": response.get("message", None),
+                                "data": response.get("data", None)},
+                            )
 
 
 class EmailAuthenticationApiView(APIView):
 
-    # @validate_body_request()
-    def post(self):
-        pass
+    @validate_body_request(EmailCheckFieldModel)
+    def post(self, request, validated_request_body):
+        check = {
+            'email': validated_request_body.email,
+            'auth_key': validated_request_body.auth_key
+        }
+        response = EmailService().check_authentication(**check)
+        return JsonResponse(status=response.get("status_code"),
+                            data={
+                                "message": response.get("message", None),
+                                "data": response.get("data", None)},
+                            )
 
 
 class TestViewSet(viewsets.ModelViewSet):

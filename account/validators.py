@@ -26,6 +26,11 @@ class EmailFieldModel(BaseModel):
     email: EmailStr = Field(max_length=30)
 
 
+class EmailCheckFieldModel(BaseModel):
+    email: EmailStr = Field(max_length=30)
+    auth_key: str = Field(max_length=6)
+
+
 class SignupParamModel(BaseModel):
     login_id: str
     email: str
