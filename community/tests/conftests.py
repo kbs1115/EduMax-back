@@ -77,7 +77,7 @@ def super_user_instance():
     return superuser
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture
 def staff_user_instance():
     staff_user = User(
         id=2,
@@ -216,47 +216,6 @@ def mocked_get_posts_from_db_return_empty_queryset(mocker, valid_post_instance_l
     mocker.return_value = mocked_posts
 
     return mocker
-
-
-# api test용 세팅
-@pytest.fixture(scope='class')
-def set_up_for_posts_api(generate_posts_for_set_up):
-    pass
-
-
-@pytest.fixture
-@pytest.mark.django_db
-def example():
-    user = User(
-        id=3,
-        login_id="kbs1115",
-        email="bruce1115@naver.com",
-        nickname="KKKBBBSSS",
-        password="pwpwpwpw",
-    )
-    user.save()
-    return user
-
-
-@pytest.mark.django_db(transaction=True)
-@pytest.fixture(scope='class')
-def set_up_create_posts(staff_user_instance):
-    staff_user_instance.save()
-
-    posts = []
-    for category in PostCategoriesParam:
-        cnt = 1
-        while cnt < 4:
-            posts.append({
-                'id': cnt,
-                'title': f'title{cnt}',
-                'content': f'content{cnt}',
-                'html_content': f'html_content{cnt}',
-                'category': category.value,
-                'author': staff_user_instance
-            })
-            cnt += 1
-    PostCreateSerializer(many=True, data=posts).save()
 
 
 # 테스트용 각종 파라매터
@@ -446,3 +405,25 @@ def invalid_reqeust_post_body_for_method_patch():
         f"{UpdatePostRequestBody.HTML_CONTENT}": "",
         f"{UpdatePostRequestBody.FILES_STATE}": "ASDZXC",
     }, ]
+
+
+# api test용 setup
+@pytest.fixture
+def set_up_create_posts(staff_user_instance):
+    staff_user_instance.save()
+    posts = []
+    for category in PostCategoriesParam:
+        cnt = 1
+        while cnt < 21:
+            posts.append({
+                'id': cnt,
+                'title': f'title{cnt}',
+                'content': f'content{cnt}',
+                'html_content': f'html_content{cnt}',
+                'category': category.value,
+                'author': staff_user_instance.id
+            })
+            cnt += 1
+    serializer = PostCreateSerializer(many=True, data=posts)
+    assert serializer.is_valid()
+    serializer.save()

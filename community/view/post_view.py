@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from community.view.validation import validate_query_params, \
@@ -41,11 +42,11 @@ class GetPostsView(APIView):
         }
         response = self.post_service.get_posts(**params)
 
-        return JsonResponse(status=response.get("status_code"),
-                            data={
-                                "message": response.get("message", None),
-                                "data": response.get("data", None)},
-                            )
+        return Response(status=response.get("status_code"),
+                        data={
+                            "message": response.get("message", None),
+                            "data": response.get("data", None)},
+                        )
 
 
 class PostView(APIView):
@@ -95,8 +96,7 @@ class PostView(APIView):
             "html_content": validated_request_body.html_content,
             "title": validated_request_body.title,
             'files_state': validated_request_body.files_state,
-            'files': request.FILES.getlist('files', None),
-            "author": request.user
+            'files': request.FILES.getlist('files', None)
         }
         response = self.post_service.update_post(post_id, **body)
         return JsonResponse(status=response.get("status_code"),

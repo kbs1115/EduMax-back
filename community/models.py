@@ -63,7 +63,8 @@ class Comment(models.Model):
     )
     parent_comment = models.ForeignKey(
         "self",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
