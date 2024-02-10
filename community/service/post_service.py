@@ -242,7 +242,7 @@ class PostService:
                 instance = FileService()
                 if files_state == PostFilesState.REPLACE and files is not None:
                     instance.put_files(files, post)
-                elif files_state == PostFilesState.DELETE and files is None:
+                elif files_state == PostFilesState.DELETE:
                     instance.delete_files(post)
                 else:
                     return {"message": "files_state is wrong", "status_code": status.HTTP_400_BAD_REQUEST}

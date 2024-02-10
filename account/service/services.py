@@ -7,7 +7,7 @@ from rest_framework import exceptions, permissions, status
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.core.mail import EmailMessage
-from account.tasks import delete_email_key_instance, add
+from account.tasks import delete_email_key_instance
 from account.models import EmailTemporaryKey
 from account.serializers import *
 from config.settings import EMAIL_HOST_USER
