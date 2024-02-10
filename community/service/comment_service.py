@@ -15,7 +15,7 @@ from community.domain.definition import PostFilesState
 
 
 class CommentService:
-    # 단순히 persistent layer와의 연결을 위한 함수이다.
+    # persistent layer의 get_comment_user_id를 불러온다.
     @classmethod
     def get_comment_user_id(cls, comment_id):
         return get_comment_user_id(comment_id)
@@ -23,7 +23,7 @@ class CommentService:
     @classmethod
     def get_comment(cls, comment_id):
         try:
-            comment = Comment.objects.get(pk=comment_id)
+            comment = get_comment_from_id(comment_id)
             serializer = CommentRetrieveSerializer(comment)
 
             # view 함수로 넘겨주기
