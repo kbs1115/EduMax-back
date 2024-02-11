@@ -1,15 +1,10 @@
 from functools import wraps
-from typing import Type
+from typing import Type, Union
 from django.http import JsonResponse, QueryDict
 from rest_framework import status, exceptions
 from pydantic import BaseModel, Field
 
-from community.domain.definition import (
-    PostCategoriesParam,
-    PostSearchFilterParam,
-    PostSortCategoryParam,
-    PostFilesState,
-)
+from community.domain.definition import *
 
 """validator에 사용되는 임시 model class"""
 
@@ -42,6 +37,50 @@ class UpdatePostRequestBody(BaseModel):
     html_content: str = Field(min_length=1, default=None)
     files_state: PostFilesState = Field(default=None)
     # files 도 valid 하면 좋을듯
+
+
+"""----------------------------------------------------------------------------"""
+
+
+class LectureQueryParam(BaseModel):
+    page: int = Field(default=1, ge=1)
+    category: Union[
+        LectureCategoriesDepth1Param,
+        LectureCategoriesDepth2Param,
+        LectureCategoriesDepth3Param,
+        LectureCategoriesDepth4Param,
+    ] = Field(default=LectureCategoriesDepth1Param.ENGLISH)
+    search_filter: LectureSearchFilterParam = Field(
+        default=LectureSearchFilterParam.TOTAL
+    )
+    q: str = Field(default=None)
+
+
+class LecturePathParam(BaseModel):
+    lecture_id: int = Field(ge=0)
+
+
+class CreateLectureRequestBody(BaseModel):
+    category_d1: LectureCategoriesDepth1Param = Field(
+        default=LectureCategoriesDepth1Param.ENGLISH
+    )
+    category_d2: LectureCategoriesDepth2Param = Field(default=None)
+    category_d3: LectureCategoriesDepth3Param = Field(default=None)
+    category_d4: LectureCategoriesDepth4Param = Field(default=None)
+    youtube_id: str = Field(min_length=1)
+    title: str = Field(max_length=30)
+
+
+class UpdateLectureRequestBody(BaseModel):
+    category_d1: LectureCategoriesDepth1Param = Field(default=None)
+    category_d2: LectureCategoriesDepth2Param = Field(default=None)
+    category_d3: LectureCategoriesDepth3Param = Field(default=None)
+    category_d4: LectureCategoriesDepth4Param = Field(default=None)
+    youtube_id: str = Field(min_length=1, default=None)
+    title: str = Field(max_length=30, default=None)
+
+
+"""----------------------------------------------------------------------------"""
 
 
 class CreateCommentRequestBody(BaseModel):
