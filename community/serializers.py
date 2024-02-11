@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from account.models import User
 from .model.models import Post, Comment, File, Lecture
+from community.domain.validation import CategoryValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -155,3 +156,7 @@ class LectureCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = "__all__"
+
+    def validate(self, data):
+        CategoryValidator.validate(data)
+        return data
