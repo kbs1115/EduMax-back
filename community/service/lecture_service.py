@@ -118,14 +118,10 @@ class LectureService:
         youtube_id,
     ):
         update_data = dict()
-        if category_d1:
-            update_data["category_d1"] = category_d1
-        if category_d2:
-            update_data["category_d2"] = category_d2
-        if category_d3:
-            update_data["category_d3"] = category_d3
-        if category_d4:
-            update_data["category_d4"] = category_d4
+        update_data["category_d1"] = category_d1
+        update_data["category_d2"] = category_d2
+        update_data["category_d3"] = category_d3
+        update_data["category_d4"] = category_d4
         if title:
             update_data["title"] = title
         if youtube_id:
