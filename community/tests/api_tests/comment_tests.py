@@ -1,7 +1,6 @@
 import pytest
 from django.urls import reverse
 
-from community.tests.api_tests.conftest import *
 from community.model.models import File, Comment
 
 

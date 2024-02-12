@@ -1,5 +1,4 @@
 import pytest, tempfile
-import io
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from PIL import Image
@@ -7,8 +6,15 @@ from PIL import Image
 from account.models import User
 from community.model.models import Post, Comment, File
 from community.domain.definition import PostCategories
-from community.service.file_service import FileService
 
+"""
+API test에 필요한 fixture들이 들어 있다.
+
+1. client와 같이 request를 보내는 데 필요한 fixture
+2. DB에 데이터를 저장, 수정, 삭제하는 fixture
+3. 임시 이미지 파일을 생성하는 fixture
+
+"""
 
 @pytest.fixture
 def client():
@@ -99,21 +105,6 @@ def setup_data():
     comment2.save()
 
     return [post1, post2, comment1, comment2, user1, user2]
-
-
-@pytest.fixture
-def validated_create_comment_request_body(mocker):
-    return mocker.Mock(content="testcontent", html_content="testhtmlcontent")
-
-
-@pytest.fixture
-def mocked_s3_upload_file(mocker):
-    return mocker.patch.object(FileService, "s3_upload_file")
-
-
-@pytest.fixture
-def mocked_s3_delete_file(mocker):
-    return mocker.patch.object(FileService, "s3_delete_file")
 
 
 @pytest.fixture
