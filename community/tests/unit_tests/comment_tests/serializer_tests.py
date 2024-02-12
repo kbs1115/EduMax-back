@@ -1,9 +1,7 @@
 import pytest
 from rest_framework.validators import UniqueValidator
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import Serializer
 
-from community.tests.unit_tests.comment_tests.conftest import *
 from community.serializers import CommentCreateSerializer, CommentRetrieveSerializer
 
 
