@@ -18,6 +18,14 @@ def comment_db_setup(user_instance, post_instance, comment_instance, file_instan
 
 
 @pytest.fixture
+def lecture_db_setup(user_instance, lecture_instances):
+    return {
+        "user_instance": user_instance,
+        "lecture_instances": lecture_instances,
+    }
+
+
+@pytest.fixture
 def valid_serialized_comment_data(user_instance, post_instance):
     return [
         {
@@ -54,6 +62,31 @@ def invalid_serialized_comment_data(user_instance, post_instance):
             "post": post_instance.id,
         },
     ]
+    
+    
+@pytest.fixture
+def valid_serialized_lecture_data(user_instance):
+    return {
+        "title": "title1",
+        "youtube_id": "youtube1",
+        "author": user_instance.id,
+        "category_d1": "KO",
+        "category_d2": None,
+        "category_d3": None,
+        "category_d4": None,
+    }
+  
+
+@pytest.fixture
+def invalid_serialized_lecture_data(user_instance):
+    return {
+        "title": "title1",
+        "author": user_instance.id,
+        "category_d1": "KO",
+        "category_d2": None,
+        "category_d3": None,
+        "category_d4": None,
+    }  
 
 
 @pytest.fixture

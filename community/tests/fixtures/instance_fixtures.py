@@ -1,7 +1,7 @@
 import pytest
 
 from account.models import User
-from community.model.models import Comment, Post, File
+from community.model.models import Comment, Post, File, Lecture
 from community.domain.definition import PostCategories
 
 """
@@ -50,3 +50,10 @@ def comment_instance(user_instance, post_instance):
 def file_instance(comment_instance):
     file = File(file_location="filelocation", post=None, comment=comment_instance)
     return file
+
+
+@pytest.fixture
+def lecture_instances(user_instance):
+    lecture1 = Lecture(title="test1", youtube_id="youtube1", author=user_instance, category_d1="KO")
+    lecture2 = Lecture(title="test2", youtube_id="youtube2", author=user_instance, category_d1="EN")
+    return [lecture1, lecture2]
