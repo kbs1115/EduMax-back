@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock
 
 from community.model.access import *
-from .conftests import *
+from .conftest import *
 
 
 class TestAccessFunctions:
