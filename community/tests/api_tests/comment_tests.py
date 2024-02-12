@@ -1,11 +1,12 @@
 import pytest
 from django.urls import reverse
 
-from community.tests.api_tests.conftests import *
+from community.tests.api_tests.conftest import *
 from community.model.models import File, Comment
 
+
 class TestMakeCommentToPostAPI:
-    
+
     @pytest.mark.django_db
     def test_create_comment(
         self, client, logined_client, setup_data, setup_files, mocked_s3_upload_file

@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import Mock
 
 from community.model.models import Post, Comment
-from .conftests import *
+from .conftest import *
 from community.service.comment_service import *
 from community.domain.definition import PostFilesState
 
