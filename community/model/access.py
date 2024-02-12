@@ -1,4 +1,4 @@
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from community.model.models import Post, Comment, Lecture
 from account.models import User
 from community.domain.definition import (
@@ -43,19 +43,18 @@ def get_comment_from_id(comment_id):
 
 
 def get_lectures_with_category(category):
-    try:
-        if category in LectureCategoriesDepth1Param:
-            lectures = Lecture.objects.filter(category_d1=category).all()
-        elif category in LectureCategoriesDepth2Param:
-            lectures = Lecture.objects.filter(category_d2=category).all()
-        elif category in LectureCategoriesDepth3Param:
-            lectures = Lecture.objects.filter(category_d3=category).all()
-        elif category in LectureCategoriesDepth4Param:
-            lectures = Lecture.objects.filter(category_d4=category).all()
+    if category in LectureCategoriesDepth1Param:
+        lectures = Lecture.objects.filter(category_d1=category).all()
+    elif category in LectureCategoriesDepth2Param:
+        lectures = Lecture.objects.filter(category_d2=category).all()
+    elif category in LectureCategoriesDepth3Param:
+        lectures = Lecture.objects.filter(category_d3=category).all()
+    elif category in LectureCategoriesDepth4Param:
+        lectures = Lecture.objects.filter(category_d4=category).all()
+    else:
+        raise ValidationError("Invalid category")
 
-        return lectures
-    except Lecture.DoesNotExist:
-        raise NotFound("Lecture does not exists")
+    return lectures
 
 
 def get_lecture_from_id(lecture_id):
@@ -71,6 +70,6 @@ def get_lecture_user_id(lecture_id):
         instance = Lecture.objects.get(pk=lecture_id)
         return instance.author.id
     except Lecture.DoesNotExist:
-        raise NotFound("Post does not exists")
+        raise NotFound("Lecture does not exists")
     except User.DoesNotExist:
         raise NotFound("Author not found")
