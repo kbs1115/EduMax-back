@@ -74,7 +74,7 @@ class TestCommentService:
         assert res["data"] == {
             "id": 1,
             "post_id": 1,
-            "author": "kbs1115",
+            "author": "test0",
         }
 
         # 5. serializer is_valid error 상황
@@ -132,7 +132,7 @@ class TestCommentService:
             assert res["data"] == {
                 "id": 1,
                 "post_id": 1,
-                "author": "kbs1115",
+                "author": "test0",
             }
 
         # 5. serializer is_valid error 상황

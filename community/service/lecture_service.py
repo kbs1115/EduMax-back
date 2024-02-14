@@ -1,18 +1,16 @@
 import rest_framework.status as status
 from django.core.paginator import Paginator
-from django.db import transaction
-from django.db.models import Q, Count
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
+from django.db.models import Q
+from rest_framework.exceptions import ValidationError
 
 from community.model.access import (
     get_lectures_with_category,
     get_lecture_from_id,
     get_lecture_user_id,
+    search_lectures_with_filter,
 )
 from community.domain.definition import (
     LectureSearchFilterParam,
-    PostSortCategoryParam,
     POST_LIST_PAGE_SIZE,
 )
 from community.serializers import (
@@ -23,24 +21,13 @@ from community.serializers import (
 
 
 class LecturesService:
-
     @classmethod
     def get_lectures(cls, category, search_filter, kw, page):
         lectures = get_lectures_with_category(category)
 
-        if kw and search_filter == LectureSearchFilterParam.TOTAL:
-            lectures = lectures.filter(
-                Q(author__nickname__icontains=kw) | Q(title__icontains=kw)
-            ).distinct()
-        elif kw and search_filter == LectureSearchFilterParam.AUTHOR:
-            lectures = lectures.filter(Q(author__nickname__icontains=kw))
-        elif kw and search_filter == LectureSearchFilterParam.TITLE:
-            lectures = lectures.filter(Q(title__icontains=kw))
+        search_lectures = search_lectures_with_filter(lectures, kw, search_filter)
 
-        if lectures:
-            lectures = lectures.order_by("-created_at")
-
-        pagination = Paginator(lectures, POST_LIST_PAGE_SIZE)
+        pagination = Paginator(search_lectures, POST_LIST_PAGE_SIZE)
         page_obj = pagination.page(page).object_list
         list_size = len(page_obj)
 
