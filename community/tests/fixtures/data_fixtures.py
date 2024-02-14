@@ -1,11 +1,16 @@
 import pytest
 
-from community.domain.definition import PostFilesState
+from community.domain.definition import (
+    PostFilesState,
+    LectureCategoriesDepth1Param,
+    LectureSearchFilterParam,
+)
 
 
 """
 Unit test에 사용되는 body data, mock request 등을 정의함.
 """
+
 
 @pytest.fixture
 def comment_db_setup(user_instance, post_instance, comment_instance, file_instance):
@@ -62,8 +67,8 @@ def invalid_serialized_comment_data(user_instance, post_instance):
             "post": post_instance.id,
         },
     ]
-    
-    
+
+
 @pytest.fixture
 def valid_serialized_lecture_data(user_instance):
     return {
@@ -75,7 +80,7 @@ def valid_serialized_lecture_data(user_instance):
         "category_d3": None,
         "category_d4": None,
     }
-  
+
 
 @pytest.fixture
 def invalid_serialized_lecture_data(user_instance):
@@ -86,7 +91,7 @@ def invalid_serialized_lecture_data(user_instance):
         "category_d2": None,
         "category_d3": None,
         "category_d4": None,
-    }  
+    }
 
 
 @pytest.fixture
@@ -101,3 +106,40 @@ def validated_update_comment_request_body(mocker):
         html_content="testhtmlcontent",
         files_state=PostFilesState.REPLACE,
     )
+
+
+@pytest.fixture
+def valid_serialized_lecture_data(user_instance):
+    return {
+        "title": "title1",
+        "youtube_id": "youtube1",
+        "author": user_instance.id,
+        "category_d1": "KO",
+        "category_d2": None,
+        "category_d3": None,
+        "category_d4": None,
+    }
+
+
+@pytest.fixture
+def valid_get_lectures_param_data():
+    return [
+        {
+            "page": 2,
+            "category": LectureCategoriesDepth1Param.ENGLISH,
+            "search_filter": LectureSearchFilterParam.TOTAL,
+            "kw": "test",
+        },
+        {
+            "page": 1,
+            "category": LectureCategoriesDepth1Param.ENGLISH,
+            "search_filter": LectureSearchFilterParam.TITLE,
+            "kw": "test1",
+        },
+        {
+            "page": 1,
+            "category": LectureCategoriesDepth1Param.ENGLISH,
+            "search_filter": LectureSearchFilterParam.AUTHOR,
+            "kw": "testuser5",
+        },
+    ]

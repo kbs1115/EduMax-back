@@ -1,4 +1,6 @@
 from rest_framework.exceptions import NotFound, ValidationError
+from django.db.models import Q
+
 from community.model.models import Post, Comment, Lecture
 from account.models import User
 from community.domain.definition import (
@@ -8,6 +10,7 @@ from community.domain.definition import (
     LectureCategoriesDepth3Param,
     LectureCategoriesDepth4Param,
 )
+from community.domain.definition import LectureSearchFilterParam
 
 
 def get_post_from_id(id):
@@ -73,3 +76,20 @@ def get_lecture_user_id(lecture_id):
         raise NotFound("Lecture does not exists")
     except User.DoesNotExist:
         raise NotFound("Author not found")
+
+
+def search_lectures_with_filter(lectures, kw, search_filter):
+    # 검색 + 최신순 정렬 수행
+    if kw and search_filter == LectureSearchFilterParam.TOTAL:
+        lectures = lectures.filter(
+            Q(author__nickname__icontains=kw) | Q(title__icontains=kw)
+        ).distinct()
+    elif kw and search_filter == LectureSearchFilterParam.AUTHOR:
+        lectures = lectures.filter(Q(author__nickname__icontains=kw))
+    elif kw and search_filter == LectureSearchFilterParam.TITLE:
+        lectures = lectures.filter(Q(title__icontains=kw))
+
+    if lectures:
+        lectures = lectures.order_by("-created_at")
+
+    return lectures

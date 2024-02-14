@@ -64,7 +64,7 @@ class TestCommentRetrieveSerializer:
 
         serializer = CommentRetrieveSerializer(comment_instance)
 
-        assert serializer.data["content"] == "testcontent"
+        assert serializer.data["content"] == "testcontent0"
         assert serializer.data["html_content"] == "html_testcontent"
-        assert serializer.data["author"] == "KKKBBBSSS"
+        assert serializer.data["author"] == "testuser0"
         assert serializer.data["files"][0]["file_location"] == "filelocation"
