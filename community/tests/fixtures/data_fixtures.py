@@ -143,3 +143,16 @@ def valid_get_lectures_param_data():
             "kw": "testuser5",
         },
     ]
+
+
+@pytest.fixture
+def valid_create_lecture_data(user_instance):
+    return {
+        "title": "title1",
+        "youtube_id": "youtube1",
+        "author": user_instance,
+        "category_d1": "KO",
+        "category_d2": None,
+        "category_d3": None,
+        "category_d4": None,
+    }

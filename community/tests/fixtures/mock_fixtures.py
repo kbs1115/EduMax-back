@@ -63,6 +63,15 @@ def mocked_delete_files(mocker):
 
 
 @pytest.fixture
+def mocked_get_lecture_from_id(mocker):
+    mocked_lecture = mocker.patch(
+        "community.service.lecture_service.get_lecture_from_id"
+    )
+    mocked_lecture.return_value = mocker.Mock()
+    return mocked_lecture
+
+
+@pytest.fixture
 def mocked_comment_create_serializer(mocker):
     mocked_serializer = mocker.Mock()
     mocker.patch(
@@ -93,6 +102,26 @@ def mocked_lecture_list_serializer(mocker):
 
 
 @pytest.fixture
+def mocked_lecture_retrieve_serializer(mocker):
+    mocked_serializer = mocker.Mock(data="data")
+    mocker.patch(
+        "community.service.lecture_service.LectureRetrieveSerializer",
+        return_value=mocked_serializer,
+    )
+    return mocked_serializer
+
+
+@pytest.fixture
+def mocked_lecture_create_serializer(mocker):
+    mocked_serializer = mocker.Mock(data="data")
+    mocker.patch(
+        "community.service.lecture_service.LectureCreateSerializer",
+        return_value=mocked_serializer,
+    )
+    return mocked_serializer
+
+
+@pytest.fixture
 def mocked_get_request(mocker):
     return mocker.Mock()
 
@@ -115,6 +144,11 @@ def mocked_update_comment(mocker):
 @pytest.fixture
 def mocked_delete_comment(mocker):
     return mocker.patch.object(CommentService, "delete_comment")
+
+
+@pytest.fixture
+def mocked_check_object_permissions(mocker):
+    return mocker.patch.object(CommentView, "check_object_permissions")
 
 
 @pytest.fixture

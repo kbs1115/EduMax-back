@@ -85,7 +85,7 @@ class LectureService:
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
 
-        lecture = serializer.save()
+        serializer.save()
 
         return {
             "message": "Lecture created successfully",
