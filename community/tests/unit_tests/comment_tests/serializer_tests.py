@@ -1,9 +1,7 @@
 import pytest
 from rest_framework.validators import UniqueValidator
 from rest_framework.relations import PrimaryKeyRelatedField
-from rest_framework.serializers import Serializer
 
-from community.tests.unit_tests.comment_tests.conftests import *
 from community.serializers import CommentCreateSerializer, CommentRetrieveSerializer
 
 
@@ -66,7 +64,7 @@ class TestCommentRetrieveSerializer:
 
         serializer = CommentRetrieveSerializer(comment_instance)
 
-        assert serializer.data["content"] == "testcontent"
+        assert serializer.data["content"] == "testcontent0"
         assert serializer.data["html_content"] == "html_testcontent"
-        assert serializer.data["author"] == "KKKBBBSSS"
+        assert serializer.data["author"] == "testuser0"
         assert serializer.data["files"][0]["file_location"] == "filelocation"

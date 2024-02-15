@@ -1,7 +1,8 @@
 from rest_framework import serializers
 
 from account.models import User
-from .model.models import Post, Comment, File
+from .model.models import Post, Comment, File, Lecture
+from community.domain.validation import CategoryValidator
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -107,3 +108,55 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
             "author",
             "files",
         ]
+
+
+class LectureListSerializer(serializers.ModelSerializer):
+    """
+    - LectureList 를 위한 output 시리얼라이저
+    - author의 닉네임을 보내줌
+    """
+
+    author = serializers.SlugRelatedField(
+        queryset=User.objects.all(), slug_field="nickname"
+    )
+
+    class Meta:
+        model = Lecture
+        fields = [
+            "title",
+            "youtube_id",
+            "created_at",
+            "modified_at",
+            "author",
+        ]
+
+
+class LectureRetrieveSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        queryset=User.objects.all(), slug_field="nickname"
+    )
+
+    class Meta:
+        model = Lecture
+        fields = [
+            "title",
+            "youtube_id",
+            "category_d1",
+            "category_d2",
+            "category_d3",
+            "category_d4",
+            "created_at",
+            "modified_at",
+            "author",
+        ]
+
+
+class LectureCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Lecture
+        fields = "__all__"
+
+    def validate(self, data):
+        CategoryValidator.validate(data)
+        return data

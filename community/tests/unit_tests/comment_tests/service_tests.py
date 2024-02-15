@@ -1,8 +1,7 @@
 import pytest
 from unittest.mock import Mock
 
-from community.model.models import Post, Comment
-from .conftests import *
+from community.model.models import Comment
 from community.service.comment_service import *
 from community.domain.definition import PostFilesState
 
@@ -75,7 +74,7 @@ class TestCommentService:
         assert res["data"] == {
             "id": 1,
             "post_id": 1,
-            "author": "kbs1115",
+            "author": "test0",
         }
 
         # 5. serializer is_valid error 상황
@@ -133,7 +132,7 @@ class TestCommentService:
             assert res["data"] == {
                 "id": 1,
                 "post_id": 1,
-                "author": "kbs1115",
+                "author": "test0",
             }
 
         # 5. serializer is_valid error 상황
