@@ -6,7 +6,7 @@ from django.core.files.storage import default_storage
 from django.db import transaction
 from rest_framework import exceptions
 
-from community.models import Post, Comment, File
+from community.model.models import Post, Comment, File
 from community.serializers import FileSerializer
 
 
@@ -16,7 +16,9 @@ class FileService:
     def s3_upload_file(cls, file, path):
         # s3에 파일을 업로드한다
         try:
-            default_storage.save(path, ContentFile(file.read()))  # 장고에서 모든 request.Files는 contentFile instance에 속함
+            default_storage.save(
+                path, ContentFile(file.read())
+            )  # 장고에서 모든 request.Files는 contentFile instance에 속함
         except ClientError:
             raise ClientError
 
@@ -39,16 +41,16 @@ class FileService:
         # file 시리얼라이저을 위한 딕셔너리 만들기
         if isinstance(related_model_instance, Post):
             post = related_model_instance
-            return {
-                "post": post.id,
-                "file_location": file_path
-            }
+            return {"post": post.id, "file_location": file_path}
         if isinstance(related_model_instance, Comment):
-            pass
+            comment = related_model_instance
+            return {"comment": comment.id, "file_location": file_path}
 
     @classmethod
     def get_files_id_list(cls, related_model_instance):
-        return File.objects.filter(post=related_model_instance).values_list('id', flat=True)
+        return File.objects.filter(post=related_model_instance).values_list(
+            "id", flat=True
+        )
 
     @classmethod
     def get_file_instance(cls, file_id):
