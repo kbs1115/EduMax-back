@@ -1,6 +1,6 @@
 import pytest
 from account.tests.conftests import *
-from account.services import *
+from account.service.user_service import *
 from account.views import *
 from unittest.mock import Mock
 from rest_framework import exceptions

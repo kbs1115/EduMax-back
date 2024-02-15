@@ -1,7 +1,7 @@
 import pytest
 from account.tests.conftests import *
 from account.serializers import UserSerializer
-from account.services import *
+from account.service.user_service import *
 from account.views import *
 from account.models import User
 from unittest.mock import Mock
