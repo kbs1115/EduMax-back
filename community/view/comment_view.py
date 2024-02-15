@@ -4,7 +4,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 
 from .post_view import IsOwner, ReadOnly
-from community.service.validation import (
+from community.view.validation import (
     validate_body_request,
     validate_path_params,
     CreateCommentRequestBody,

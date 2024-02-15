@@ -42,3 +42,13 @@ class EmailTemporaryKey(models.Model):
     email = models.EmailField(max_length=30, null=False, blank=False)
     key = models.CharField(max_length=6, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PwChangeTemporaryQueryParam(models.Model):
+    """
+    패스워드 변경 페이지의 쿼리파라매터를 위한 임시 파라매터 모델
+    """
+
+    email = models.EmailField(max_length=30, null=False, blank=False)
+    query_param = models.CharField(max_length=8, null=False, blank=False)
+    created_at = models.DateTimeField(auto_now_add=True)
