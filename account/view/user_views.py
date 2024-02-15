@@ -1,10 +1,12 @@
 from rest_framework.views import APIView
 from ..serializers import *
 from ..service.user_service import *
+from ..service.services import *
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from ..validators import SignupParamModel, LoginParamModel, PatchUserModel
+from ..validators import *
+from community.view.validation import validate_body_request
 from pydantic import ValidationError
 
 
@@ -131,6 +133,53 @@ class AuthAPIView(APIView):
         res = Response({"message": "logout success"}, status=status.HTTP_202_ACCEPTED)
         res.delete_cookie("refreshToken")
         return res
+
+
+class DuplicateCheckerAPIView(APIView):
+    @validate_body_request(UserUniqueFieldModel)
+    def post(self, request, validated_request_body):
+        field = {
+            "login_id": validated_request_body.nickname,
+            "email": validated_request_body.login_id,
+            "nickname": validated_request_body.email,
+        }
+        response = SignUpService().check_duplicate_field_value(**field)
+        if response is True:
+            return Response(status=status.HTTP_200_OK, data={"message": "duplicate"})
+        elif response is False:
+            return Response(status=status.HTTP_200_OK, data={"message": "no duplicate"})
+
+
+class EmailSenderApiView(APIView):
+    @validate_body_request(EmailFieldModel)
+    def post(self, request, validated_request_body):
+        email = {"email": validated_request_body.email}
+        response = EmailService().send_email(**email)
+        return Response(
+            status=response.get("status_code"),
+            data={
+                "message": response.get("message", None),
+                "data": response.get("data", None),
+            },
+        )
+
+
+class EmailAuthenticationApiView(APIView):
+
+    @validate_body_request(EmailCheckFieldModel)
+    def post(self, request, validated_request_body):
+        check = {
+            "email": validated_request_body.email,
+            "auth_key": validated_request_body.auth_key,
+        }
+        response = EmailService().check_authentication(**check)
+        return Response(
+            status=response.get("status_code"),
+            data={
+                "message": response.get("message", None),
+                "data": response.get("data", None),
+            },
+        )
 
 
 class TestViewSet(viewsets.ModelViewSet):

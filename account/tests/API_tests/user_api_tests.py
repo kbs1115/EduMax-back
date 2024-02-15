@@ -1,4 +1,3 @@
-import pytest
 from account.tests.conftests import *
 from django.urls import reverse
 from account.service.user_service import *
