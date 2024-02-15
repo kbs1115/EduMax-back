@@ -7,6 +7,7 @@ from django.db import models
 
 # query_param 정의
 
+
 class PostSearchFilterParam(Enum):
     # name 이 왼쪽, value 가 오른쪽
     AUTHOR = "AUTHOR"
@@ -48,6 +49,67 @@ class PostFilesState(Enum):
         return self.value
 
 
+class LectureSearchFilterParam(Enum):
+    # name 이 왼쪽, value 가 오른쪽
+    AUTHOR = "AUTHOR"
+    TITLE = "TITLE"
+    TOTAL = "TOTAL"
+
+    def __str__(self):
+        return self.value
+
+
+class LectureCategoriesDepth1Param(Enum):
+    KOREAN = "KO"
+    ENGLISH = "EN"
+    MATH = "MA"
+
+    def __str__(self):
+        return self.value
+
+
+class LectureCategoriesDepth2Param(Enum):
+    # children of ENGLISH
+    SCHOOL_TEST = "SC"
+    SAT = "SA"
+    GRAMMAR = "GR"
+
+    def __str__(self):
+        return self.value
+
+
+class LectureCategoriesDepth3Param(Enum):
+    # children of SCHOOL_TEST
+    TEXTBOOK = "TB"
+    EBS = "EBS"
+    SCHOOL_MOCK_EXAM = "SCM"
+
+    # children of SAT
+    SAT_MOCK_EXAM = "SAM"
+
+    # child of GRAMMAR
+    POCKET_GRAMMAR = "PGR"
+    BASIC_GRAMMAR = "BGR"
+
+    def __str__(self):
+        return self.value
+
+
+class LectureCategoriesDepth4Param(Enum):
+    # children of TEXTBOOK
+    ENGLISH0 = "E0"
+    ENGLISH1 = "E1"
+    ENGLISH2 = "E2"
+    READING_COMPOSITION = "RC"
+
+    # children of SCHOOL_MOCK_EXAM
+    HIGH1 = "H1"
+    HIGH2 = "H2"
+
+    def __str__(self):
+        return self.value
+
+
 """----------------------------------------------------------------------------"""
 
 # post list 의 페이지 size
@@ -79,15 +141,13 @@ TREE_STRUCTURE = {
     "KO": [],
     "EN": ["SC", "SA", "GR"],
     "MA": [],
-
     # eng-depth2
     "SC": ["TB", "EBS", "SCM"],
     "SA": ["SAM"],
     "GR": ["PGR", "BGR"],
-
     # eng-depth3
     "TB": ["E0", "E1", "E2"],
-    "SCM": ["H1", "H2"]
+    "SCM": ["H1", "H2"],
 }
 
 

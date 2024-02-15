@@ -4,8 +4,12 @@ from django.http import JsonResponse
 from rest_framework import status, exceptions
 from pydantic import BaseModel, Field
 
-from community.domain.definition import PostCategoriesParam, PostSearchFilterParam, PostSortCategoryParam, \
-    PostFilesState
+from community.domain.definition import (
+    PostCategoriesParam,
+    PostSearchFilterParam,
+    PostSortCategoryParam,
+    PostFilesState,
+)
 
 """validator에 사용되는 임시 model class"""
 
@@ -62,9 +66,9 @@ class UpdatePostRequestBody(BaseModel):
 # query_param validator
 def validate_query_params(model: Type[BaseModel]):
     """
-        <설명>
-        정의된 query_param model 외의 query param 들은 모두 무시한다.
-        validated_query_params에 validation한 param을 넘겨준다.
+    <설명>
+    정의된 query_param model 외의 query param 들은 모두 무시한다.
+    validated_query_params에 validation한 param을 넘겨준다.
     """
 
     def decorated_func(f):
@@ -87,14 +91,16 @@ def validate_query_params(model: Type[BaseModel]):
 # path_param validator
 def validate_path_params(model: Type[BaseModel]):
     """
-        <설명>
-        만약 path_param이 없을시 에러
-        잘못된 path_param일시 400 response를 return 한다.
+    <설명>
+    만약 path_param이 없을시 에러
+    잘못된 path_param일시 400 response를 return 한다.
     """
 
     def decorated_func(f):
         @wraps(f)
-        def wrapper(*args, **kwargs):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
+        def wrapper(
+            *args, **kwargs
+        ):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
             try:
                 model(**kwargs)
             except ValueError as e:
@@ -108,13 +114,15 @@ def validate_path_params(model: Type[BaseModel]):
 
 def validate_body_request(model: Type[BaseModel]):
     """
-        <설명>
-        request의 body에 있는 데이터를 검증한다.
+    <설명>
+    request의 body에 있는 데이터를 검증한다.
     """
 
     def decorated_func(f):
         @wraps(f)
-        def wrapper(*args, **kwargs):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
+        def wrapper(
+            *args, **kwargs
+        ):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
             request = args[1]
             body_data = request.data.dict()
             try:
