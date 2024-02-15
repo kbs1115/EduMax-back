@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from rest_framework.views import APIView
-from account.service.services import *
+from account.service.user_service import *
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
