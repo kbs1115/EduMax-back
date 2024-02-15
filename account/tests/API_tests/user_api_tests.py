@@ -1,6 +1,8 @@
 from account.tests.conftests import *
 from django.urls import reverse
-from account.views import *
+from account.service.user_service import *
+from account.view.user_views import *
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # 자신의 User 정보와 회원가입에 대한 API
