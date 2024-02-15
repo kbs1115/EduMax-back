@@ -5,7 +5,7 @@ from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 
 
-from community.service.validation import (
+from community.view.validation import (
     validate_query_params,
     LectureQueryParam,
     validate_path_params,

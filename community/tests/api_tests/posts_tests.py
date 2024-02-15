@@ -3,17 +3,14 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 
 from community.domain.definition import POST_LIST_PAGE_SIZE
-from community.tests.conftests import *
+from community.tests.unit_tests.post_file_tests.conftests import *
 
 
 class TestGetPostsApi:
     endpoint = reverse("community:posts")
 
     @pytest.mark.django_db
-    def test_check_response_if_query_params_none(
-            self,
-            set_up_create_posts
-    ):
+    def test_check_response_if_query_params_none(self, set_up_create_posts):
         client = APIClient()
         response = client.get(self.endpoint)
 
@@ -33,12 +30,9 @@ class TestGetPostsApi:
         assert post_list[0]["category"] == str(PostCategoriesParam.ENG_QUESTION)
 
     @pytest.mark.django_db
-    def test_check_response_if_query_params_contain_page(
-            self,
-            set_up_create_posts
-    ):
+    def test_check_response_if_query_params_contain_page(self, set_up_create_posts):
         client = APIClient()
-        response = client.get(self.endpoint, {"page": '2'})
+        response = client.get(self.endpoint, {"page": "2"})
 
         assert response.status_code == 200
 
@@ -55,11 +49,10 @@ class TestGetPostsApi:
 
     @pytest.mark.django_db
     def test_check_response_if_query_params_contain_search_filter_and_kw(
-            self,
-            set_up_create_posts
+        self, set_up_create_posts
     ):
         client = APIClient()
-        response = client.get(self.endpoint, {"search_filter": 'TITLE', 'q': "1"})
+        response = client.get(self.endpoint, {"search_filter": "TITLE", "q": "1"})
         assert response.status_code == 200
 
         data = response.json()
@@ -76,11 +69,10 @@ class TestGetPostsApi:
 
     @pytest.mark.django_db
     def test_check_response_if_query_params_contain_search_filter_and_kw(
-            self,
-            set_up_create_posts
+        self, set_up_create_posts
     ):
         client = APIClient()
-        response = client.get(self.endpoint, {"search_filter": 'TITLE', 'q': "1"})
+        response = client.get(self.endpoint, {"search_filter": "TITLE", "q": "1"})
         assert response.status_code == 200
 
         data = response.json()

@@ -5,7 +5,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from PIL import Image
 
 from account.models import User
-from community.models import Post, Comment, File
+from community.model.models import Post, Comment, File
 from community.domain.definition import PostCategories, PostCategoriesParam
 from community.serializers import PostCreateSerializer
 from community.service.file_service import FileService
@@ -43,7 +43,7 @@ def logined_client():
         email="test2@naver.com",
         nickname="Testuser2",
         password="pwpwpwpw",
-        is_staff=True
+        is_staff=True,
     )
     staff_user.save()
 
@@ -138,6 +138,7 @@ def save_file_model(setup_data):
     file1.save()
     return file1
 
+
 @pytest.fixture
 def save_file_model_fk_post(setup_data):
     file1 = File(
@@ -148,6 +149,8 @@ def save_file_model_fk_post(setup_data):
     )
     file1.save()
     return file1
+
+
 @pytest.fixture
 def create_staff_user_instance():
     staff_user = User(
@@ -156,7 +159,7 @@ def create_staff_user_instance():
         email="bruce1115@naver.com",
         nickname="KKKBBBSSS",
         password="pwpwpwpw",
-        is_staff=True
+        is_staff=True,
     )
     staff_user.save()
     return staff_user

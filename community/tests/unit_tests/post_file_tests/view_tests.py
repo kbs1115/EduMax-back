@@ -25,13 +25,10 @@ class TestViewLayerValidators:
 
 
 class TestPostView:
-    PostViewPath = 'post/'
-    PostsViewPath = 'posts/'
+    PostViewPath = "post/"
+    PostsViewPath = "posts/"
 
-    def test_get_method_with_invalid_path_params(
-            self,
-            invalid_post_path_param_list
-    ):
+    def test_get_method_with_invalid_path_params(self, invalid_post_path_param_list):
         factory = APIRequestFactory()
         request = factory.get(self.PostViewPath)
 
@@ -40,10 +37,7 @@ class TestPostView:
                 PostView().get(request, post_id=path_param)
 
     def test_get_method_with_valid_path_params(
-            self,
-            mocker,
-            valid_post_path_param,
-            mocked_service_response
+        self, mocker, valid_post_path_param, mocked_service_response
     ):
         mocker = mocker.patch.object(PostService, "retrieve_post")
         mocker.return_value = mocked_service_response
@@ -55,8 +49,7 @@ class TestPostView:
         assert response
 
     def test_post_method_with_invalid_request_body(
-            self,
-            invalid_reqeust_post_body_for_method_post
+        self, invalid_reqeust_post_body_for_method_post
     ):
         for request_body in invalid_reqeust_post_body_for_method_post:
             factory = APIRequestFactory()
@@ -67,10 +60,7 @@ class TestPostView:
                 PostView().post(request)
 
     def test_post_method_with_valid_request_body(
-            self,
-            mocker,
-            valid_reqeust_post_body_for_method_post,
-            mocked_service_response
+        self, mocker, valid_reqeust_post_body_for_method_post, mocked_service_response
     ):
         create_post_mocker = mocker.patch.object(PostService, "create_post")
         create_post_mocker.return_value = mocked_service_response
@@ -84,9 +74,7 @@ class TestPostView:
             assert response
 
     def test_patch_method_with_invalid_request_body_and_valid_path_param(
-            self,
-            invalid_reqeust_post_body_for_method_post,
-            valid_post_path_param
+        self, invalid_reqeust_post_body_for_method_post, valid_post_path_param
     ):
         for request_body in invalid_reqeust_post_body_for_method_post:
             factory = APIRequestFactory()
@@ -97,9 +85,7 @@ class TestPostView:
                 PostView().patch(request, post_id=valid_post_path_param)
 
     def test_patch_method_with_valid_request_body_and_invalid_path_params(
-            self,
-            valid_reqeust_post_body_for_method_post,
-            invalid_post_path_param_list
+        self, valid_reqeust_post_body_for_method_post, invalid_post_path_param_list
     ):
         for path_param in invalid_post_path_param_list:
             for request_body in valid_reqeust_post_body_for_method_post:
@@ -111,9 +97,7 @@ class TestPostView:
                     PostView().patch(request, post_id=path_param)
 
     def test_patch_method_with_invalid_request_body_and_invalid_path_params(
-            self,
-            invalid_reqeust_post_body_for_method_post,
-            invalid_post_path_param_list
+        self, invalid_reqeust_post_body_for_method_post, invalid_post_path_param_list
     ):
         for path_param in invalid_post_path_param_list:
             for request_body in invalid_reqeust_post_body_for_method_post:
@@ -125,15 +109,17 @@ class TestPostView:
                     PostView().patch(request, post_id=path_param)
 
     def test_patch_method_with_valid_request_body_and_valid_path_params(
-            self,
-            mocker,
-            valid_reqeust_post_body_for_method_post,
-            valid_post_path_param,
-            mocked_service_response
+        self,
+        mocker,
+        valid_reqeust_post_body_for_method_post,
+        valid_post_path_param,
+        mocked_service_response,
     ):
         get_post_user_id_mocker = mocker.patch.object(PostService, "get_post_user_id")
         get_post_user_id_mocker.return_value = None
-        check_object_permissions_mocker = mocker.patch.object(PostView, "check_object_permissions")
+        check_object_permissions_mocker = mocker.patch.object(
+            PostView, "check_object_permissions"
+        )
         check_object_permissions_mocker.return_value = None
         update_post_mocker = mocker.patch.object(PostService, "update_post")
         update_post_mocker.return_value = mocked_service_response
@@ -146,10 +132,7 @@ class TestPostView:
             response = PostView().patch(request, post_id=valid_post_path_param)
             assert response
 
-    def test_delete_method_with_invalid_path_param(
-            self,
-            invalid_post_path_param_list
-    ):
+    def test_delete_method_with_invalid_path_param(self, invalid_post_path_param_list):
         factory = APIRequestFactory()
         request = factory.delete(self.PostViewPath)
 
@@ -158,14 +141,13 @@ class TestPostView:
                 PostView().delete(request, post_id=path_param)
 
     def test_delete_method_with_valid_path_param(
-            self,
-            mocker,
-            valid_post_path_param,
-            mocked_service_response
+        self, mocker, valid_post_path_param, mocked_service_response
     ):
         get_post_user_id_mocker = mocker.patch.object(PostService, "get_post_user_id")
         get_post_user_id_mocker.return_value = None
-        check_object_permissions_mocker = mocker.patch.object(PostView, "check_object_permissions")
+        check_object_permissions_mocker = mocker.patch.object(
+            PostView, "check_object_permissions"
+        )
         check_object_permissions_mocker.return_value = None
         delete_post_mocker = mocker.patch.object(PostService, "delete_post")
         delete_post_mocker.return_value = mocked_service_response
@@ -181,11 +163,11 @@ class TestPostView:
         pass
 
     def test_instance_permission_if_has_permission(
-            self,
-            mocker,
-            valid_reqeust_post_body_for_method_post,
-            valid_post_path_param,
-            mocked_service_response
+        self,
+        mocker,
+        valid_reqeust_post_body_for_method_post,
+        valid_post_path_param,
+        mocked_service_response,
     ):
         get_post_user_id_mocker = mocker.patch.object(PostService, "get_post_user_id")
         get_post_user_id_mocker.return_value = 1
@@ -205,11 +187,11 @@ class TestPostView:
             assert response
 
     def test_instance_permission_if_do_not_have_permission(
-            self,
-            mocker,
-            valid_reqeust_post_body_for_method_post,
-            valid_post_path_param,
-            mocked_service_response
+        self,
+        mocker,
+        valid_reqeust_post_body_for_method_post,
+        valid_post_path_param,
+        mocked_service_response,
     ):
         get_post_user_id_mocker = mocker.patch.object(PostService, "get_post_user_id")
         get_post_user_id_mocker.return_value = 1
@@ -230,32 +212,29 @@ class TestPostView:
 
 
 class TestPostsView:
-    PostsViewPath = 'posts/'
+    PostsViewPath = "posts/"
 
     def test_get_method_with_invalid_query_param(
-            self,
-            invalid_post_query_params_list,
+        self,
+        invalid_post_query_params_list,
     ):
         for query_param in invalid_post_query_params_list:
             factory = APIRequestFactory()
-            request = factory.get(self.PostsViewPath, data=query_param, format='json')
+            request = factory.get(self.PostsViewPath, data=query_param, format="json")
             request = Request(request, parsers=[JSONParser()])
 
             with pytest.raises(exceptions.ParseError):
                 GetPostsView().get(request)
 
     def test_get_method_with_valid_query_param(
-            self,
-            mocker,
-            valid_post_query_params_list,
-            mocked_service_response
+        self, mocker, valid_post_query_params_list, mocked_service_response
     ):
         mocker = mocker.patch.object(PostsService, "get_posts")
         mocker.return_value = mocked_service_response
 
         for query_param in valid_post_query_params_list:
             factory = APIRequestFactory()
-            request = factory.get(self.PostsViewPath, data=query_param, format='json')
+            request = factory.get(self.PostsViewPath, data=query_param, format="json")
             request = Request(request, parsers=[JSONParser()])
 
             response = GetPostsView().get(request)
