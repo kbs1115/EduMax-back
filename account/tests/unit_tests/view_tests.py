@@ -1,7 +1,7 @@
 import pytest
 from account.tests.conftests import *
 from account.service.user_service import *
-from account.views import *
+from account.view.user_views import *
 from unittest.mock import Mock
 from rest_framework import exceptions
 from rest_framework import status

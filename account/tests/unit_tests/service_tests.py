@@ -2,7 +2,7 @@ import pytest
 from account.tests.conftests import *
 from account.serializers import UserSerializer
 from account.service.user_service import *
-from account.views import *
+from account.view.user_views import *
 from account.models import User
 from unittest.mock import Mock
 from rest_framework import exceptions
