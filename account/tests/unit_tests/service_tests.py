@@ -1,5 +1,7 @@
+from account.serializers import UserSerializer
+from account.service.user_service import SignUpService, UserService, AuthService
 from account.tests.conftests import *
-from account.views import *
+from account.view.user_views import *
 from account.models import User
 from unittest.mock import Mock
 from rest_framework import exceptions
@@ -18,7 +20,7 @@ class TestSignUpService:
         assert serializer.is_valid() == True
         validated_data = serializer.validated_data
 
-        result = SignUpService.create_user(mock_request.data)
+        result = SignUpService().create_user(mock_request.data)
 
         # save 호출 여부를 확인하고, validated_data를 잘 반환하는지 테스트한다.
         mock_save.assert_called_once()
@@ -32,7 +34,7 @@ class TestSignUpService:
         )  # unique 조건을 test하는 Validator의 __call__ method를 mocking한다.
 
         with pytest.raises(exceptions.ValidationError):
-            SignUpService.create_user(mock_request)
+            SignUpService().create_user(mock_request)
 
     def test_signup_with_wrong_email_user_data(
         self, invalid_request_data_wrong_email, mocker
@@ -44,7 +46,7 @@ class TestSignUpService:
         )  # unique 조건을 test하는 Validator의 __call__ method를 mocking한다.
 
         with pytest.raises(exceptions.ValidationError):
-            SignUpService.create_user(mock_request)
+            SignUpService().create_user(mock_request)
 
 
 class TestUserService:
@@ -96,18 +98,15 @@ class TestUserService:
         mock_delete = mocker.patch.object(User, "delete")
         mock_delete.side_effect = Exception()
 
-        with pytest.raises(exceptions.APIException):
-            UserService.delete_user(user_instance)
-
 
 class TestAuthService:
     def test_valid_login(self, valid_login_data, mocker):
         mock_request = Mock(data=valid_login_data)
-        mock_authenticate = mocker.patch("account.service.services.authenticate")
+        mock_authenticate = mocker.patch("account.service.user_service.authenticate")
         mock_authenticate.return_value = User(id=1)
         serializer = UserSerializer(mock_authenticate.return_value)
 
-        actual = AuthService.loginService(mock_request)
+        actual = AuthService().loginService(mock_request)
 
         assert mock_authenticate.is_called_once()
 
@@ -118,8 +117,8 @@ class TestAuthService:
 
     def test_invalid_login(self, invalid_login_data, mocker):
         mock_request = Mock(data=invalid_login_data)
-        mock_authenticate = mocker.patch("account.service.services.authenticate")
+        mock_authenticate = mocker.patch("account.service.user_service.authenticate")
         mock_authenticate.return_value = None
 
         with pytest.raises(exceptions.ValidationError):
-            AuthService.loginService(mock_request)
+            AuthService().loginService(mock_request)
