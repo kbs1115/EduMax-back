@@ -4,7 +4,7 @@ from rest_framework import exceptions
 from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.request import Request
 
-from community.tests.conftests import *
+from .conftests import *
 from rest_framework.test import APIRequestFactory, force_authenticate
 from community.service.post_service import PostService, PostsService
 from community.view.post_view import PostView, GetPostsView

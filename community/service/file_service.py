@@ -48,9 +48,14 @@ class FileService:
 
     @classmethod
     def get_files_id_list(cls, related_model_instance):
-        return File.objects.filter(post=related_model_instance).values_list(
-            "id", flat=True
-        )
+        if isinstance(related_model_instance, Post):
+            return File.objects.filter(post=related_model_instance).values_list(
+                "id", flat=True
+            )
+        if isinstance(related_model_instance, Comment):
+            return File.objects.filter(comment=related_model_instance).values_list(
+                "id", flat=True
+            )
 
     @classmethod
     def get_file_instance(cls, file_id):

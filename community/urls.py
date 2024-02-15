@@ -7,8 +7,8 @@ from community.view.lecture_view import LectureView, GetLecturesView
 app_name = "community"
 
 urlpatterns = [
-    path("post/", PostView.as_view()),
-    path("post/<int:post_id>", PostView.as_view()),
+    path("post/", PostView.as_view(), name="post"),
+    path("post/<int:post_id>", PostView.as_view(), name="post"),
     path("posts/", GetPostsView.as_view(), name="posts"),
     path(
         "post/<int:post_id>/comment/",

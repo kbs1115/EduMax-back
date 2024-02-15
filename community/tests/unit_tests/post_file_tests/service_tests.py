@@ -4,7 +4,7 @@ from rest_framework.exceptions import PermissionDenied
 from community.serializers import FileSerializer
 from community.tests.unit_tests.post_file_tests.conftests import *
 
-from community.models import Post
+from community.model.models import Post
 
 
 class TestGetPostsService:
