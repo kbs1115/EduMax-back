@@ -1,7 +1,7 @@
 import pytest
 from account.tests.conftests import *
 from django.urls import reverse
-from account.services import *
+from account.service.user_service import *
 from account.views import *
 from django.core.exceptions import ObjectDoesNotExist
 

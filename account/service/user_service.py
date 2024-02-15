@@ -1,4 +1,4 @@
-from .serializers import *
+from ..serializers import *
 from rest_framework import exceptions, permissions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
