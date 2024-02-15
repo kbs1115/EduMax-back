@@ -1,10 +1,10 @@
 from rest_framework.views import APIView
-from .serializers import *
-from .service.user_service import *
+from ..serializers import *
+from ..service.user_service import *
 from rest_framework import status, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .validators import SignupParamModel, LoginParamModel, PatchUserModel
+from ..validators import SignupParamModel, LoginParamModel, PatchUserModel
 from pydantic import ValidationError
 
 
