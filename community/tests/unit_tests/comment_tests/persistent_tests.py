@@ -1,11 +1,9 @@
 import pytest
-from unittest.mock import Mock
 
 from community.model.access import *
-from .conftests import *
 
 
-class TestAccessFunctions:
+class TestCommentPostAccessFunctions:
     @pytest.mark.django_db
     def test_get_post_from_id(self, comment_db_setup):
         comment_db_setup["user_instance"].save()

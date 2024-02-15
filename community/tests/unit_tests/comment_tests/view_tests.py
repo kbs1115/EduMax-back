@@ -1,8 +1,6 @@
 import pytest
 from rest_framework import status
-from rest_framework.response import Response
 from community.view.comment_view import MakeCommentToPostView, CommentView
-from .conftests import *
 
 
 class TestMakeCommentToPostView:
