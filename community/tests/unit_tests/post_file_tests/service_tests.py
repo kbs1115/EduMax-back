@@ -2,6 +2,7 @@ from unittest.mock import patch
 from rest_framework import exceptions
 from rest_framework.exceptions import PermissionDenied
 from community.serializers import FileSerializer
+from community.service.post_service import PostService, PostsService
 from community.tests.unit_tests.post_file_tests.conftests import *
 
 from community.model.models import Post
@@ -10,7 +11,7 @@ from community.model.models import Post
 class TestGetPostsService:
 
     def test_paging_with_invalid_page(
-        self, mocked_get_posts_from_db_return_queryset, valid_post_instance_list
+        self, mocked_function_get_posts_from_db_return_queryset, valid_post_instance_list
     ):
         invalid_page = len(valid_post_instance_list) + 1
         with pytest.raises(exceptions.NotFound):
@@ -23,7 +24,7 @@ class TestGetPostsService:
                 page=invalid_page,
             )
 
-    def test_paging_with_valid_page(self, mocked_get_posts_from_db_return_queryset):
+    def test_paging_with_valid_page(self, mocked_function_get_posts_from_db_return_queryset):
         page = 1
         # page 제외 나머지 매개변수 안씀
         response = PostsService().get_posts(
@@ -36,7 +37,7 @@ class TestGetPostsService:
         assert response
 
     def test_paging_with_valid_page_and_no_post(
-        self, mocked_get_posts_from_db_return_empty_queryset
+        self, mocked_function_get_posts_from_db_return_empty_queryset
     ):
         page = 1
         # page 제외 나머지 매개변수 안씀
