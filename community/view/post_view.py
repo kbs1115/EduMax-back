@@ -5,6 +5,7 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthentic
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from community.model.post_access import get_post_user_id
 from community.view.validation import validate_query_params, \
     PostQueryParam, PostPathParam, validate_path_params, validate_body_request, CreatePostRequestBody, \
     UpdatePostRequestBody
@@ -87,7 +88,7 @@ class PostView(APIView):
     @validate_path_params(PostPathParam)
     def patch(self, request, post_id, validated_request_body):
         # instance permission 확인
-        obj_id = PostService.get_post_user_id(post_id)
+        obj_id = get_post_user_id(post_id)
         self.check_object_permissions(request, obj_id)
 
         body = {
@@ -108,7 +109,7 @@ class PostView(APIView):
     @validate_path_params(PostPathParam)
     def delete(self, request, post_id):
         # instance permission 확인
-        obj_id = PostService.get_post_user_id(post_id)
+        obj_id = get_post_user_id(post_id)
         self.check_object_permissions(request, obj_id)
 
         response = self.post_service.delete_post(post_id)
