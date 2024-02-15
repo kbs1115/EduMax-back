@@ -1,4 +1,4 @@
-from .models import User
+from .models import User, EmailTemporaryKey
 from rest_framework import serializers
 
 
@@ -23,3 +23,5 @@ class UserSerializer(serializers.ModelSerializer):
         instance.nickname = validated_data.get("nickname", instance.nickname)
         instance.save()
         return instance
+
+

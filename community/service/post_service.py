@@ -1,5 +1,5 @@
 import status as status
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
 from django.db.models import Q, Count
 from rest_framework.exceptions import PermissionDenied
@@ -21,29 +21,23 @@ from community.domain.definition import (
 from rest_framework import status, exceptions
 
 from community.service.file_service import FileService
+from community.service.permission import only_staff_can_create_post_notice
 
 
 class PostsService:
     parser_classes = [JSONParser]
 
-    def get_posts(self, category, search_filter, kw, sort, page):
-        """
-        <설명>
-            - validator을 통과한 query_param을 가지고 조건에 맞게 select후 return.
-            - param에 대한 정의 -> community.service.define
-        <로직>
-            1. category에 맞는 게시글들 select
-            2. search_filter 에 맞는 kw select (kw 가 없을시 전체 posts)
-            3. sort_category 에 맞는 순서로 게시글 정렬
-            4. 15개 기준으로 페이징 처리
-            5. 직렬화 후 return
-
-        """
-
-        # category에 따른 정렬
+    def get_posts_from_db(
+        self,
+        category,
+        search_filter,
+        kw,
+        sort,
+    ):
+        # category에 따른 select
         posts = Post.objects.filter(category=category).all()
 
-        # kw에 따른 정렬
+        # kw에 따른 select
         if kw and search_filter == PostSearchFilterParam.TOTAL:
             posts = posts.filter(
                 Q(author__nickname__icontains=kw)
@@ -63,10 +57,31 @@ class PostsService:
         elif posts and sort == PostSortCategoryParam.MOST_LIKE:
             posts = posts.annotate(like_count=Count("likes")).order_by("-like_count")
 
+        return posts
+
+    def get_posts(self, category, search_filter, kw, sort, page):
+        """
+        <설명>
+            - validator을 통과한 query_param을 가지고 조건에 맞게 select후 return.
+            - param에 대한 정의 -> community.service.define
+        <로직>
+            1. category에 맞는 게시글들 select
+            2. search_filter 에 맞는 kw select (kw 가 없을시 전체 posts)
+            3. sort_category 에 맞는 순서로 게시글 정렬
+            4. 15개 기준으로 페이징 처리
+            5. 직렬화 후 return
+
+        """
+        # 조건에 맞는 posts select
+        posts = self.get_posts_from_db(category, search_filter, kw, sort)
+
         # paging 처리
-        pagination = Paginator(posts, POST_LIST_PAGE_SIZE)
-        page_obj = pagination.page(page).object_list
-        list_size = len(page_obj)
+        try:
+            pagination = Paginator(posts, POST_LIST_PAGE_SIZE)
+            page_obj = pagination.page(page).object_list
+            list_size = len(page_obj)
+        except EmptyPage:
+            raise exceptions.NotFound
 
         # 직렬화
         post_serializer = PostListSerializer(page_obj, many=True)
@@ -90,30 +105,36 @@ class PostService:
         try:
             post = Post.objects.get(pk=post_id)
             return post.author.id
+
         except Post.DoesNotExist:
             raise exceptions.NotFound("post not found")
 
-    def get_post(self, post_id):
+    @classmethod
+    def get_post_instance(cls, post_id):
+        try:
+            return Post.objects.get(pk=post_id)
+
+        # 해당 게시글이 존재하지않을 때
+        except Post.DoesNotExist:
+            raise exceptions.NotFound("post not found")
+
+    def retrieve_post(self, post_id):
         """
         <설명>
         - post_id를 받아서 select 후 알맞은 file model instances와 같이 return 한다.
         - 만약 post_id 가 없을 시 DoesNotExist을 발생시킨다.
         """
-        try:
-            post = Post.objects.get(pk=post_id)
-            serializer = PostRetrieveSerializer(post)
 
-            # view 함수로 넘겨주기
-            return {
-                "status": status.HTTP_200_OK,
-                "message": "post retrieve successfully",
-                "data": serializer.data,
-            }
-        # 해당 게시글이 존재하지않을 때
-        except Post.DoesNotExist:
-            raise exceptions.NotFound("post not found")
+        post = self.get_post_instance(post_id)
+        serializer = PostRetrieveSerializer(post)
+        # view 함수로 넘겨주기
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "post retrieve successfully",
+            "data": serializer.data,
+        }
 
-    def create_post(self, category, title, content, html_content, files, author):
+    def create_post(self, category, title, content, html_content, author, files=None):
         """
         <설명>
             - post를 생성할때 쓰인다.
@@ -126,10 +147,8 @@ class PostService:
             5. file 부분 저장
         """
 
-        # restrict_post_create_permission
-        if category == PostCategories.NOTICE:
-            if not (author.is_staff or author.is_superuser):
-                raise PermissionDenied()
+        # check_post_create_permission
+        only_staff_can_create_post_notice(category=category, author=author)
 
         # request.data 로 부터 post model 분리
         post_data = {
@@ -173,11 +192,8 @@ class PostService:
             4. file model instances 삭제
             5. post model instance 삭제
         """
-        try:
-            post = Post.objects.get(pk=post_id)
 
-        except Post.DoesNotExist:
-            raise exceptions.NotFound("post not found")
+        post = self.get_post_instance(post_id)
 
         with transaction.atomic():
             instance = FileService()
@@ -189,7 +205,14 @@ class PostService:
             }
 
     def update_post(
-        self, post_id, category, title, content, html_content, files_state, files
+        self,
+        post_id,
+        category=None,
+        title=None,
+        content=None,
+        html_content=None,
+        files=None,
+        files_state=None,
     ):
         """
         <설명>
@@ -216,10 +239,9 @@ class PostService:
         if html_content:
             post_data_for_serialize["html_content"] = html_content
 
-        try:
-            post = Post.objects.get(pk=post_id)
-        except Post.DoesNotExist:
-            raise exceptions.NotFound("post not found")
+        # 해당 post 가져옴
+        post = self.get_post_instance(post_id)
+
         # 직렬화
         post_serializer = PostCreateSerializer(
             post, data=post_data_for_serialize, partial=True
@@ -233,7 +255,7 @@ class PostService:
             # file 수정 또는 삭제
             if files_state:
                 instance = FileService()
-                if files_state == PostFilesState.REPLACE and files:
+                if files_state == PostFilesState.REPLACE and files is not None:
                     instance.put_files(files, post)
                 elif files_state == PostFilesState.DELETE:
                     instance.delete_files(post)

@@ -1,7 +1,6 @@
 from functools import wraps
-from typing import Type, Union
-from django.http import JsonResponse, QueryDict
-from rest_framework import status, exceptions
+from typing import Type, ClassVar, Union
+from rest_framework import exceptions
 from pydantic import BaseModel, Field
 
 from community.domain.definition import *
@@ -11,6 +10,12 @@ from community.domain.definition import *
 
 # post view 에 들어오는 query_param을 validate 하기위한 임의의 model
 class PostQueryParam(BaseModel):
+    PAGE: ClassVar[str] = "page"
+    CATEGORY: ClassVar[str] = "category"
+    SEARCH_FILTER: ClassVar[str] = "search_filter"
+    Q: ClassVar[str] = "q"
+    SORT: ClassVar[str] = "sort"
+
     page: int = Field(default=1, ge=1)
     category: PostCategoriesParam = Field(default=PostCategoriesParam.ENG_QUESTION)
     search_filter: PostSearchFilterParam = Field(default=PostSearchFilterParam.TOTAL)
@@ -19,10 +24,15 @@ class PostQueryParam(BaseModel):
 
 
 class PostPathParam(BaseModel):
-    post_id: int = Field(ge=0)
+    post_id: int = Field(gt=0)
 
 
 class CreatePostRequestBody(BaseModel):
+    CATEGORY: ClassVar[str] = "category"
+    CONTENT: ClassVar[str] = "content"
+    TITLE: ClassVar[str] = "title"
+    HTML_CONTENT: ClassVar[str] = "html_content"
+
     category: PostCategoriesParam = Field(default=PostCategoriesParam.ENG_QUESTION)
     content: str = Field(min_length=1)
     title: str = Field(max_length=30)
@@ -31,15 +41,18 @@ class CreatePostRequestBody(BaseModel):
 
 
 class UpdatePostRequestBody(BaseModel):
+    CATEGORY: ClassVar[str] = "category"
+    CONTENT: ClassVar[str] = "content"
+    TITLE: ClassVar[str] = "title"
+    HTML_CONTENT: ClassVar[str] = "html_content"
+    FILES_STATE: ClassVar[str] = "files_state"
+
     category: PostCategoriesParam = Field(default=None)
     content: str = Field(min_length=1, default=None)
     title: str = Field(max_length=30, default=None)
     html_content: str = Field(min_length=1, default=None)
     files_state: PostFilesState = Field(default=None)
     # files 도 valid 하면 좋을듯
-
-
-"""----------------------------------------------------------------------------"""
 
 
 class LectureQueryParam(BaseModel):
@@ -155,7 +168,6 @@ def validate_body_request(model: Type[BaseModel]):
     """
     <설명>
     request의 body에 있는 데이터를 검증한다.
-
     """
 
     def decorated_func(f):
@@ -164,9 +176,7 @@ def validate_body_request(model: Type[BaseModel]):
             *args, **kwargs
         ):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
             request = args[1]
-            body_data = request.data
-            if isinstance(body_data, QueryDict):
-                body_data = body_data.dict()
+            body_data = request.data.dict()
             try:
                 validated_params = model.model_validate(body_data)
             except ValueError as e:

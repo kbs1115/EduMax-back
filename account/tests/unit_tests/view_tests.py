@@ -1,4 +1,3 @@
-import pytest
 from account.tests.conftests import *
 from account.service.user_service import *
 from account.view.user_views import *

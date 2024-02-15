@@ -2,10 +2,10 @@ from django.http import JsonResponse
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from account.models import User
-from community.service.validation import validate_query_params, \
+from community.view.validation import validate_query_params, \
     PostQueryParam, PostPathParam, validate_path_params, validate_body_request, CreatePostRequestBody, \
     UpdatePostRequestBody
 from community.service.post_service import PostService, PostsService
@@ -42,11 +42,11 @@ class GetPostsView(APIView):
         }
         response = self.post_service.get_posts(**params)
 
-        return JsonResponse(status=response.get("status_code"),
-                            data={
-                                "message": response.get("message", None),
-                                "data": response.get("data", None)},
-                            )
+        return Response(status=response.get("status_code"),
+                        data={
+                            "message": response.get("message", None),
+                            "data": response.get("data", None)},
+                        )
 
 
 class PostView(APIView):
@@ -59,7 +59,7 @@ class PostView(APIView):
     @validate_path_params(PostPathParam)
     def get(self, request, post_id):
         # retrieve
-        response = self.post_service.get_post(post_id)
+        response = self.post_service.retrieve_post(post_id)
         return JsonResponse(status=response.get("status_code"),
                             data={
                                 "message": response.get("message", None),
@@ -96,8 +96,7 @@ class PostView(APIView):
             "html_content": validated_request_body.html_content,
             "title": validated_request_body.title,
             'files_state': validated_request_body.files_state,
-            'files': request.FILES.getlist('files', None),
-            "author": request.user
+            'files': request.FILES.getlist('files', None)
         }
         response = self.post_service.update_post(post_id, **body)
         return JsonResponse(status=response.get("status_code"),
