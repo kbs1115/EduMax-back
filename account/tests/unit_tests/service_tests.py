@@ -37,7 +37,7 @@ class TestSignUpService:
             SignUpService().create_user(mock_request)
 
     def test_signup_with_wrong_email_user_data(
-        self, invalid_request_data_wrong_email, mocker
+            self, invalid_request_data_wrong_email, mocker
     ):
         mock_request = Mock(data=invalid_request_data_wrong_email)
         mock_save = mocker.patch.object(UserSerializer, "save")
@@ -48,6 +48,11 @@ class TestSignUpService:
         with pytest.raises(exceptions.ValidationError):
             SignUpService().create_user(mock_request)
 
+    def test_duplicate_check_if_field_duplicate(self):
+        pass
+
+    def test_duplicate_check_if_field_not_duplicate(self):
+        pass
 
 class TestUserService:
     mock_request = Mock()
