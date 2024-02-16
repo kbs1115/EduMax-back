@@ -1,4 +1,5 @@
 import pytest
+from django.core.mail import EmailMessage
 from django.db.models import QuerySet
 from rest_framework import status
 
@@ -146,7 +147,7 @@ def invalid_patch_data():
 
 @pytest.fixture
 def valid_EmailTemporaryKey_inst():
-    return EmailTemporaryKey(email="dbsrbals26gmail.com", key=123456)
+    return EmailTemporaryKey(email="dbsrbals26gmail.com", key="123456")
 
 
 @pytest.fixture
@@ -228,6 +229,16 @@ def mocked_EmailTemporaryKey_email_key_return_empty_query_set(mocker):
 
 
 @pytest.fixture
+def mocked_EmailTemporaryKey_orm_return_query_set(mocker, valid_EmailTemporaryKey_inst):
+    query_set = queryset_factory(EmailTemporaryKey, [valid_EmailTemporaryKey_inst])
+    mocker1 = mocker.patch.object(EmailTemporaryKey.objects, "filter")
+    mocker2 = mocker.patch.object(QuerySet, "latest")
+    mocker1.return_value = query_set
+    mocker2.return_value = valid_EmailTemporaryKey_inst
+    return [mocker1, mocker2, query_set]
+
+
+@pytest.fixture
 def mocked_user_access(mocker):
     mocker.patch("account.model.user_access")
 
@@ -272,7 +283,7 @@ def mocked_method_check_authentication(mocker):
 
 
 @pytest.fixture
-def mocked_method_create_password_change_param_model_inst(mocker):
+def mocked_method_create_password_change_param_model_inst_in_user_service(mocker):
     mocker.patch("account.service.user_service.create_password_change_param_model_inst")
 
 
@@ -295,7 +306,22 @@ def mocked_function_get_user_with_email(mocker, user_instance):
 
 
 @pytest.fixture
+def mocked_function_create_email_key_model_instance_in_email_service(mocker, valid_EmailTemporaryKey_inst):
+    mocker = mocker.patch("account.service.email_service.create_email_key_model_instance")
+    mocker.return_value = valid_EmailTemporaryKey_inst
+
+@pytest.fixture
+def mocked_function_delete_email_key_instance_in_email_service(mocker):
+    mocker.patch("account.service.email_service.delete_email_key_instance")
+
+
+@pytest.fixture
 def mocked_user_method(mocker):
     mocker.patch.object(User, "set_password")
     mocker.patch.object(User, "save")
 
+
+@pytest.fixture
+def mocked_smtp_email_send(mocker):
+    mocker = mocker.patch.object(EmailMessage, "send")
+    return mocker

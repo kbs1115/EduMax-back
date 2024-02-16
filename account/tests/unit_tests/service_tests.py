@@ -124,7 +124,7 @@ class TestUserService:
     def test_method_make_random_query_param_with_email_auth_assert_called(
             self,
             mocked_method_check_authentication,
-            mocked_method_create_password_change_param_model_inst,
+            mocked_method_create_password_change_param_model_inst_in_user_service,
             mocked_method_delete_query_param_instance
     ):
         with patch("django.db.transaction.atomic"):
@@ -169,11 +169,49 @@ class TestAuthService:
 
 
 class TestEmailService:
-    def test_method_check_authentication_assert_called(self):
-        pass
+    def test_method_check_authentication_assert_called(
+            self,
+            mocked_EmailTemporaryKey_orm_return_query_set
+    ):
+        response = EmailService().check_authentication(
+            email="dbsrbals26@gmail.com",
+            auth_key="123456"  # 픽스처값은 123456
+        )
+        assert response["message"] == "email authenticated successfully"
+        assert response["status_code"] == status.HTTP_200_OK
 
-    def test_method_send_email_assert_called(self):
-        pass
+    def test_method_check_authentication_with_invalid_auth_key(
+            self,
+            mocked_EmailTemporaryKey_orm_return_query_set
+    ):
+        with pytest.raises(exceptions.ValidationError):
+            EmailService().check_authentication(
+                email="dbsrbals26@gmail.com",
+                auth_key="123450"  # 픽스처값은 123456
+            )
+
+    def test_method_check_authentication_with_key_doesnot_exist(
+            self,
+            mocked_EmailTemporaryKey_email_key_return_empty_query_set
+    ):
+        with pytest.raises(exceptions.ValidationError):
+            EmailService().check_authentication(
+                email="dbsrbals26@gmail.com",
+                auth_key="123456"  # 픽스처값은 123456
+            )
+
+    def test_method_send_email_assert_called(
+            self,
+            mocked_function_create_email_key_model_instance_in_email_service,
+            mocked_smtp_email_send,
+            mocked_function_delete_email_key_instance_in_email_service
+
+    ):
+        with patch("django.db.transaction.atomic"):
+            response = EmailService().send_email(email="dbsrbals26@gmail.com")
+            assert response["message"] == "email sent successfully"
+            assert response["status_code"] == status.HTTP_200_OK
 
     def test_method_generate_random_number(self):
-        pass
+        response = EmailService().generate_random_number()
+        assert len(response) == 6
