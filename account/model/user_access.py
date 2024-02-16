@@ -2,6 +2,7 @@ from django.db import transaction
 from rest_framework import exceptions
 
 from account.models import User
+from account.models import PwChangeTemporaryQueryParam
 
 
 def get_user_with_email(email):
@@ -41,3 +42,10 @@ def get_user_with_pk(pk):
 
 def delete_user_db(user):
     user.delete()
+
+
+def check_pw_change_page_query_param(verify):
+    try:
+        PwChangeTemporaryQueryParam.objects.get(query_param=verify)
+    except PwChangeTemporaryQueryParam.DoesNotExist:
+        raise exceptions.ValidationError("wrong query param")

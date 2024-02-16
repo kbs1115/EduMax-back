@@ -1,11 +1,15 @@
+from rest_framework.parsers import MultiPartParser
+from rest_framework.templatetags import rest_framework
+
 from account.service.user_service import SignUpService, UserService, AuthService
 from account.tests.conftests import *
 from account.view.user_views import *
 from unittest.mock import Mock
 from rest_framework import exceptions
 from rest_framework import status
-
+from rest_framework.request import Request
 from account.view.user_views import UserAPIView, AuthAPIView
+from rest_framework.test import APIRequestFactory
 
 
 class TestSignupView:
@@ -145,11 +149,71 @@ class TestAuthView:
 
 
 class TestPasswordChangeApiView:
-    pass
+    view_path = "auth/user/pw-change/"
+
+    def test_assert_called(
+            self,
+            mocked_check_pw_change_page_query_param,
+            valid_data_for_password_change_api_view,
+            mocked_method_change_password
+    ):
+        """
+        valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
+        """
+
+        value = valid_data_for_password_change_api_view[0]["verify"]
+        body = valid_data_for_password_change_api_view[1]
+        path = self.view_path + f"?verify={value}"
+        factory = APIRequestFactory()
+        request = factory.post(path, data=body)
+        request = Request(request, parsers=[MultiPartParser()])
+        response = PasswordChangeApiView().post(request)
+        mocked_check_pw_change_page_query_param.assert_called_once()
+        mocked_method_change_password.assert_called_once()
+        assert response
+
+    def test_invalid_body_data(
+            self,
+            mocked_check_pw_change_page_query_param,
+            invalid_data_for_password_change_api_view,
+            mocked_method_change_password
+    ):
+        """
+        조건에 맞지않는 body_data가 입력됬을때 validator에서
+        거를수있는지 확인
+        """
+        value = invalid_data_for_password_change_api_view[0]["verify"]
+        body = invalid_data_for_password_change_api_view[1]
+        path = self.view_path + f"?verify={value}"
+        factory = APIRequestFactory()
+        request = factory.post(path, data=body)
+        request = Request(request, parsers=[MultiPartParser()])
+
+        with pytest.raises(exceptions.ParseError):
+            PasswordChangeApiView().post(request)
+            mocked_check_pw_change_page_query_param.assert_called_once()
 
 
 class TestRedirectPwChangeApiView:
-    pass
+    view_path = "user/pw-change/email-auth/"
+
+    def test_assert_called(
+            self,
+            mocked_check_pw_change_page_query_param,
+            valid_data_for_RedirectPwChangeApiView,
+            mocked_method_change_password
+    ):
+        """
+        valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
+        """
+
+        factory = APIRequestFactory()
+        request = factory.post(self.view_path, data=valid_data_for_RedirectPwChangeApiView)
+        request = Request(request, parsers=[MultiPartParser()])
+        response = PasswordChangeApiView().post(request)
+        mocked_check_pw_change_page_query_param.assert_called_once()
+        mocked_method_change_password.assert_called_once()
+        assert response
 
 
 class TestGetLoginIdApiView:
@@ -157,4 +221,8 @@ class TestGetLoginIdApiView:
 
 
 class TestDuplicateCheckerAPIView:
+    pass
+
+
+class TestEmailSenderApiView:
     pass
