@@ -82,7 +82,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "edumaxdb",
+        "NAME": "edumax",
         "USER": "root",
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": "localhost",
