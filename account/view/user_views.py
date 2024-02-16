@@ -189,6 +189,7 @@ class AuthAPIView(APIView):
         except ValidationError as e:
             raise exceptions.ParseError("invalid data form")
 
+
         login_data = AuthService().loginService(request.data)
 
         res = Response(

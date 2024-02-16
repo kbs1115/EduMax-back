@@ -1,5 +1,4 @@
 from django.urls import path, include
-
 from account.view.email_views import EmailSenderApiView
 from account.view.user_views import *
 from rest_framework_simplejwt.views import TokenRefreshView

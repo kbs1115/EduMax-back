@@ -122,6 +122,7 @@ class UserService:
 
 class AuthService:
     def loginService(self, data):
+
         user = authenticate(
             login_id=data.get("login_id"), password=data.get("password")
         )
