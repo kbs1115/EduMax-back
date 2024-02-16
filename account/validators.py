@@ -59,13 +59,9 @@ class PasswordPageQueryParamModel(BaseModel):
 
     def __init__(self, **data):
         super().__init__(**data)
+        from account.model.user_access import check_pw_change_page_query_param
 
-        try:
-            from account.models import PwChangeTemporaryQueryParam
-
-            PwChangeTemporaryQueryParam.objects.get(query_param=self.verify)
-        except PwChangeTemporaryQueryParam.DoesNotExist:
-            raise exceptions.ValidationError("wrong query param")
+        check_pw_change_page_query_param(self.verify)
 
 
 class PasswordModel(BaseModel):

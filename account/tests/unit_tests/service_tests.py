@@ -54,6 +54,7 @@ class TestSignUpService:
     def test_duplicate_check_if_field_not_duplicate(self):
         pass
 
+
 class TestUserService:
     mock_request = Mock()
     mock_view = Mock()
@@ -103,6 +104,18 @@ class TestUserService:
         mock_delete = mocker.patch.object(User, "delete")
         mock_delete.side_effect = Exception()
 
+    def test_method_generate_random_string(self):
+        pass
+
+    def test_method_get_user_with_email_auth_assert_called(self):
+        pass
+
+    def test_method_make_random_query_param_with_email_auth_assert_called(self):
+        pass
+
+    def test_method_change_password_assert_called(self):
+        pass
+
 
 class TestAuthService:
     def test_valid_login(self, valid_login_data, mocker):
@@ -127,3 +140,14 @@ class TestAuthService:
 
         with pytest.raises(exceptions.ValidationError):
             AuthService().loginService(mock_request)
+
+
+class TestEmailService:
+    def test_method_check_authentication_assert_called(self):
+        pass
+
+    def test_method_send_email_assert_called(self):
+        pass
+
+    def test_method_generate_random_number(self):
+        pass
