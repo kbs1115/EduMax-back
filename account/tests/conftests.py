@@ -1,8 +1,12 @@
 import pytest
+from rest_framework import status
+
 from account.models import User, PwChangeTemporaryQueryParam
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from account.service.user_service import UserService
+
+from account.service.email_service import EmailService
+from account.service.user_service import UserService, SignUpService
 
 
 @pytest.fixture
@@ -150,6 +154,7 @@ def valid_data_for_password_change_api_view():
         }
     ]
 
+
 @pytest.fixture
 def invalid_data_for_password_change_api_view():
     return [
@@ -163,7 +168,7 @@ def invalid_data_for_password_change_api_view():
     ]
 
 
-
+@pytest.fixture
 def valid_data_for_RedirectPwChangeApiView():
     return {
         "email": "dbsrbals26@gmail.com",
@@ -171,10 +176,39 @@ def valid_data_for_RedirectPwChangeApiView():
     }
 
 
+@pytest.fixture
 def invalid_data_for_RedirectPwChangeApiView():
     return {
         "email": "dbsrbals26@gmail.com",
         "auth_key": 1234567
+    }
+
+
+@pytest.fixture
+def valid_data_for_DuplicateCheckerAPIView():
+    return {
+        "nickname": "dbsrbals2"
+    }
+
+
+@pytest.fixture
+def invalid_data_for_DuplicateCheckerAPIView():
+    return {
+        "nickdxscname": "dbsrbals2"
+    }
+
+
+@pytest.fixture
+def valid_data_for_EmailSenderApiView():
+    return {
+        "email": "dbsrbals26@gmail.com"
+    }
+
+
+@pytest.fixture
+def invalid_data_for_EmailSenderApiView():
+    return {
+        "email": "dbsrbals26@gmaasdzxcasdzxd"
     }
 
 
@@ -192,4 +226,32 @@ def mocked_check_pw_change_page_query_param(mocker):
 @pytest.fixture
 def mocked_method_change_password(mocker):
     mocker = mocker.patch.object(UserService, "change_password")
+    return mocker
+
+
+@pytest.fixture
+def mocked_method_make_random_query_param_with_email_auth(mocker):
+    mocker = mocker.patch.object(UserService, "make_random_query_param_with_email_auth")
+    mocker.return_value = "12345678"
+    return mocker
+
+
+@pytest.fixture
+def mocked_method_get_user_with_email_auth(mocker, user_instance):
+    mocker = mocker.patch.object(UserService, "get_user_with_email_auth")
+    mocker.return_value = user_instance
+    return mocker
+
+
+@pytest.fixture
+def mocked_method_check_duplicate_field_value(mocker):
+    mocker = mocker.patch.object(SignUpService, "check_duplicate_field_value")
+    mocker.return_value = True
+    return mocker
+
+
+@pytest.fixture
+def mocked_method_send_email(mocker):
+    mocker = mocker.patch.object(EmailService, "send_email")
+    mocker.return_value = {"message": "email sent successfully", "status_code": status.HTTP_200_OK}
     return mocker
