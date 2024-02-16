@@ -3,7 +3,7 @@ from account.service.user_service import SignUpService, UserService, AuthService
 from account.tests.conftests import *
 from account.view.user_views import *
 from account.models import User
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from rest_framework import exceptions
 from rest_framework.validators import UniqueValidator
 
@@ -105,16 +105,42 @@ class TestUserService:
         mock_delete.side_effect = Exception()
 
     def test_method_generate_random_string(self):
-        pass
+        random_string = UserService.generate_random_string()
+        assert len(random_string) == 8
 
-    def test_method_get_user_with_email_auth_assert_called(self):
-        pass
+    def test_method_get_user_with_email_auth_assert_called(
+            self,
+            mocked_function_get_user_with_email,
+            mocked_method_check_authentication,
+            user_instance
 
-    def test_method_make_random_query_param_with_email_auth_assert_called(self):
-        pass
+    ):
+        response = UserService.get_user_with_email_auth(
+            email="dbsrbals26@gmail.com",
+            auth_key="123456"
+        )
+        assert response == user_instance
 
-    def test_method_change_password_assert_called(self):
-        pass
+    def test_method_make_random_query_param_with_email_auth_assert_called(
+            self,
+            mocked_method_check_authentication,
+            mocked_method_create_password_change_param_model_inst,
+            mocked_method_delete_query_param_instance
+    ):
+        with patch("django.db.transaction.atomic"):
+            response = UserService().make_random_query_param_with_email_auth(
+                email="dbsrbals26@gmail.com",
+                auth_key="123456"
+            )
+            assert len(response) == 8
+
+    def test_method_change_password_assert_called(
+            self,
+            mocked_function_get_user_with_email,
+            mocked_user_method
+    ):
+        with patch("django.db.transaction.atomic"):
+            UserService().change_password(pw="123", email="dbsrbals26@gmail.com")
 
 
 class TestAuthService:
