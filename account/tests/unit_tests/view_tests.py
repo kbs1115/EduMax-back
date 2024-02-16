@@ -60,12 +60,12 @@ class TestUserView:
         assert res.status_code == 200
 
     def test_UserAPIView_patch(
-        self,
-        mocker,
-        valid_user_data,
-        user_instance,
-        valid_patch_data,
-        invalid_patch_data,
+            self,
+            mocker,
+            valid_user_data,
+            user_instance,
+            valid_patch_data,
+            invalid_patch_data,
     ):
         mocker_create_user = mocker.patch.object(UserService, "update_user")
         mocker_create_user.return_value = valid_user_data
@@ -142,3 +142,19 @@ class TestAuthView:
         with pytest.raises(exceptions.ParseError):
             login = AuthAPIView()
             login.post(mock_request)
+
+
+class TestPasswordChangeApiView:
+    pass
+
+
+class TestRedirectPwChangeApiView:
+    pass
+
+
+class TestGetLoginIdApiView:
+    pass
+
+
+class TestDuplicateCheckerAPIView:
+    pass
