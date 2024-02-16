@@ -29,11 +29,11 @@ class SignUpService:
         한번에 여러개도 가능하고, 하나씩도 가능하다
         """
         if login_id is not None:
-            return check_user_exists_with_field(login_id)
+            return check_user_exists_with_field(User.USERNAME_FIELD, login_id)
         elif email is not None:
-            return check_user_exists_with_field(email)
+            return check_user_exists_with_field(User.EMAIL_FIELD, email)
         elif nickname is not None:
-            return check_user_exists_with_field(nickname)
+            return check_user_exists_with_field(User.NICKNAME_FIELD, nickname)
         else:
             raise exceptions.APIException("there is no field")
 

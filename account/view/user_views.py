@@ -49,8 +49,9 @@ class UserAPIView(APIView):
             e = SignupParamModel(**request.data)
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
+        # TODO: 회원가입 할때 EMAIL KEY 같이 받아야함.
         # EmailService().check_authentication()
-        user_data = SignUpService.create_user(request.data)
+        user_data = SignUpService().create_user(request.data)
 
         res = Response(
             {
@@ -188,7 +189,6 @@ class AuthAPIView(APIView):
             e = LoginParamModel(**request.data)
         except ValidationError as e:
             raise exceptions.ParseError("invalid data form")
-
 
         login_data = AuthService().loginService(request.data)
 
