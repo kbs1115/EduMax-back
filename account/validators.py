@@ -2,6 +2,8 @@ from django.core.validators import RegexValidator
 from pydantic import BaseModel, Field, EmailStr
 from typing import Optional
 
+from rest_framework import exceptions
+
 
 class UserValidator:
     idValidator = RegexValidator(
@@ -14,14 +16,14 @@ class UserValidator:
     )
 
 
-# 추가) 중복체크를 위한 validate model
+#  중복체크를 위한 validate model
 class UserUniqueFieldModel(BaseModel):
     nickname: str = Field(default=None)
     login_id: str = Field(default=None)
     email: str = Field(default=None)
 
 
-# 추가) email sending 을 위한 validate model
+#  email sending 을 위한 validate model
 class EmailFieldModel(BaseModel):
     email: EmailStr = Field(max_length=30)
 
@@ -46,3 +48,29 @@ class LoginParamModel(BaseModel):
 class PatchUserModel(BaseModel):
     email: Optional[str] = None
     nickname: Optional[str] = None
+
+
+class PasswordPageQueryParamModel(BaseModel):
+    """
+    패스워드 변경 페이지의 쿼리 파라매터와
+    db의 쿼리 파라매터를 비교한다.
+    """
+    verify: str
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+        try:
+            from account.models import PwChangeTemporaryQueryParam
+
+            PwChangeTemporaryQueryParam.objects.get(query_param=self.verify)
+        except PwChangeTemporaryQueryParam.DoesNotExist:
+            raise exceptions.ValidationError("wrong query param")
+
+
+class PasswordModel(BaseModel):
+    """
+    패스워드 변경을 위한 validator model
+    """
+    new_pw: str
+    email: EmailStr = Field(max_length=30)

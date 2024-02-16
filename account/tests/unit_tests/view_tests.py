@@ -1,9 +1,11 @@
+from account.service.user_service import SignUpService, UserService, AuthService
 from account.tests.conftests import *
-from account.service.user_service import *
 from account.view.user_views import *
 from unittest.mock import Mock
 from rest_framework import exceptions
 from rest_framework import status
+
+from account.view.user_views import UserAPIView, AuthAPIView
 
 
 class TestSignupView:
