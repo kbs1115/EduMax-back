@@ -222,7 +222,7 @@ class TestRedirectPwChangeApiView:
             invalid_data_for_RedirectPwChangeApiView,
     ):
         """
-        valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
+        invalid 데이터를 넘겨줬을때 예외를 잡는지
         """
 
         factory = APIRequestFactory()
@@ -257,7 +257,7 @@ class TestGetLoginIdApiView:
             invalid_data_for_RedirectPwChangeApiView,
     ):
         """
-        valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
+        invalid 데이터를 넘겨줬을때 예외를 잡는지
         """
 
         factory = APIRequestFactory()
@@ -292,7 +292,7 @@ class TestDuplicateCheckerAPIView:
             invalid_data_for_DuplicateCheckerAPIView,
     ):
         """
-        valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
+        invalid 데이터를 넘겨줬을때 예외를 잡는지
         """
 
         factory = APIRequestFactory()
@@ -327,7 +327,7 @@ class TestEmailSenderApiView:
             invalid_data_for_EmailSenderApiView,
     ):
         """
-        valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
+        invalid 데이터를 넘겨줬을때 예외를 잡는지
         """
 
         factory = APIRequestFactory()
