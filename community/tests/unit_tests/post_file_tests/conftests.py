@@ -18,7 +18,7 @@ from community.view.validation import PostQueryParam, CreatePostRequestBody, Upd
 
 
 # 팩토리 함수
-def queryset_factory(model_class: Type[Post], instances=None):
+def queryset_factory(model_class, instances=None):
     if instances:
         queryset = QuerySet(model=model_class)
         queryset._result_cache = [inst for inst in instances]
