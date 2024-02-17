@@ -6,19 +6,19 @@ from community.domain.definition import (
     LectureSearchFilterParam,
 )
 
-
 """
 Unit test에 사용되는 body data, mock request 등을 정의함.
 """
 
 
 @pytest.fixture
-def comment_db_setup(user_instance, post_instance, comment_instance, file_instance):
+def comment_db_setup(user_instance, post_instance, comment_instance, file_instance, like_comment_instance):
     return {
         "user_instance": user_instance,
         "post_instance": post_instance,
         "comment_instance": comment_instance,
         "file_instance": file_instance,
+        "like_instance": like_comment_instance
     }
 
 

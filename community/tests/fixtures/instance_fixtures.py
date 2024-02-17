@@ -3,9 +3,8 @@ from datetime import datetime
 from django.db.models import QuerySet
 
 from account.models import User
-from community.model.models import Comment, Post, File, Lecture
+from community.model.models import Comment, Post, File, Lecture, Like
 from community.domain.definition import PostCategories
-
 
 """
 Unit test에 사용되는 model instance를 정의함.
@@ -105,6 +104,18 @@ def comment_instance(user_instance, post_instance, make_comment_instance):
 def file_instance(comment_instance):
     file = File(file_location="filelocation", post=None, comment=comment_instance)
     return file
+
+
+@pytest.fixture
+def like_comment_instance(comment_instance, user_instance):
+    like = Like(comment=comment_instance, post=None, user=user_instance)
+    return like
+
+
+@pytest.fixture
+def like_post_instance(post_instance, user_instance):
+    like = Like(comment=None, post=post_instance, user=user_instance)
+    return like
 
 
 @pytest.fixture
