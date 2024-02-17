@@ -7,12 +7,12 @@ from rest_framework import exceptions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from account.model.temp_access import create_password_change_param_model_inst
-from account.model.user_access import get_user_with_email, check_user_exists_with_field, delete_user_db, \
+from edumax_account.model.temp_access import create_password_change_param_model_inst
+from edumax_account.model.user_access import get_user_with_email, check_user_exists_with_field, delete_user_db, \
     set_password
-from account.service.email_service import EmailService
-from account.tasks import delete_query_param_instance
-from account.serializers import *
+from edumax_account.service.email_service import EmailService
+from edumax_account.tasks import delete_query_param_instance
+from edumax_account.serializers import *
 
 
 # 회원가입

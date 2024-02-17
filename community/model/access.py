@@ -2,7 +2,7 @@ from rest_framework.exceptions import NotFound, ValidationError
 from django.db.models import Q
 
 from community.model.models import Post, Comment, Lecture
-from account.models import User
+from edumax_account.models import User
 from community.domain.definition import (
     TREE_STRUCTURE,
     LectureCategoriesDepth1Param,

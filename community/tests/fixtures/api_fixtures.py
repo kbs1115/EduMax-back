@@ -3,7 +3,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from PIL import Image
 
-from account.models import User
+from edumax_account.models import User
 from community.model.models import Post, Comment, File
 from community.domain.definition import PostCategories
 
@@ -15,6 +15,7 @@ API test에 필요한 fixture들이 들어 있다.
 3. 임시 이미지 파일을 생성하는 fixture
 
 """
+
 
 @pytest.fixture
 def client():
