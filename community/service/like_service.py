@@ -8,12 +8,12 @@ from community.serializers import LikeCreateSerializer
 class LikeService:
     @classmethod
     def get_serializer_data(cls, related_model_inst, voter):
-        if isinstance(Post, related_model_inst):
+        if isinstance(related_model_inst, Post):
             return {
                 "post": related_model_inst,
                 "user": voter
             }
-        elif isinstance(Comment, related_model_inst):
+        elif isinstance(related_model_inst, Comment):
             return {
                 "comment": related_model_inst,
                 "user": voter
@@ -22,10 +22,10 @@ class LikeService:
             raise exceptions.ValidationError("post 혹은 comment만 추천할수있음")
 
     def generate_like(self, model_class, pk, voter):
-        if isinstance(Post, model_class):
+        if model_class == "post":
             inst = get_post_from_id(id=pk)
 
-        elif isinstance(Post, model_class):
+        elif model_class == "comment":
             inst = get_comment_from_id(comment_id=pk)
 
         else:
