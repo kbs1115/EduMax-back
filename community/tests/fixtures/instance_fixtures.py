@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from django.db.models import QuerySet
 
-from account.models import User
+from edumax_account.models import User
 from community.model.models import Comment, Post, File, Lecture
 from community.domain.definition import PostCategories
 

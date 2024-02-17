@@ -1,8 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
-from account.model.model_manager import UserManager
-from account.validators import UserValidator
+from edumax_account.model.model_manager import UserManager
+from edumax_account.validators import UserValidator
 
 
 class User(AbstractBaseUser, PermissionsMixin):

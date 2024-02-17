@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from account.models import User
+from edumax_account.models import User
 from .model.models import Post, Comment, File, Lecture
 from community.domain.validation import CategoryValidator
 

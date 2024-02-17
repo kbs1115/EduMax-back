@@ -1,6 +1,6 @@
 from celery import shared_task
 
-from account.models import EmailTemporaryKey, PwChangeTemporaryQueryParam
+from edumax_account.models import EmailTemporaryKey, PwChangeTemporaryQueryParam
 from rest_framework import exceptions
 
 

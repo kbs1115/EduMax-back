@@ -6,15 +6,18 @@ from django.core.mail import EmailMessage
 from django.db import transaction
 from rest_framework import exceptions, status
 
-from account.model.temp_access import create_email_key_model_instance, validate_email_key
-from account.tasks import delete_email_key_instance
+from edumax_account.model.temp_access import (
+    create_email_key_model_instance,
+    validate_email_key,
+)
+from edumax_account.tasks import delete_email_key_instance
 from config.settings import EMAIL_HOST_USER
 
 
 class EmailService:
     @classmethod
     def generate_random_number(cls):
-        return ''.join(random.choice('0123456789') for _ in range(6))
+        return "".join(random.choice("0123456789") for _ in range(6))
 
     """
     추가로 고려해줘야할점:
@@ -38,16 +41,18 @@ class EmailService:
             with transaction.atomic():
                 inst = create_email_key_model_instance(email, auth_key)
                 EmailMessage(
-                    subject=subject,
-                    body=message,
-                    to=to,
-                    from_email=from_email
+                    subject=subject, body=message, to=to, from_email=from_email
                 ).send()  # 만약 없는 메일이라고 하면 아무런 응답이 없음 에러도 안뜸
 
                 eta = datetime.now(timezone.utc) + timedelta(minutes=5)
-                delete_email_key_instance.apply_async((inst.id,), eta=eta)  # 5분후에 worker에게 삭제 명령
+                delete_email_key_instance.apply_async(
+                    (inst.id,), eta=eta
+                )  # 5분후에 worker에게 삭제 명령
 
-                return {"message": "email sent successfully", "status_code": status.HTTP_200_OK}
+                return {
+                    "message": "email sent successfully",
+                    "status_code": status.HTTP_200_OK,
+                }
         except SMTPException as e:
             raise exceptions.APIException(str(e))
 
@@ -61,4 +66,7 @@ class EmailService:
         auth_key와 db의 키를 비교하고 다를경우 raise
         """
         if validate_email_key(email=email, auth_key=auth_key):
-            return {"message": "email authenticated successfully", "status_code": status.HTTP_200_OK}
+            return {
+                "message": "email authenticated successfully",
+                "status_code": status.HTTP_200_OK,
+            }

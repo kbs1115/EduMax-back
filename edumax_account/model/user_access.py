@@ -1,8 +1,8 @@
 from django.db import transaction
 from rest_framework import exceptions
 
-from account.models import User
-from account.models import PwChangeTemporaryQueryParam
+from edumax_account.models import User
+from edumax_account.models import PwChangeTemporaryQueryParam
 
 
 def get_user_with_email(email):
