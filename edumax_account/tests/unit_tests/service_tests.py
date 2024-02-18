@@ -1,8 +1,8 @@
-from account.serializers import UserSerializer
-from account.service.user_service import SignUpService, UserService, AuthService
-from account.tests.conftests import *
-from account.view.user_views import *
-from account.models import User
+from edumax_account.serializers import UserSerializer
+from edumax_account.service.user_service import SignUpService, UserService, AuthService
+from edumax_account.tests.conftests import *
+from edumax_account.view.user_views import *
+from edumax_account.models import User
 from unittest.mock import Mock, patch
 from rest_framework import exceptions
 from rest_framework.validators import UniqueValidator
@@ -37,7 +37,7 @@ class TestSignUpService:
             SignUpService().create_user(mock_request)
 
     def test_signup_with_wrong_email_user_data(
-            self, invalid_request_data_wrong_email, mocker
+        self, invalid_request_data_wrong_email, mocker
     ):
         mock_request = Mock(data=invalid_request_data_wrong_email)
         mock_save = mocker.patch.object(UserSerializer, "save")
@@ -109,35 +109,30 @@ class TestUserService:
         assert len(random_string) == 8
 
     def test_method_get_user_with_email_auth_assert_called(
-            self,
-            mocked_function_get_user_with_email,
-            mocked_method_check_authentication,
-            user_instance
-
+        self,
+        mocked_function_get_user_with_email,
+        mocked_method_check_authentication,
+        user_instance,
     ):
         response = UserService.get_user_with_email_auth(
-            email="dbsrbals26@gmail.com",
-            auth_key="123456"
+            email="dbsrbals26@gmail.com", auth_key="123456"
         )
         assert response == user_instance
 
     def test_method_make_random_query_param_with_email_auth_assert_called(
-            self,
-            mocked_method_check_authentication,
-            mocked_method_create_password_change_param_model_inst_in_user_service,
-            mocked_method_delete_query_param_instance
+        self,
+        mocked_method_check_authentication,
+        mocked_method_create_password_change_param_model_inst_in_user_service,
+        mocked_method_delete_query_param_instance,
     ):
         with patch("django.db.transaction.atomic"):
             response = UserService().make_random_query_param_with_email_auth(
-                email="dbsrbals26@gmail.com",
-                auth_key="123456"
+                email="dbsrbals26@gmail.com", auth_key="123456"
             )
             assert len(response) == 8
 
     def test_method_change_password_assert_called(
-            self,
-            mocked_function_get_user_with_email,
-            mocked_user_method
+        self, mocked_function_get_user_with_email, mocked_user_method
     ):
         with patch("django.db.transaction.atomic"):
             UserService().change_password(pw="123", email="dbsrbals26@gmail.com")
@@ -146,7 +141,9 @@ class TestUserService:
 class TestAuthService:
     def test_valid_login(self, valid_login_data, mocker):
         mock_request = Mock(data=valid_login_data)
-        mock_authenticate = mocker.patch("account.service.user_service.authenticate")
+        mock_authenticate = mocker.patch(
+            "edumax_account.service.user_service.authenticate"
+        )
         mock_authenticate.return_value = User(id=1)
         serializer = UserSerializer(mock_authenticate.return_value)
 
@@ -161,7 +158,9 @@ class TestAuthService:
 
     def test_invalid_login(self, invalid_login_data, mocker):
         mock_request = Mock(data=invalid_login_data)
-        mock_authenticate = mocker.patch("account.service.user_service.authenticate")
+        mock_authenticate = mocker.patch(
+            "edumax_account.service.user_service.authenticate"
+        )
         mock_authenticate.return_value = None
 
         with pytest.raises(exceptions.ValidationError):
@@ -170,42 +169,35 @@ class TestAuthService:
 
 class TestEmailService:
     def test_method_check_authentication_assert_called(
-            self,
-            mocked_EmailTemporaryKey_orm_return_query_set
+        self, mocked_EmailTemporaryKey_orm_return_query_set
     ):
         response = EmailService().check_authentication(
-            email="dbsrbals26@gmail.com",
-            auth_key="123456"  # 픽스처값은 123456
+            email="dbsrbals26@gmail.com", auth_key="123456"  # 픽스처값은 123456
         )
         assert response["message"] == "email authenticated successfully"
         assert response["status_code"] == status.HTTP_200_OK
 
     def test_method_check_authentication_with_invalid_auth_key(
-            self,
-            mocked_EmailTemporaryKey_orm_return_query_set
+        self, mocked_EmailTemporaryKey_orm_return_query_set
     ):
         with pytest.raises(exceptions.ValidationError):
             EmailService().check_authentication(
-                email="dbsrbals26@gmail.com",
-                auth_key="123450"  # 픽스처값은 123456
+                email="dbsrbals26@gmail.com", auth_key="123450"  # 픽스처값은 123456
             )
 
     def test_method_check_authentication_with_key_doesnot_exist(
-            self,
-            mocked_EmailTemporaryKey_email_key_return_empty_query_set
+        self, mocked_EmailTemporaryKey_email_key_return_empty_query_set
     ):
         with pytest.raises(exceptions.ValidationError):
             EmailService().check_authentication(
-                email="dbsrbals26@gmail.com",
-                auth_key="123456"  # 픽스처값은 123456
+                email="dbsrbals26@gmail.com", auth_key="123456"  # 픽스처값은 123456
             )
 
     def test_method_send_email_assert_called(
-            self,
-            mocked_function_create_email_key_model_instance_in_email_service,
-            mocked_smtp_email_send,
-            mocked_function_delete_email_key_instance_in_email_service
-
+        self,
+        mocked_function_create_email_key_model_instance_in_email_service,
+        mocked_smtp_email_send,
+        mocked_function_delete_email_key_instance_in_email_service,
     ):
         with patch("django.db.transaction.atomic"):
             response = EmailService().send_email(email="dbsrbals26@gmail.com")

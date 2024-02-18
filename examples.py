@@ -7,7 +7,7 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.parsers import JSONParser
 from community.serializers import PostRetrieveSerializer, UserSerializer
 from community.model.models import Post
-from account.models import User
+from edumax_account.models import User
 from django.utils import timezone
 
 user1 = User.objects.get(id=1)
