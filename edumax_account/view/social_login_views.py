@@ -119,7 +119,7 @@ def google_callback(request):
         res = Response(
             {
                 "user": data["userData"],
-                "message": "login success",
+                "message": "Signup and login success",
                 "token": {
                     "access": data["accessToken"],
                     "refresh": data["refreshToken"],
