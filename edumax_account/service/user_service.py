@@ -6,24 +6,25 @@ from django.db import transaction
 from rest_framework import exceptions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from allauth.socialaccount.models import SocialAccount
 
-from account.model.temp_access import create_password_change_param_model_inst
-from account.model.user_access import get_user_with_email, check_user_exists_with_field, delete_user_db, \
-    set_password
-from account.service.email_service import EmailService
-from account.tasks import delete_query_param_instance
-from account.serializers import *
+from edumax_account.model.temp_access import create_password_change_param_model_inst
+from edumax_account.model.user_access import (
+    get_user_with_email,
+    check_user_exists_with_field,
+    delete_user_db,
+    set_password,
+    get_number_of_social_account,
+)
+from edumax_account.service.email_service import EmailService
+from edumax_account.tasks import delete_query_param_instance
+from edumax_account.serializers import *
 
 
 # 회원가입
 class SignUpService:
     @classmethod
-    def check_duplicate_field_value(
-            cls,
-            login_id=None,
-            email=None,
-            nickname=None
-    ):
+    def check_duplicate_field_value(cls, login_id=None, email=None, nickname=None):
         """
         회원가입시 필수필드 중복체크를 위한 메소드
         한번에 여러개도 가능하고, 하나씩도 가능하다
@@ -44,6 +45,40 @@ class SignUpService:
             return serializer.validated_data
         else:
             raise exceptions.ValidationError(serializer.errors)
+
+    @classmethod
+    def create_social_user(cls, email):
+        with transaction.atomic():
+            # 현재는 nickname도 랜덤 설정하고 있는데, Frontend가 완성되면 회원가입창에서 받도록 할 예정
+            login_id = email.split("@")[0] + UserService.generate_random_string(4)
+            password = UserService.generate_random_string(12)
+            nickname = UserService.generate_random_string(6)
+
+            data = {
+                "login_id": login_id,
+                "password": password,
+                "nickname": nickname,
+                "email": email,
+            }
+
+            serializer = UserSerializer(data=data)
+            if serializer.is_valid():
+                user = serializer.save()
+            else:
+                raise exceptions.ValidationError(serializer.errors)
+
+            # SocialAccount instance도 생성한다. uid는 일단 숫자로?
+            google_account_number = get_number_of_social_account("google")
+            uid = str(google_account_number + 1)
+
+            data = {"provider": "google", "user": user.id, "uid": uid}
+            social_account_serializer = SocialAccountCreateSerializer(data=data)
+            if social_account_serializer.is_valid():
+                social_account_serializer.save()
+            else:
+                raise exceptions.ValidationError(social_account_serializer.errors)
+
+        return user
 
 
 class UserService:
@@ -84,7 +119,7 @@ class UserService:
         """
         characters = string.ascii_letters + string.digits
 
-        random_string = ''.join(random.choice(characters) for _ in range(length))
+        random_string = "".join(random.choice(characters) for _ in range(length))
         return random_string
 
     @classmethod
@@ -106,10 +141,14 @@ class UserService:
             random_query_params = self.generate_random_string()
 
             with transaction.atomic():
-                inst = create_password_change_param_model_inst(email, random_query_params)
+                inst = create_password_change_param_model_inst(
+                    email, random_query_params
+                )
 
                 eta = datetime.now(timezone.utc) + timedelta(minutes=1)
-                delete_query_param_instance.apply_async((inst.id,), eta=eta)  # 1분후에 worker에게 삭제 명령
+                delete_query_param_instance.apply_async(
+                    (inst.id,), eta=eta
+                )  # 1분후에 worker에게 삭제 명령
             return random_query_params
 
     def change_password(self, pw, email):
@@ -143,3 +182,18 @@ class AuthService:
             raise exceptions.ValidationError(
                 "The provided information does not match any user."
             )
+
+    @classmethod
+    def social_login_service(cls, user):
+        # 이미 인증 절차를 거쳤으므로 authenticate 없이 로그인을 시켜 준다.
+        serializer = UserSerializer(user)
+
+        token = TokenObtainPairSerializer.get_token(user)
+        refresh_token = str(token)
+        access_token = str(token.access_token)
+
+        return {
+            "userData": serializer.data,
+            "refreshToken": refresh_token,
+            "accessToken": access_token,
+        }

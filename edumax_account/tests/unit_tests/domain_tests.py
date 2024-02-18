@@ -1,7 +1,7 @@
 import pytest
-from account.validators import UserValidator
+from edumax_account.validators import UserValidator
 from django.core.exceptions import ValidationError
-from account.models import User
+from edumax_account.models import User
 
 
 @pytest.fixture

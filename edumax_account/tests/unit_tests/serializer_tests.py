@@ -1,7 +1,7 @@
 import pytest
-from account.tests.conftests import *
-from account.models import User
-from account.serializers import UserSerializer
+from edumax_account.tests.conftests import *
+from edumax_account.models import User
+from edumax_account.serializers import UserSerializer
 from rest_framework.validators import UniqueValidator
 
 

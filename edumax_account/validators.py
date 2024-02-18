@@ -55,11 +55,12 @@ class PasswordPageQueryParamModel(BaseModel):
     패스워드 변경 페이지의 쿼리 파라매터와
     db의 쿼리 파라매터를 비교한다.
     """
+
     verify: str
 
     def __init__(self, **data):
         super().__init__(**data)
-        from account.model.user_access import check_pw_change_page_query_param
+        from edumax_account.model.user_access import check_pw_change_page_query_param
 
         check_pw_change_page_query_param(self.verify)
 
@@ -68,5 +69,6 @@ class PasswordModel(BaseModel):
     """
     패스워드 변경을 위한 validator model
     """
+
     new_pw: str
     email: EmailStr = Field(max_length=30)
