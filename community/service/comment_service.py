@@ -33,12 +33,13 @@ class CommentService:
                 "data": serializer.data,
             }
         # 해당 게시글이 존재하지않을 때
+        # TODO: TRY구문 필요없습니다.
         except Comment.DoesNotExist:
             raise NotFound("Comment not found")
 
     @classmethod
     def create_comment(
-        cls, content, html_content, files, author, parent_comment_id, post_id
+            cls, content, html_content, files, author, parent_comment_id, post_id
     ):
         """
         <설명>
@@ -75,7 +76,7 @@ class CommentService:
                 "data": {
                     "id": comment.id,
                     "post_id": comment.post.id,
-                    "author": comment.author.login_id,
+                    "author": comment.author.login_id,  # TODO: 로그인 아이디를 RETURN 하는건 아닌듯
                 },
             }
 
@@ -115,7 +116,7 @@ class CommentService:
                 "data": {
                     "id": comment.id,
                     "post_id": comment.post.id,
-                    "author": comment.author.login_id,
+                    "author": comment.author.login_id,  # TODO: 로그인 아이디를 RETURN 하는건 아닌듯
                 },
             }
 

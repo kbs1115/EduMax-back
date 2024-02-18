@@ -16,7 +16,7 @@ from community.domain.definition import (
     PostSortCategoryParam,
 )
 from community.model.models import Post, File
-from community.serializers import PostCreateSerializer
+from community.serializers import PostCreateSerializer, PostListSerializer
 from community.service.file_service import FileService
 from community.view.validation import (
     PostQueryParam,
@@ -224,6 +224,13 @@ def mocked_function_get_posts_from_db_return_empty_queryset(
         "community.service.post_service.get_posts_from_db", return_value=mocked_posts
     )
 
+    return mocker
+
+
+@pytest.fixture
+def mocked_serializer_method_get_likes_count(mocker):
+    mocker = mocker.patch.object(PostListSerializer, "get_likes_count")
+    mocker.return_value = 3
     return mocker
 
 
