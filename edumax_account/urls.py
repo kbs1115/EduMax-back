@@ -4,11 +4,12 @@ from edumax_account.view.user_views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework import routers
 from edumax_account.view.user_views import DuplicateCheckerAPIView
+from edumax_account.view.social_login_views import (
+    google_oauth_redirect,
+    google_callback,
+)
 
 app_name = "edumax_account"
-
-router = routers.DefaultRouter()
-router.register("test", TestViewSet)
 
 urlpatterns = [
     path("email-send/", EmailSenderApiView.as_view()),  # 이메일 보내기
@@ -28,5 +29,7 @@ urlpatterns = [
     path("user/pw-change/", PasswordChangeApiView.as_view()),  # pw 변경 페이지
     path("token/", AuthAPIView.as_view(), name="token"),
     path("token/refresh/", TokenRefreshView.as_view(), name="tokenRefresh"),
-    path("", include(router.urls)),
+    # 구글 소셜로그인
+    path("user/google/login/", google_oauth_redirect, name="google_login"),
+    path("user/google/redirection/", google_callback, name="google_callback"),
 ]
