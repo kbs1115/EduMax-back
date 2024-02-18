@@ -1,7 +1,10 @@
 import pytest
 from django.http import QueryDict
+from rest_framework import status
+from rest_framework.serializers import ModelSerializer, BaseSerializer
 
 from community.service.file_service import FileService
+from community.service.like_service import LikeService
 from community.view.comment_view import CommentView
 from community.service.comment_service import CommentService
 
@@ -44,6 +47,38 @@ def mocked_get_post_from_id(mocker):
     return mocker.patch(
         "community.service.comment_service.get_post_from_id",
         return_value=mocker.Mock(id=1),
+    )
+
+
+@pytest.fixture
+def mocked_function_check_like_inst_exist_with_post_id(mocker):
+    return mocker.patch(
+        "community.view.like_view.check_like_inst_exist_with_post_id",
+        return_value=False
+    )
+
+
+@pytest.fixture
+def mocked_function_check_like_inst_exist_with_post_id_if_exist(mocker):
+    return mocker.patch(
+        "community.view.like_view.check_like_inst_exist_with_post_id",
+        return_value=True
+    )
+
+
+@pytest.fixture
+def mocked_function_check_like_inst_exist_with_comment_id(mocker):
+    return mocker.patch(
+        "community.view.like_view.check_like_inst_exist_with_comment_id",
+        return_value=False
+    )
+
+
+@pytest.fixture
+def mocked_function_check_like_inst_exist_with_comment_id_if_exist(mocker):
+    return mocker.patch(
+        "community.view.like_view.check_like_inst_exist_with_comment_id",
+        return_value=True
     )
 
 
@@ -163,6 +198,11 @@ def mocked_post_request(user_instance, mocker):
 
 
 @pytest.fixture
+def mocked_request(user_instance, mocker):
+    return mocker.Mock(user=user_instance)
+
+
+@pytest.fixture
 def mocked_get_lectures_with_category(search_lecture_instances, mocker):
     mocked_func = mocker.patch(
         "community.service.lecture_service.get_lectures_with_category"
@@ -178,3 +218,23 @@ def mocked_search_lectures_with_filter(search_lecture_instances, mocker):
     )
     mocked_func.return_value = search_lecture_instances
     return mocked_func
+
+
+@pytest.fixture
+def mocked_method_generate_like(mocker):
+    mocker = mocker.patch.object(LikeService, "generate_like")
+    mocker.return_value = {
+        "message": "LIKE created successfully",
+        "status_code": status.HTTP_201_CREATED
+    }
+    return mocker
+
+
+@pytest.fixture
+def mocked_serializer_save(mocker):
+    return mocker.patch.object(ModelSerializer, "save")
+
+
+@pytest.fixture
+def mocked_is_valid(mocker):
+    return mocker.patch.object(BaseSerializer, "is_valid")
