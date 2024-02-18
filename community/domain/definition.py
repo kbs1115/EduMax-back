@@ -1,5 +1,6 @@
 from enum import Enum
 
+import strenum as strenum
 from django.db import models
 
 """----------------------------------------------------------------------------"""
@@ -137,10 +138,10 @@ TREE_STRUCTURE = {
         - 현재 english 를 제외한 나머지 과목들은 children이 없으며 추후 추가될 예정이다.
         - 모든 posts는 각 트리의 리프 노드에 위치에 있다. 
     """
-    # english
+    # english, math
     "KO": [],
     "EN": ["SC", "SA", "GR"],
-    "MA": [],
+    "MA": ["CC", "PS", "M1", "M2", "MH"],
     # eng-depth2
     "SC": ["TB", "EBS", "SCM"],
     "SA": ["SAM"],
@@ -162,6 +163,12 @@ class CategoryDepth2(models.TextChoices):
     SCHOOL_TEST = "SC"
     SAT = "SA"
     GRAMMAR = "GR"
+    # children of MATH
+    CALCULUS = "CC"
+    PROBABILITY_AND_STATIC = "PS"
+    MATH_1 = "M1"
+    MATH_2 = "M2"
+    MATH_HIGH = "MH"
 
 
 class CategoryDepth3(models.TextChoices):
@@ -188,3 +195,21 @@ class CategoryDepth4(models.TextChoices):
     # children of SCHOOL_MOCK_EXAM
     HIGH1 = "H1"
     HIGH2 = "H2"
+
+
+"""----------------------------------------------------------------------------"""
+"""
+2023년 고2 3월 모의고사 : PLVNEoWri1a_DnRId9U4C3fcEvO2dPwvR6
+2022년 고1 11월 모의고사 : PLVNEoWri1a_BIkcVoxJkgO4KmizomZ3MZ
+2021년 고2 11월 모의고사 : PLVNEoWri1a_DjdYBf7uxR3BPsDINFPZvy
+올림포스2 : PLVNEoWri1a_Aonp4LemUe7vR14CYqDrKL
+2022년 고2 9월 모의고사 : PLVNEoWri1a_AE2EL89j9r-7RwFsRpBm9B
+2022년 고1 9월 모의고사 : PLVNEoWri1a_AqQgoYrwlyCJnC1GbHJtcj
+호주머니어법 : PLVNEoWri1a_Bak36K4uBE15jNxIbF_C9i
+
+"""
+
+
+# 영어 유튜브 playlist category
+class YouTubeEnglishPlayList(strenum):
+    pass

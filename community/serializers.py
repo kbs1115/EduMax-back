@@ -201,28 +201,3 @@ class LectureCreateSerializer(serializers.ModelSerializer):
         return data
 
 
-class LikeCreateSerializer(serializers.ModelSerializer):
-    """
-    like 생성을 위한 serializer
-    """
-
-    class Meta:
-        model = Like
-        fields = "__all__"
-
-
-class LikeRetrieveSerializer(serializers.ModelSerializer):
-    """
-    좋아요리소스에 대한 output serializer
-    """
-    user = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field="nickname"
-    )
-
-    class Meta:
-        model = Like
-        fields = [
-            "post",
-            "comment",
-            "user"
-        ]

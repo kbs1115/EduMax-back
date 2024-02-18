@@ -1,3 +1,5 @@
+import enum
+
 import rest_framework.status as status
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -62,14 +64,14 @@ class LectureService:
 
     @classmethod
     def create_lecture(
-        cls,
-        category_d1,
-        category_d2,
-        category_d3,
-        category_d4,
-        title,
-        youtube_id,
-        author,
+            cls,
+            category_d1: str,
+            category_d2: str,
+            category_d3: str,
+            category_d4: str,
+            title,
+            youtube_id,
+            author,
     ):
         lecture_data = {
             "category_d1": category_d1,
@@ -95,14 +97,14 @@ class LectureService:
 
     @classmethod
     def update_lecture(
-        cls,
-        lecture_id,
-        category_d1,
-        category_d2,
-        category_d3,
-        category_d4,
-        title,
-        youtube_id,
+            cls,
+            lecture_id,
+            category_d1: str,
+            category_d2: str,
+            category_d3: str,
+            category_d4: str,
+            title,
+            youtube_id,
     ):
         update_data = dict()
         update_data["category_d1"] = category_d1
