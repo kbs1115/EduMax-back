@@ -1,6 +1,6 @@
 from rest_framework import exceptions
 
-from account.models import EmailTemporaryKey, PwChangeTemporaryQueryParam
+from edumax_account.models import EmailTemporaryKey, PwChangeTemporaryQueryParam
 
 
 def validate_email_key(email, auth_key):
@@ -10,13 +10,11 @@ def validate_email_key(email, auth_key):
     """
     queryset = EmailTemporaryKey.objects.filter(email=email)
     if queryset.exists():
-        email_key_instance = queryset.latest('created_at')
+        email_key_instance = queryset.latest("created_at")
         if email_key_instance.key == auth_key:
             return True
         else:
-            raise exceptions.ValidationError(
-                "인증번호가 틀렸습니다."
-            )
+            raise exceptions.ValidationError("인증번호가 틀렸습니다.")
     else:
         raise exceptions.ValidationError(  # 물론 이부분은 프론트에서도 이메일 전송을 안누르면 인증하기를 불가능하게 만들어놔야함
             "이메일 시간이 만료됐거나, 이메일 전송이 필요합니다."
@@ -34,4 +32,6 @@ def create_password_change_param_model_inst(email, random_query_params):
     """
     user/pw-change/?verify= 에 해당하는 쿼리 파라매터 임시저장
     """
-    return PwChangeTemporaryQueryParam.objects.create(email=email, query_param=random_query_params)
+    return PwChangeTemporaryQueryParam.objects.create(
+        email=email, query_param=random_query_params
+    )

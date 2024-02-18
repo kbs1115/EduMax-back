@@ -211,5 +211,5 @@ class CategoryDepth4(models.TextChoices):
 
 
 # 영어 유튜브 playlist category
-class YouTubeEnglishPlayList(strenum):
-    pass
+# class YouTubeEnglishPlayList(strenum):
+#     pass

@@ -1,5 +1,5 @@
 from django.db import models
-from account.models import User
+from edumax_account.models import User
 from community.domain.validation import CategoryValidator, LikeValidator
 from community.domain.definition import (
     PostCategories,

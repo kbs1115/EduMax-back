@@ -9,4 +9,6 @@ pytest_plugins = [
     "community.tests.fixtures.instance_fixtures",
     "community.tests.fixtures.mock_fixtures",
     "community.tests.fixtures.data_fixtures",
+    "edumax_account.tests.fixtures.mock_fixtures",
+    "edumax_account.tests.fixtures.instance_fixtures",
 ]

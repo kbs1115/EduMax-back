@@ -1,13 +1,13 @@
 from rest_framework.views import APIView
 
-from account.model.user_access import get_user_with_pk
-from account.service.user_service import *
+from edumax_account.model.user_access import get_user_with_pk
+from edumax_account.service.user_service import *
 from rest_framework import status, viewsets, permissions, exceptions
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from community.view.validation import validate_body_request, validate_query_params
-from account.validators import SignupParamModel, LoginParamModel, PatchUserModel, UserUniqueFieldModel, \
+from edumax_account.validators import SignupParamModel, LoginParamModel, PatchUserModel, UserUniqueFieldModel, \
     EmailCheckFieldModel, PasswordPageQueryParamModel, PasswordModel
 from pydantic import ValidationError
 
