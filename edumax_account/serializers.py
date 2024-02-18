@@ -1,5 +1,6 @@
 from .models import User, EmailTemporaryKey
 from rest_framework import serializers
+from allauth.socialaccount.models import SocialAccount
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,3 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SocialAccountCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SocialAccount
+        fields = "__all__"

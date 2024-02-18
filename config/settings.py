@@ -158,7 +158,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# 소셜 로그인 관련 설정
+SITE_ID = 1
 AUTH_USER_MODEL = "edumax_account.User"
+REST_AUTH = {
+    "USE_JWT": True,
+}
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
+ACCOUNT_EMAIL_REQUIRED = True  # email 필드 사용 o
+ACCOUNT_USERNAME_REQUIRED = False  # username 필드 사용 x
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -185,6 +195,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
     "EXCEPTION_HANDLER": "config.exceptions.custom_exception_handler.custom_exception_handler",

@@ -1,5 +1,6 @@
 from django.db import transaction
 from rest_framework import exceptions
+from allauth.socialaccount.models import SocialAccount
 
 from edumax_account.models import User
 from edumax_account.models import PwChangeTemporaryQueryParam
@@ -13,6 +14,20 @@ def get_user_with_email(email):
         return User.objects.get(email=email)
     except User.DoesNotExist:
         raise exceptions.NotFound("user not found")
+
+
+def get_social_user_with_user(user):
+    """
+    Social user instance를 원래 User instance로부터 가져온다.
+    """
+    try:
+        return SocialAccount.objects.get(user=user)
+    except SocialAccount.DoesNotExist:
+        raise exceptions.NotFound("Social account not found")
+
+
+def get_number_of_social_account(provider):
+    return len(SocialAccount.objects.filter(provider=provider))
 
 
 def set_password(user, pw):
