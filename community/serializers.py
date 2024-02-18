@@ -1,8 +1,35 @@
 from rest_framework import serializers
 
 from account.models import User
-from .model.models import Post, Comment, File, Lecture
+from .model.models import Post, Comment, File, Lecture, Like
 from community.domain.validation import CategoryValidator
+
+
+class LikeCreateSerializer(serializers.ModelSerializer):
+    """
+    like 생성을 위한 serializer
+    """
+
+    class Meta:
+        model = Like
+        fields = "__all__"
+
+
+class LikeRetrieveSerializer(serializers.ModelSerializer):
+    """
+    좋아요리소스에 대한 output serializer
+    """
+    user = serializers.SlugRelatedField(
+        queryset=User.objects.all(), slug_field="nickname"
+    )
+
+    class Meta:
+        model = Like
+        fields = [
+            "post",
+            "comment",
+            "user"
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,6 +60,8 @@ class PostRetrieveSerializer(serializers.ModelSerializer):
     )
     # 해당 post_id 와 관련된 files
     files = FileSerializer(many=True, read_only=True)
+    # 해당 post_id 와 관련된 likes
+    likes = LikeRetrieveSerializer(many=True, read_only=True)
 
     class Meta:
         model = Post
@@ -44,6 +73,7 @@ class PostRetrieveSerializer(serializers.ModelSerializer):
             "category",
             "author",
             "files",
+            "likes"
         ]
 
 
@@ -66,6 +96,7 @@ class PostListSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         queryset=User.objects.all(), slug_field="nickname"
     )
+    likes_count = serializers.SerializerMethodField(method_name="get_likes_count")
 
     class Meta:
         model = Post
@@ -77,7 +108,12 @@ class PostListSerializer(serializers.ModelSerializer):
             "category",
             "content",
             "author",
+            "likes_count"
         ]
+
+    def get_likes_count(self, obj):
+        # obj는 Post 모델의 인스턴스
+        return obj.likes.count()
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
@@ -98,6 +134,9 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
     # 해당 post_id 와 관련된 files
     files = FileSerializer(many=True, read_only=True)
 
+    # 해당 post_id 와 관련된 likes
+    likes = LikeRetrieveSerializer(many=True, read_only=True)
+
     class Meta:
         model = Comment
         fields = [
@@ -107,6 +146,7 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
             "modified_at",
             "author",
             "files",
+            "likes"
         ]
 
 
@@ -152,7 +192,6 @@ class LectureRetrieveSerializer(serializers.ModelSerializer):
 
 
 class LectureCreateSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Lecture
         fields = "__all__"
@@ -160,3 +199,30 @@ class LectureCreateSerializer(serializers.ModelSerializer):
     def validate(self, data):
         CategoryValidator.validate(data)
         return data
+
+
+class LikeCreateSerializer(serializers.ModelSerializer):
+    """
+    like 생성을 위한 serializer
+    """
+
+    class Meta:
+        model = Like
+        fields = "__all__"
+
+
+class LikeRetrieveSerializer(serializers.ModelSerializer):
+    """
+    좋아요리소스에 대한 output serializer
+    """
+    user = serializers.SlugRelatedField(
+        queryset=User.objects.all(), slug_field="nickname"
+    )
+
+    class Meta:
+        model = Like
+        fields = [
+            "post",
+            "comment",
+            "user"
+        ]

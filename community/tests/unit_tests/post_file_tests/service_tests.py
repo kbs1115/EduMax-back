@@ -11,7 +11,7 @@ from community.model.models import Post
 class TestGetPostsService:
 
     def test_paging_with_invalid_page(
-        self, mocked_function_get_posts_from_db_return_queryset, valid_post_instance_list
+            self, mocked_function_get_posts_from_db_return_queryset, valid_post_instance_list
     ):
         invalid_page = len(valid_post_instance_list) + 1
         with pytest.raises(exceptions.NotFound):
@@ -24,7 +24,11 @@ class TestGetPostsService:
                 page=invalid_page,
             )
 
-    def test_paging_with_valid_page(self, mocked_function_get_posts_from_db_return_queryset):
+    def test_paging_with_valid_page(
+            self,
+            mocked_function_get_posts_from_db_return_queryset,
+            mocked_serializer_method_get_likes_count
+    ):
         page = 1
         # page 제외 나머지 매개변수 안씀
         response = PostsService().get_posts(
@@ -37,7 +41,9 @@ class TestGetPostsService:
         assert response
 
     def test_paging_with_valid_page_and_no_post(
-        self, mocked_function_get_posts_from_db_return_empty_queryset
+            self,
+            mocked_function_get_posts_from_db_return_empty_queryset,
+            mocked_serializer_method_get_likes_count
     ):
         page = 1
         # page 제외 나머지 매개변수 안씀
@@ -57,7 +63,7 @@ class TestPostServiceRetrieve:
 
 class TestPostServiceCreate:
     def test_assert_called(
-        self, mocker, mocked_create_files_method, common_user_instance
+            self, mocker, mocked_create_files_method, common_user_instance
     ):
         mock_save = mocker.patch.object(PostCreateSerializer, "save")
         mock_is_valid = mocker.patch.object(PostCreateSerializer, "is_valid")
@@ -84,7 +90,7 @@ class TestPostServiceCreate:
             )
 
     def test_post_create_permission_if_has_permission(
-        self, mocker, staff_user_instance
+            self, mocker, staff_user_instance
     ):
         mock_save = mocker.patch.object(PostCreateSerializer, "save")
         mock_is_valid = mocker.patch.object(PostCreateSerializer, "is_valid")
@@ -103,7 +109,7 @@ class TestPostServiceCreate:
 
 class TestPostServiceDelete:
     def test_assert_called(
-        self, mocker, mocked_get_post_obj, mocked_delete_files_method
+            self, mocker, mocked_get_post_obj, mocked_delete_files_method
     ):
         mock_delete = mocker.patch.object(Post, "delete")
         with patch("django.db.transaction.atomic"):
@@ -114,7 +120,7 @@ class TestPostServiceDelete:
 
 class TestPostServiceUpdate:
     def test_assert_called_if_files_state_is_replace(
-        self, mocker, mocked_update_files_method, mocked_get_post_obj
+            self, mocker, mocked_update_files_method, mocked_get_post_obj
     ):
         mock_save = mocker.patch.object(PostCreateSerializer, "save")
         mock_is_valid = mocker.patch.object(PostCreateSerializer, "is_valid")
@@ -134,7 +140,7 @@ class TestPostServiceUpdate:
             assert response
 
     def test_assert_called_if_files_state_is_replace_but_no_files(
-        self, mocker, mocked_update_files_method, mocked_get_post_obj
+            self, mocker, mocked_update_files_method, mocked_get_post_obj
     ):
         mock_save = mocker.patch.object(PostCreateSerializer, "save")
         mock_is_valid = mocker.patch.object(PostCreateSerializer, "is_valid")
@@ -152,7 +158,7 @@ class TestPostServiceUpdate:
             mocked_update_files_method.assert_not_called()
 
     def test_assert_called_if_files_state_is_delete(
-        self, mocker, mocked_delete_files_method, mocked_get_post_obj
+            self, mocker, mocked_delete_files_method, mocked_get_post_obj
     ):
         mock_save = mocker.patch.object(PostCreateSerializer, "save")
         mock_is_valid = mocker.patch.object(PostCreateSerializer, "is_valid")
@@ -173,7 +179,7 @@ class TestPostServiceUpdate:
 
 class TestFileService:
     def test_create_files_assert_called_successful(
-        self, mocker, files_form_of_request_dot_files, mocked_s3_upload_file_method
+            self, mocker, files_form_of_request_dot_files, mocked_s3_upload_file_method
     ):
         mock_is_valid = mocker.patch.object(FileSerializer, "is_valid")
         mock_is_valid.return_value = True
@@ -189,11 +195,11 @@ class TestFileService:
             assert mocked_s3_upload_file_method.call_count == number_of_files
 
     def test_delete_files_assert_called_successful(
-        self,
-        mocker,
-        mocked_get_files_id_list,
-        mocked_get_file_instance,
-        mocked_s3_delete_file_method,
+            self,
+            mocker,
+            mocked_get_files_id_list,
+            mocked_get_file_instance,
+            mocked_s3_delete_file_method,
     ):
         mock_delete = mocker.patch.object(File, "delete")
         number_of_files = len(mocked_get_files_id_list.return_value)

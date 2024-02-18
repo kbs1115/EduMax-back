@@ -61,10 +61,11 @@ class TestCommentRetrieveSerializer:
         comment_db_setup["post_instance"].save()
         comment_db_setup["comment_instance"].save()
         comment_db_setup["file_instance"].save()
-
+        comment_db_setup["like_instance"].save()
         serializer = CommentRetrieveSerializer(comment_instance)
 
         assert serializer.data["content"] == "testcontent0"
         assert serializer.data["html_content"] == "html_testcontent"
         assert serializer.data["author"] == "testuser0"
         assert serializer.data["files"][0]["file_location"] == "filelocation"
+        assert serializer.data["likes"][0]["user"] == "testuser0"
