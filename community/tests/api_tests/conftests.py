@@ -4,7 +4,7 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from PIL import Image
 
-from account.models import User
+from edumax_account.models import User
 from community.model.models import Post, Comment, File
 from community.domain.definition import PostCategories, PostCategoriesParam
 from community.serializers import PostCreateSerializer

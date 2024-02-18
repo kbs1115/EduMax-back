@@ -1,13 +1,15 @@
 import pytest
-from account.tests.conftests import *
+from edumax_account.tests.conftests import *
 from django.urls import reverse
 
 
 class TestLoginAPI:
-    endpoint = reverse("account:token")
+    endpoint = reverse("edumax_account:token")
 
     def test_login(self, client, user_instance, mocker):
-        mock_authenticate = mocker.patch("account.service.user_service.authenticate")
+        mock_authenticate = mocker.patch(
+            "edumax_account.service.user_service.authenticate"
+        )
         mock_authenticate.return_value = user_instance
 
         response = client.post(
@@ -37,7 +39,9 @@ class TestLoginAPI:
         assert response.data["errors"] == "invalid data form"
 
     def test_invalid_login_with_invalid_user(self, client, invalid_login_data, mocker):
-        mock_authenticate = mocker.patch("account.service.user_service.authenticate")
+        mock_authenticate = mocker.patch(
+            "edumax_account.service.user_service.authenticate"
+        )
         mock_authenticate.return_value = None
 
         response = client.post(

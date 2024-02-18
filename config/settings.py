@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
+
 from dotenv import load_dotenv
 import os
 from pathlib import Path
@@ -33,22 +34,38 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "account.apps.AccountConfig",
-    "community.apps.CommunityConfig",
+    # 생성한 app
+    "community",
+    "edumax_account",
+    # django 기본 app
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
+    # DRF
     "rest_framework",
+    "rest_framework.authtoken",
     "rest_framework_simplejwt",
+    # S3
     "storages",
-    'django_celery_beat',
-    'django_celery_results',
+    # celery 비동기 처리
+    "django_celery_beat",
+    "django_celery_results",
+    # dj_rest_auth
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    # allauth
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 MIDDLEWARE = [
+    "allauth.account.middleware.AccountMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -94,14 +111,14 @@ YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 # celery 세팅
 CELERY_RESULT_BACKEND = "django-db"
 # This configures Redis as the datastore between Django + Celery
-CELERY_BROKER_URL = config('CELERY_BROKER_REDIS_URL', default='redis://localhost:6379')
+CELERY_BROKER_URL = config("CELERY_BROKER_REDIS_URL", default="redis://localhost:6379")
 # if you out to use os.environ the config is:
 # CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_REDIS_URL', 'redis://localhost:6379')
-CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers.DatabaseScheduler"
 
 # email setting
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.naver.com'  # gmail 2024년부터 smtp 안됨. Oauth로만 가능
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.naver.com"  # gmail 2024년부터 smtp 안됨. Oauth로만 가능
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")  # -> email id
@@ -142,7 +159,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "account.User"
+# 소셜 로그인 관련 설정
+SITE_ID = 1
+AUTH_USER_MODEL = "edumax_account.User"
+REST_AUTH = {
+    "USE_JWT": True,
+}
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
+ACCOUNT_EMAIL_REQUIRED = True  # email 필드 사용 o
+ACCOUNT_USERNAME_REQUIRED = False  # username 필드 사용 x
+ACCOUNT_AUTHENTICATION_METHOD = "email"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -169,6 +196,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
     "EXCEPTION_HANDLER": "config.exceptions.custom_exception_handler.custom_exception_handler",
