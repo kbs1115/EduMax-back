@@ -1,3 +1,4 @@
+from rest_framework.decorators import api_view
 from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.views import APIView
@@ -125,3 +126,5 @@ class LectureView(APIView):
             status=response.get("status_code"),
             data={"message": response.get("message", None)},
         )
+
+
