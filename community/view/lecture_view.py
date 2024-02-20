@@ -1,11 +1,12 @@
-from rest_framework.decorators import api_view
-from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import BasePermission, SAFE_METHODS, IsAuthenticated, IsAdminUser
 from rest_framework.exceptions import PermissionDenied, NotAuthenticated
 from rest_framework.views import APIView
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 
-
+from community.model.access import check_lecture_inst_exist_with_playlist_id
 from community.view.validation import (
     validate_query_params,
     LectureQueryParam,
@@ -126,5 +127,16 @@ class LectureView(APIView):
             status=response.get("status_code"),
             data={"message": response.get("message", None)},
         )
+
+
+@api_view(["GET"])
+@permission_classes([IsAdminUser])
+def check_playlist_duplicate(request):
+    response = check_lecture_inst_exist_with_playlist_id(request.get['playlist_id'])
+    if response is True:
+        return Response(status=status.HTTP_200_OK, data={"message": "duplicate"})
+    elif response is False:
+        return Response(status=status.HTTP_200_OK, data={"message": "no duplicate"})
+
 
 

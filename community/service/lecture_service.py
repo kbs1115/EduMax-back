@@ -9,7 +9,7 @@ from community.model.access import (
     get_lectures_with_category,
     get_lecture_from_id,
     get_lecture_user_id,
-    search_lectures_with_filter,
+    search_lectures_with_filter, check_lecture_inst_exist_with_playlist_id,
 )
 from community.domain.definition import (
     LectureSearchFilterParam,
