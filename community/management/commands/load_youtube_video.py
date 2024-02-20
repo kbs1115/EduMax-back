@@ -3,7 +3,7 @@ from googleapiclient.discovery import build
 from django.conf import settings
 from rest_framework.exceptions import ValidationError
 
-from community.domain.definition import ENGLISH_PLAYLIST_ID_KEY_CATEGORY_VALUE
+from community.domain.definition import PLAYLIST_ID_KEY_CATEGORY_VALUE
 from community.serializers import LectureCreateSerializer
 from edumax_account.model.user_access import get_user_with_pk
 
@@ -20,7 +20,7 @@ class Command(BaseCommand):
         print("_________________________________________________________________________")
         print("youtube로 부터 video id load를 시작합니다.")
         print("_________________________________________________________________________")
-        for playlist_id, category_list in ENGLISH_PLAYLIST_ID_KEY_CATEGORY_VALUE.items():
+        for playlist_id, category_list in PLAYLIST_ID_KEY_CATEGORY_VALUE.items():
             print(f"<<<<playlist_id:{playlist_id}>>>>")
             while True:
                 playlist_items_request = youtube.playlistItems().list(
