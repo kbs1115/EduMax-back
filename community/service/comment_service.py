@@ -76,7 +76,7 @@ class CommentService:
                 "data": {
                     "id": comment.id,
                     "post_id": comment.post.id,
-                    "author": comment.author.login_id,  # TODO: 로그인 아이디를 RETURN 하는건 아닌듯
+                    "author": comment.author.login_id,
                 },
             }
 
@@ -116,7 +116,7 @@ class CommentService:
                 "data": {
                     "id": comment.id,
                     "post_id": comment.post.id,
-                    "author": comment.author.login_id,  # TODO: 로그인 아이디를 RETURN 하는건 아닌듯
+                    "author": comment.author.login_id,
                 },
             }
 

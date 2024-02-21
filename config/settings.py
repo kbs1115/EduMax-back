@@ -106,7 +106,8 @@ DATABASES = {
         "PORT": "3306",
     }
 }
-
+# 유튜브 api key
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 # celery 세팅
 CELERY_RESULT_BACKEND = "django-db"
 # This configures Redis as the datastore between Django + Celery

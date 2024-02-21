@@ -1,3 +1,4 @@
+from django.urls import reverse
 from rest_framework.parsers import MultiPartParser
 from rest_framework.templatetags import rest_framework
 
@@ -347,3 +348,4 @@ class TestEmailSenderApiView:
         request = Request(request, parsers=[MultiPartParser()])
         with pytest.raises(exceptions.ParseError):
             EmailSenderApiView().post(request)
+
