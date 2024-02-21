@@ -78,6 +78,10 @@ def get_lecture_user_id(lecture_id):
         raise NotFound("Author not found")
 
 
+def check_lecture_inst_exist_with_playlist_id(playlist_id):
+    return Lecture.objects.filter(playlist_id=playlist_id).exists()
+
+
 def search_lectures_with_filter(lectures, kw, search_filter):
     # 검색 + 최신순 정렬 수행
     if kw and search_filter == LectureSearchFilterParam.TOTAL:
@@ -93,3 +97,7 @@ def search_lectures_with_filter(lectures, kw, search_filter):
         lectures = lectures.order_by("-created_at")
 
     return lectures
+
+
+def count_lectures():
+    return Lecture.objects.all().count()

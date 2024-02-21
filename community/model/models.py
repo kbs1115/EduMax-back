@@ -136,7 +136,7 @@ class Lecture(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    title = models.CharField(max_length=30)
+    title = models.CharField(max_length=100)
     youtube_id = models.CharField(unique=True, max_length=11)
     # edumax 가입 user model 을 author 로 써야할지 말아야할지 고민중
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lectures")
@@ -152,3 +152,5 @@ class Lecture(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     modified_at = models.DateTimeField(auto_now=True)
+
+
