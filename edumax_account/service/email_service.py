@@ -11,7 +11,7 @@ from edumax_account.model.temp_access import (
     validate_email_key,
 )
 from edumax_account.tasks import delete_email_key_instance
-from config.settings import EMAIL_HOST_USER
+from config.settings.base import EMAIL_HOST_USER
 
 
 class EmailService:
