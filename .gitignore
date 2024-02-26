@@ -1,5 +1,3 @@
-**/migrations/
-migrations
 **/venv/
 Blog Images/
 db.sqlite3
