@@ -96,16 +96,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": "edumax",
-        "USER": "root",
-        "PASSWORD": os.getenv("LOCAL_DB_PASSWORD"),
-        "HOST": "localhost",
-        "PORT": "3306",
-    }
-}
+
 # 유튜브 api key
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 # celery 세팅
