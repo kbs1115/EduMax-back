@@ -3,8 +3,7 @@ from .base import *
 
 ALLOWED_HOSTS = ['54.79.7.181']
 
-STATIC_ROOT = BASE_DIR / 'static/'
-STATICFILES_DIRS = []
+load_dotenv(verbose=True)
 DEBUG = False
 
 
