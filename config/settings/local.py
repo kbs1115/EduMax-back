@@ -10,7 +10,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "edumax",
         "USER": "root",
-        "PASSWORD": os.getenv("DB_PASSWORD"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "rootpassword"),
         "HOST": "127.0.0.1",
         "PORT": "3306",
     }
