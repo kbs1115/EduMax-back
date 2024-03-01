@@ -2,9 +2,9 @@ name: Django CI/CD Pipeline
 
 on:
   push:
-    branches: [ "kbs-ec2" ]
+    branches: ["kbs-ec2"]
   pull_request:
-    branches: [ "kbs-ec2" ]
+    branches: ["kbs-ec2"]
 
 jobs:
   test:
@@ -13,7 +13,7 @@ jobs:
       mysql:
         image: mysql:5.7
         env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_ROOT_PASSWORD: rootpassword
           MYSQL_DATABASE: edumax
         ports:
           - 3306:3306
@@ -24,34 +24,34 @@ jobs:
           --health-retries=5
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: "3.10"
-    - name: Install Dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Set DJANGO_SETTINGS_MODULE
-      run: echo "DJANGO_SETTINGS_MODULE=config.settings.local" >> $GITHUB_ENV
-    - name: Run Tests
-      run: |
-        pytest
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: "3.10"
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Set DJANGO_SETTINGS_MODULE
+        run: echo "DJANGO_SETTINGS_MODULE=config.settings.local" >> $GITHUB_ENV
+      - name: Run Tests
+        run: |
+          pytest
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.pull_request.merged == true
     steps:
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
-        script: |
-          cd EduMax-back
-          git pull origin kbs-ec2
-          docker-compose down
-          docker-compose up -d
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_PRIVATE_KEY }}
+          script: |
+            cd EduMax-back
+            git pull origin kbs-ec2
+            docker-compose down
+            docker-compose up -d
