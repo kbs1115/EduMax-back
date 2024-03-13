@@ -20,19 +20,19 @@ class CategoryValidator:
             raise ValidationError("Category Depth 2 requires Category Depth 1")
 
         if data["category_d4"] and not CategoryValidator.is_valid_hierarchy(
-            data["category_d3"], data["category_d4"]
+                data["category_d3"], data["category_d4"]
         ):
             raise ValidationError(
                 "category depth 4 cannot exist without category depth 3"
             )
         if data["category_d3"] and not CategoryValidator.is_valid_hierarchy(
-            data["category_d2"], data["category_d3"]
+                data["category_d2"], data["category_d3"]
         ):
             raise ValidationError(
                 "category depth 3 cannot exist without category depth 2"
             )
         if data["category_d2"] and not CategoryValidator.is_valid_hierarchy(
-            data["category_d1"], data["category_d2"]
+                data["category_d1"], data["category_d2"]
         ):
             raise ValidationError(
                 "category depth 2 cannot exist without category depth 1"
