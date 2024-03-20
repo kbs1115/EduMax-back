@@ -29,6 +29,7 @@ class PostSortCategoryParam(Enum):
 
 
 class PostCategoriesParam(Enum):
+    ALL = "AL"  # 전체 SELECT 추가
     FREE = "FR"
     NOTICE = "NO"
     KOREAN_QUESTION = "KQ"
