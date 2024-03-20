@@ -96,10 +96,6 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 00418f57aee619eb23deb742b62c45690b9a6a5c
 # 유튜브 api key
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 # celery 세팅
