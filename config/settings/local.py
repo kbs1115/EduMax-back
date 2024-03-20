@@ -1,4 +1,7 @@
 from .base import *
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
 
 ALLOWED_HOSTS = []
 
@@ -7,8 +10,8 @@ DATABASES = {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "edumax",
         "USER": "root",
-        "PASSWORD": os.getenv("LOCAL_DB_PASSWORD"),
-        "HOST": "localhost",
+        "PASSWORD": os.getenv("DB_PASSWORD", "rootpassword"),
+        "HOST": "127.0.0.1",
         "PORT": "3306",
     }
 }
