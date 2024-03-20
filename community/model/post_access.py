@@ -11,8 +11,12 @@ def get_posts_from_db(
         kw,
         sort,
 ):
-    # category에 따른 select
-    posts = Post.objects.filter(category=category).all()
+    # category와 무관하게 select 가능 추가
+    if category == PostCategoriesParam.ALL:
+        posts = Post.objects.all()
+
+    else:  # category에 따른 select
+        posts = Post.objects.filter(category=category).all()
 
     # kw에 따른 select
     if kw and search_filter == PostSearchFilterParam.TOTAL:
