@@ -8,6 +8,8 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
+
+CI/CD applied1
 """
 
 from dotenv import load_dotenv
@@ -28,8 +30,6 @@ SECRET_KEY = "django-insecure-sa#+-nqjhy2hi)_3z81)lznf3f4(84*^=+&!l*y+tkwns-=5!^
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-ALLOWED_HOSTS = ["*"]
 
 # Application definition
 
@@ -96,7 +96,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 00418f57aee619eb23deb742b62c45690b9a6a5c
 # 유튜브 api key
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 # celery 세팅

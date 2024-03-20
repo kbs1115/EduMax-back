@@ -1,19 +1,20 @@
 from .base import *
-
-
-ALLOWED_HOSTS = ['54.79.7.181']
+from dotenv import load_dotenv
 
 load_dotenv(verbose=True)
-DEBUG = False
 
+ALLOWED_HOSTS = ["13.124.25.141"]
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('DB_NAME'),
-        'USER': os.getenv('DB_USER'),
-        'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
-        'PORT': '3306',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": "admin",
+        "PASSWORD": os.getenv("RDS_DB_PASSWORD"),
+        "HOST": "database-edumax.cdommqogw444.ap-northeast-2.rds.amazonaws.com",
+        "PORT": "3306",
     }
 }
+
+DEBUG = False
+
