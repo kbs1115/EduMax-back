@@ -39,7 +39,7 @@ class GetPostsView(APIView):
             "category": validated_query_params.category,
             "search_filter": validated_query_params.search_filter,
             "kw": validated_query_params.q,
-            "sort": validated_query_params.sort
+            "sort": validated_query_params.sort,
         }
         response = self.post_service.get_posts(**params)
 
