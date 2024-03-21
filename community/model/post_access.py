@@ -10,6 +10,7 @@ def get_posts_from_db(
         search_filter,
         kw,
         sort,
+
 ):
     # category와 무관하게 select 가능 추가
     if category == PostCategoriesParam.ALL:
