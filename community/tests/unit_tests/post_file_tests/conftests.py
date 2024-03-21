@@ -13,7 +13,7 @@ from community.domain.definition import (
     PostFilesState,
     PostCategoriesParam,
     PostSearchFilterParam,
-    PostSortCategoryParam,
+    PostSortCategoryParam, PostCategories,
 )
 from community.model.models import Post, File
 from community.serializers import PostCreateSerializer, PostListSerializer
@@ -456,7 +456,7 @@ def invalid_reqeust_post_body_for_method_patch():
 def set_up_create_posts(staff_user_instance):
     staff_user_instance.save()
     posts = []
-    for category in PostCategoriesParam:
+    for category in PostCategories:
         cnt = 1
         while cnt < 21:
             posts.append(

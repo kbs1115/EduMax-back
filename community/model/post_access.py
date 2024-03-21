@@ -1,7 +1,7 @@
 from django.db.models import Q, Count
 from rest_framework import exceptions
 
-from community.domain.definition import PostSearchFilterParam, PostSortCategoryParam
+from community.domain.definition import PostSearchFilterParam, PostSortCategoryParam, PostCategoriesParam
 from community.model.models import Post
 
 
