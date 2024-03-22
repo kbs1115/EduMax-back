@@ -49,7 +49,7 @@ class TestGetPostsApi:
 
     @pytest.mark.django_db
     def test_check_response_if_query_params_contain_search_filter_and_kw(
-        self, set_up_create_posts
+            self, set_up_create_posts
     ):
         client = APIClient()
         response = client.get(self.endpoint, {"search_filter": "TITLE", "q": "1"})
@@ -69,7 +69,7 @@ class TestGetPostsApi:
 
     @pytest.mark.django_db
     def test_check_response_if_query_params_contain_search_filter_and_kw(
-        self, set_up_create_posts
+            self, set_up_create_posts
     ):
         client = APIClient()
         response = client.get(self.endpoint, {"search_filter": "TITLE", "q": "1"})
