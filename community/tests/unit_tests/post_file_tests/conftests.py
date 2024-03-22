@@ -14,6 +14,7 @@ from community.domain.definition import (
     PostCategoriesParam,
     PostSearchFilterParam,
     PostSortCategoryParam,
+    PostCategories
 )
 from community.model.models import Post, File
 from community.serializers import PostCreateSerializer, PostListSerializer
@@ -456,7 +457,7 @@ def invalid_reqeust_post_body_for_method_patch():
 def set_up_create_posts(staff_user_instance):
     staff_user_instance.save()
     posts = []
-    for category in PostCategoriesParam:
+    for category in PostCategories:
         cnt = 1
         while cnt < 21:
             posts.append(
@@ -471,5 +472,7 @@ def set_up_create_posts(staff_user_instance):
             )
             cnt += 1
     serializer = PostCreateSerializer(many=True, data=posts)
-    assert serializer.is_valid()
+    if not serializer.is_valid():
+        print(serializer.errors)
+        assert False  # 강제로 테스트를 실패하게 만들어 에러 출력
     serializer.save()
