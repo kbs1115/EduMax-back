@@ -76,6 +76,13 @@ class LectureCategoriesDepth2Param(Enum):
     SAT = "SA"
     GRAMMAR = "GR"
 
+    # children of MATH
+    CALCULUS = "CC"
+    PROBABILITY_AND_STATIC = "PS"
+    MATH_1 = "M1"
+    MATH_2 = "M2"
+    MATH_HIGH = "MH"
+
     def __str__(self):
         return self.value
 
