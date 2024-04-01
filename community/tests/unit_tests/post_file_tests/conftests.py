@@ -13,7 +13,8 @@ from community.domain.definition import (
     PostFilesState,
     PostCategoriesParam,
     PostSearchFilterParam,
-    PostSortCategoryParam, PostCategories,
+    PostSortCategoryParam,
+    PostCategories
 )
 from community.model.models import Post, File
 from community.serializers import PostCreateSerializer, PostListSerializer
@@ -471,5 +472,7 @@ def set_up_create_posts(staff_user_instance):
             )
             cnt += 1
     serializer = PostCreateSerializer(many=True, data=posts)
-    assert serializer.is_valid()
+    if not serializer.is_valid():
+        print(serializer.errors)
+        assert False  # 강제로 테스트를 실패하게 만들어 에러 출력
     serializer.save()
