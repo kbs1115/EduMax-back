@@ -62,16 +62,14 @@ class UserAPIView(APIView):
                                 "message": "email already exist"
                             }
                             )
-        user_data = SignUpService().create_user(request.data)
+        SignUpService().create_user(request.data)
 
-        res = Response(
-            {
-                "user": user_data,
-                "message": "signup success",
-            },
-            status=status.HTTP_200_OK,
-        )
-        return res
+        return Response(status=status.HTTP_200_OK,
+                        data={
+                            "message": "signup successfully",
+                        }
+                        )
+
 
     def patch(self, request):
         try:

@@ -58,8 +58,7 @@ class TestSignupView:
         actualData = actualResponse.data
 
         assert actualResponse.status_code == status.HTTP_200_OK
-        assert actualData["user"] == valid_request_data
-        assert actualData["message"] == "signup success"
+        assert actualData["message"] == "signup successfully"
 
 
 # pk를 인자로 받는 경우와 받지 않는 경우가 있는데, 어짜피 service 단을 mocking할거라 하나의 class로 같이 테스트한다.
