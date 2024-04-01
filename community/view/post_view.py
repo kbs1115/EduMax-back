@@ -119,7 +119,3 @@ class PostView(APIView):
                                 "data": response.get("data", None)},
                             )
 
-
-class LikeView(APIView):
-    def Post(self, request, post_id):
-        pass
