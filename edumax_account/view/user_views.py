@@ -49,8 +49,19 @@ class UserAPIView(APIView):
             e = SignupParamModel(**request.data)
         except ValidationError as e:
             raise exceptions.ParseError(str(e))
-        # TODO: 회원가입 할때 EMAIL KEY 같이 받아야함.
-        # EmailService().check_authentication()
+
+        EmailService().check_authentication(
+            email=request.data["email"],
+            auth_key=request.data["auth_key"]
+        )   # 이메일 인증
+
+        is_duplicated = SignUpService.check_duplicate_field_value(email=request.data["email"])  # 중복되는 이메일인지 체크
+        if is_duplicated:
+            return Response(status=status.HTTP_400_BAD_REQUEST,
+                            data={
+                                "message": "email already exist"
+                            }
+                            )
         user_data = SignUpService().create_user(request.data)
 
         res = Response(
