@@ -41,6 +41,7 @@ def valid_request_data():
     return {
         "login_id": "bruce1118",
         "email": "bruce1118@naver.com",
+        "auth_key":"123456",
         "nickname": "KBS3",
         "password": "Bb3848948389!!!",
     }
@@ -60,6 +61,7 @@ def invalid_request_data_wrong_email():
     return {
         "login_id": "bruce1118",
         "email": "bruce1118naver.com",
+        "auth_key": "123456",
         "nickname": "KBS3",
         "password": "Bb3848948389!!!",
     }
@@ -274,12 +276,16 @@ def mocked_method_delete_query_param_instance(mocker):
 
 @pytest.fixture
 def mocked_method_send_email(mocker):
-    mocker = mocker.patch.object(EmailService, "send_email")
-    mocker.return_value = {
+    # EmailService의 send_email 메소드를 mock 객체로 대체
+    mocked_send_email = mocker.patch.object(EmailService, "send_email")
+
+    # send_email 메소드가 호출될 때 반환할 값 설정
+    mocked_send_email.return_value = {
         "message": "email sent successfully",
         "status_code": status.HTTP_200_OK,
     }
-    return mocker
+
+    return mocked_send_email
 
 
 @pytest.fixture
@@ -290,7 +296,7 @@ def mocked_function_get_user_with_email(mocker, user_instance):
 
 @pytest.fixture
 def mocked_function_create_email_key_model_instance_in_email_service(
-    mocker, valid_EmailTemporaryKey_inst
+        mocker, valid_EmailTemporaryKey_inst
 ):
     mocker = mocker.patch(
         "edumax_account.service.email_service.create_email_key_model_instance"
