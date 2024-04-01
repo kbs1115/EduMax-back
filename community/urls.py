@@ -10,7 +10,7 @@ app_name = "community"
 urlpatterns = [
     path("post/", PostView.as_view(), name="post"),
     path("post/<int:post_id>", PostView.as_view(), name="post"),
-    path("post/<int:post_id>/like", LikeToPostView.as_view(), name="post_lie"),
+    path("post/<int:post_id>/like", LikeToPostView.as_view(), name="post_like"),
     path("posts/", GetPostsView.as_view(), name="posts"),
     path(
         "post/<int:post_id>/comment/",

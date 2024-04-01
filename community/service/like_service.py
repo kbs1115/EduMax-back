@@ -7,31 +7,29 @@ from community.serializers import LikeCreateSerializer
 
 class LikeService:
     @classmethod
-    def get_serializer_data(cls, related_model_inst, voter):
-        if isinstance(related_model_inst, Post):
+    def get_serializer_data(cls, related_model_cls, pk, voter_id):
+        if related_model_cls == "post":
             return {
-                "post": related_model_inst,
-                "user": voter
+                "post": pk,
+                "user": voter_id
             }
-        elif isinstance(related_model_inst, Comment):
+        elif related_model_cls == "comment":
             return {
-                "comment": related_model_inst,
-                "user": voter
+                "comment": pk,
+                "user": voter_id
             }
         else:
             raise exceptions.ValidationError("post 혹은 comment만 추천할수있음")
 
-    def generate_like(self, model_class, pk, voter):
+    def generate_like(self, model_class, pk, voter_id):
         if model_class == "post":
-            inst = get_post_from_id(id=pk)
+            serializer_data = self.get_serializer_data(related_model_cls="post", pk=pk, voter_id=voter_id)
 
         elif model_class == "comment":
-            inst = get_comment_from_id(comment_id=pk)
-
+            serializer_data = self.get_serializer_data(related_model_cls="comment", pk=pk, voter_id=voter_id)
         else:
             raise exceptions.ValidationError("post 혹은 comment 만 추천할수있음")
 
-        serializer_data = self.get_serializer_data(related_model_inst=inst, voter=voter)
         serializer = LikeCreateSerializer(data=serializer_data)
 
         if not serializer.is_valid():
