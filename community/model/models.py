@@ -92,7 +92,7 @@ class Like(models.Model):
         Post, on_delete=models.CASCADE, null=True, default=None, related_name="likes"
     )
     comment = models.ForeignKey(
-        Comment, on_delete=models.CASCADE, null=True, default=True, related_name="likes"
+        Comment, on_delete=models.CASCADE, null=True, default=None, related_name="likes"
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

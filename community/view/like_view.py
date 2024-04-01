@@ -9,7 +9,6 @@ from community.model.models import Post, Comment
 from community.model.post_access import get_post_user_id
 from community.service.like_service import LikeService
 
-
 # TODO: permission.py에 넣는건 어떠한가. 거기서 권한을 모두 관리하는것도 ㄱㅊ을듯
 # class CannotLikeOwnPost(BasePermission):
 #     def has_object_permission(self, request, view, post_id):
@@ -29,6 +28,7 @@ from community.service.like_service import LikeService
 #                 raise PermissionDenied()
 #             return True
 #         raise NotAuthenticated()
+from edumax_account.models import User
 
 
 class CanLikeOnce(BasePermission):
@@ -53,7 +53,7 @@ class LikeToPostView(APIView):
         response = LikeService().generate_like(
             model_class="post",
             pk=post_id,
-            voter=request.user
+            voter_id=request.user.id
         )
         return Response(
             status=response.get("status_code"),
@@ -72,7 +72,7 @@ class LikeToCommentView(APIView):
         response = LikeService().generate_like(
             model_class="comment",
             pk=comment_id,
-            voter=request.user
+            voter_id=request.user
         )
         return Response(
             status=response.get("status_code"),

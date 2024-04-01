@@ -11,15 +11,17 @@ class TestLikeService:
             post_instance,
             comment_instance
     ):
-        response = LikeService().get_serializer_data(related_model_inst=post_instance, voter=user_instance)
+        response = LikeService().get_serializer_data(related_model_cls="post", pk=post_instance.id,
+                                                     voter_id=user_instance.id)
         assert response == {
-            "post": post_instance,
-            "user": user_instance
+            "post": post_instance.id,
+            "user": user_instance.id
         }
-        response = LikeService().get_serializer_data(related_model_inst=comment_instance, voter=user_instance)
+        response = LikeService().get_serializer_data(related_model_cls="comment", pk=comment_instance.id,
+                                                     voter_id=user_instance.id)
         assert response == {
-            "comment": comment_instance,
-            "user": user_instance
+            "comment": comment_instance.id,
+            "user": user_instance.id
         }
 
     def test_generate_like_method_assert_called_with_valid_data(
@@ -40,13 +42,13 @@ class TestLikeService:
             return_value=comment_instance
         )
 
-        response = LikeService().generate_like(model_class="post", pk=1, voter=user_instance)
+        response = LikeService().generate_like(model_class="post", pk=1, voter_id=user_instance.id)
         mocked_is_valid.assert_called()
         mocked_serializer_save.assert_called()
         assert response["message"] == "LIKE created successfully"
         assert response["status_code"] == status.HTTP_201_CREATED
 
-        response = LikeService().generate_like(model_class="comment", pk=1, voter=user_instance)
+        response = LikeService().generate_like(model_class="comment", pk=1, voter_id=user_instance.id)
         mocked_is_valid.assert_called()
         mocked_serializer_save.assert_called()
         assert response["message"] == "LIKE created successfully"
