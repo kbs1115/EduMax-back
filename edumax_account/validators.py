@@ -38,6 +38,7 @@ class SignupParamModel(BaseModel):
     email: str
     nickname: str
     password: str
+    auth_key: str
 
 
 class LoginParamModel(BaseModel):
