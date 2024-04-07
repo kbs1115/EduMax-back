@@ -2,7 +2,7 @@ from django.urls import path
 
 from community.view.like_view import LikeToPostView, LikeToCommentView
 from community.view.post_view import PostView, GetPostsView
-from community.view.comment_view import MakeCommentToPostView, CommentView
+from community.view.comment_view import MakeCommentToPostView, CommentView, RetrieveCommentView, RetrieveChildCommentView
 from community.view.lecture_view import LectureView, GetLecturesView
 
 app_name = "community"
@@ -19,6 +19,8 @@ urlpatterns = [
     ),
     path("comment/<int:comment_id>", CommentView.as_view(), name="comment"),
     path("comment/<int:comment_id>/like", LikeToCommentView.as_view(), name="comment_like"),
+    path("comment/post/<int:post_id>", RetrieveCommentView.as_view(), name="comment_post"),
+    path("comment/comment/<int:comment_id>", RetrieveChildCommentView.as_view(), name="comment_child"),
 
     path("lectures/", GetLecturesView.as_view(), name="lectures"),
     path("lecture/", LectureView.as_view(), name="lectures"),

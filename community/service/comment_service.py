@@ -9,6 +9,8 @@ from community.model.access import (
     get_parent_post_id,
     get_comment_user_id,
     get_comment_from_id,
+    get_comments_from_post,
+    get_child_comments
 )
 from community.model.models import Comment
 from community.domain.definition import PostFilesState
@@ -36,6 +38,43 @@ class CommentService:
         # TODO: TRY구문 필요없습니다.
         except Comment.DoesNotExist:
             raise NotFound("Comment not found")
+        
+    @classmethod
+    def get_comment_of_post_with_null_parent(cls, post_id):
+        comments = get_comments_from_post(post_id)
+        
+        comment_array = []
+        for comment in comments:
+            if comment.parent_comment:
+                continue
+            
+            serializer = CommentRetrieveSerializer(comment)
+            comment_array.append(serializer.data)
+            
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Comment retrieve successfully",
+            "data": comment_array,
+        }
+            
+        
+    @classmethod
+    def get_child_comment(cls, comment_id):
+        comments = get_child_comments(comment_id)
+        
+        comment_array = []
+        for comment in comments:
+            serializer = CommentRetrieveSerializer(comment)
+            comment_array.append(serializer.data)
+            
+        return {
+            "status": status.HTTP_200_OK,
+            "message": "Comment retrieve successfully",
+            "data": comment_array,
+        }    
+        
+        
+        
 
     @classmethod
     def create_comment(
