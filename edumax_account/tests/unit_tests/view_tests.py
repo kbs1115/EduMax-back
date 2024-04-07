@@ -20,6 +20,9 @@ class TestSignupView:
         mocker_create_user.side_effect = exceptions.ValidationError(
             "InvalidDataError_signup"
         )
+        mocker.patch.object(EmailService, "check_authentication")
+        mocker_duplicate_checker = mocker.patch.object(SignUpService, "check_duplicate_field_value")
+        mocker_duplicate_checker.return_value = False
         mock_request = Mock(data=invalid_request_data_wrong_email)
 
         with pytest.raises(exceptions.ValidationError):
@@ -31,6 +34,9 @@ class TestSignupView:
         mocker_create_user.side_effect = exceptions.ParseError(
             "InvalidDataError_signup"
         )
+        mocker.patch.object(EmailService, "check_authentication")
+        mocker_duplicate_checker = mocker.patch.object(SignUpService, "check_duplicate_field_value")
+        mocker_duplicate_checker.return_value = False
         mock_request = Mock(data=invalid_request_data_omitted)
 
         with pytest.raises(exceptions.ParseError):
@@ -41,6 +47,10 @@ class TestSignupView:
         mocker_create_user = mocker.patch.object(SignUpService, "create_user")
         # mocking으로 valid_request_data를 그대로 반환한다고 가정한다. 실제로는 다른 정보도 더 들어 있음.
         mocker_create_user.return_value = valid_request_data
+        mocker.patch.object(EmailService, "check_authentication")
+        mocker_duplicate_checker = mocker.patch.object(SignUpService, "check_duplicate_field_value")
+        mocker_duplicate_checker.return_value = False
+
         mock_request = Mock(data=valid_request_data)
 
         signup = UserAPIView()
@@ -48,8 +58,7 @@ class TestSignupView:
         actualData = actualResponse.data
 
         assert actualResponse.status_code == status.HTTP_200_OK
-        assert actualData["user"] == valid_request_data
-        assert actualData["message"] == "signup success"
+        assert actualData["message"] == "signup successfully"
 
 
 # pk를 인자로 받는 경우와 받지 않는 경우가 있는데, 어짜피 service 단을 mocking할거라 하나의 class로 같이 테스트한다.
