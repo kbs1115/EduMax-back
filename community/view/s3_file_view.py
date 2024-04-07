@@ -25,7 +25,7 @@ def s3_uploader(request):
         full_path = f"https://{AWS_S3_CUSTOM_DOMAIN}/{path}"
         files_path.append(full_path)
 
-    return Response(status=400,
+    return Response(status=200,
                     data={
                         "message": "'Files uploaded successfully'",
                         "data": files_path}
