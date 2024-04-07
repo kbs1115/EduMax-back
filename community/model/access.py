@@ -43,6 +43,17 @@ def get_comment_from_id(comment_id):
         return comment
     except Comment.DoesNotExist:
         raise NotFound("comment not found")
+    
+
+def get_comments_from_post(post_id):
+    comments = Comment.objects.filter(post_id=post_id)
+    
+    return comments
+
+def get_child_comments(comment_id):
+    comments = Comment.objects.filter(parent_comment_id=comment_id)
+    
+    return comments
 
 
 def get_lectures_with_category(category):

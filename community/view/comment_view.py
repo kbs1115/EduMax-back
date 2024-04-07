@@ -14,7 +14,6 @@ from community.view.validation import (
 )
 from community.service.comment_service import CommentService
 
-
 class MakeCommentToPostView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
@@ -36,6 +35,44 @@ class MakeCommentToPostView(APIView):
             data={
                 "message": response.get("message", None),
                 "data": response.get("data", None),
+            },
+        )
+        
+        
+class RetrieveCommentView(APIView):
+    """
+    post_id에 해당하는 comment 중 parent가 없는 것만 불러옵니다.
+    """
+    permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
+
+    @validate_path_params(PostPathParam)
+    def get(self, request, post_id):
+        res = CommentService.get_comment_of_post_with_null_parent(post_id)
+        return Response(
+            status=res.get("status"),
+            data={
+                "message": res.get("message", None),
+                "data": res.get("data", None),
+            },
+        )
+        
+
+class RetrieveChildCommentView(APIView):
+    """
+    comment_id에 해당하는 comment의 child를 불러옵니다.
+    """
+    permission_classes = [IsAuthenticated | ReadOnly, IsOwner]
+    parser_classes = [JSONParser, FormParser, MultiPartParser]
+
+    @validate_path_params(CommentPathParam)
+    def get(self, request, comment_id):
+        res = CommentService.get_child_comment(comment_id)
+        return Response(
+            status=res.get("status"),
+            data={
+                "message": res.get("message", None),
+                "data": res.get("data", None),
             },
         )
 
