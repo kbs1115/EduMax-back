@@ -37,6 +37,7 @@ class Post(models.Model):
         max_length=2, choices=PostCategories.choices, default=PostCategories.FREE
     )
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
+    views = models.IntegerField(default=0)
 
 
 class Comment(models.Model):

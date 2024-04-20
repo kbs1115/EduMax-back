@@ -1,4 +1,6 @@
 import status as status
+from django.utils import timezone
+from datetime import timedelta
 from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
@@ -60,6 +62,28 @@ class PostsService:
 class PostService:
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
+    def update_hit(self, request, post, response):
+        cookie_key = f'viewed_article_{post.id}'
+        
+        last_viewed = request.COOKIES.get(cookie_key)
+        should_update = False
+
+        if not last_viewed:
+            should_update = True
+        else:
+            last_viewed_time = timezone.datetime.strptime(last_viewed, "%Y-%m-%d %H:%M:%S.%f")
+            last_viewed_time = timezone.make_aware(last_viewed_time, timezone.get_default_timezone())
+            if timezone.now() - last_viewed_time > timedelta(minutes=1):
+                should_update = True 
+                
+        if should_update:
+            post.views += 1
+            post.save()
+            response.data["data"]["views"] += 1
+            response.set_cookie(cookie_key, timezone.now().strftime("%Y-%m-%d %H:%M:%S.%f"), max_age=60)
+            
+        return response
+        
     def retrieve_post(self, post_id):
         """
             <설명>
@@ -68,9 +92,10 @@ class PostService:
         """
 
         post = get_post_instance(post_id)
+        
         serializer = PostRetrieveSerializer(post)
         # view 함수로 넘겨주기
-        return {"status": status.HTTP_200_OK,
+        return post, {"status": status.HTTP_200_OK,
                 "message": "post retrieve successfully",
                 "data": serializer.data,
                 }

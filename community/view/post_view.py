@@ -60,12 +60,15 @@ class PostView(APIView):
     @validate_path_params(PostPathParam)
     def get(self, request, post_id):
         # retrieve
-        response = self.post_service.retrieve_post(post_id)
-        return JsonResponse(status=response.get("status_code"),
-                            data={
-                                "message": response.get("message", None),
-                                "data": response.get("data", None)},
-                            )
+        post, res = self.post_service.retrieve_post(post_id)
+
+        response = Response(status=res.get("status_code"),
+            data={
+                "message": res.get("message", None),
+                "data": res.get("data", None)},
+        )
+        res = self.post_service.update_hit(request, post, response)
+        return res
 
     @validate_body_request(CreatePostRequestBody)
     def post(self, request, validated_request_body):
