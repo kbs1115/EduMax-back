@@ -74,7 +74,8 @@ class PostRetrieveSerializer(serializers.ModelSerializer):
             "category",
             "author",
             "files",
-            "likes"
+            "likes",
+            "views"
         ]
 
 
@@ -110,7 +111,8 @@ class PostListSerializer(serializers.ModelSerializer):
             "category",
             "content",
             "author",
-            "likes_count"
+            "likes_count",
+            "views"
         ]
 
     def get_likes_count(self, obj):
