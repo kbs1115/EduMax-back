@@ -1,6 +1,7 @@
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 from rest_framework import exceptions
 from rest_framework.exceptions import PermissionDenied
+from django.core.files.base import ContentFile
 from community.serializers import FileSerializer
 from community.service.post_service import PostService, PostsService
 from community.tests.unit_tests.post_file_tests.conftests import *
@@ -208,3 +209,35 @@ class TestFileService:
             assert mocked_get_file_instance.call_count == number_of_files
             assert mock_delete.call_count == number_of_files
             assert mocked_s3_delete_file_method.call_count == number_of_files
+            
+    @patch('magic.Magic')
+    def test_s3_upload_file_success(self, mock_magic, mock_upload_file):
+        mock_magic_instance = mock_magic.return_value
+        mock_magic_instance.from_buffer.return_value = 'image/jpeg'
+        path = 'path/to/upload'
+        
+        with patch('django.core.files.storage.default_storage.save') as mock_save:
+            FileService.s3_upload_file(mock_upload_file, path)
+            mock_upload_file.seek.assert_called_with(0)  # Checks file.seek(0) is called to reset the pointer
+            mock_save.assert_called_once()
+
+    @patch('magic.Magic')
+    def test_s3_upload_file_invalid_mime_type(self, mock_magic, mock_upload_file):
+        mock_magic_instance = mock_magic.return_value
+        mock_magic_instance.from_buffer.return_value = 'application/exe'
+
+        path = 'path/to/upload'
+        with pytest.raises(ValueError) as e:
+            FileService.s3_upload_file(mock_upload_file, path)
+        assert str(e.value) == "Unsupported file type."
+
+    @patch('magic.Magic')
+    def test_s3_upload_file_exceeds_size_limit(self, mock_magic, mock_upload_file):
+        mock_magic_instance = mock_magic.return_value
+        mock_magic_instance.from_buffer.return_value = 'video/mp4'
+        mock_upload_file.tell = Mock(return_value=1024 * 1024 * 25)  # 25MB
+
+        path = 'path/to/upload'
+        with pytest.raises(ValueError) as e:
+            FileService.s3_upload_file(mock_upload_file, path)
+        assert str(e.value) == "File size exceeds the maximum limit of 20MB."

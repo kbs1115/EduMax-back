@@ -1,4 +1,5 @@
 import uuid
+import magic
 
 from botocore.exceptions import ClientError
 from django.core.files.base import ContentFile
@@ -11,16 +12,41 @@ from community.serializers import FileSerializer
 
 
 class FileService:
-    # file을 올리기전에 여러 validation이 필요할것으로 예상되지만 일단 pass
+    
     @classmethod
     def s3_upload_file(cls, file, path):
-        # s3에 파일을 업로드한다
-        try:
-            default_storage.save(
-                path, ContentFile(file.read())
-            )  # 장고에서 모든 request.Files는 contentFile instance에 속함
-        except ClientError:
-            raise ClientError
+        # 파일 MIME 타입 검사
+        mime = magic.Magic(mime=True)
+        file_mime_type = mime.from_buffer(file.read(1024))  # 파일 시작 부분의 데이터로 MIME 타입 결정
+        file.seek(0)  # 파일 읽기 위치를 다시 시작점으로 이동
+
+        # 허용하는 MIME 타입 리스트
+        allowed_mime_types = [
+            'audio/',  # 오디오 파일
+            'image/',  # 이미지 파일
+            'video/'   # 비디오 파일
+        ]
+
+        # 파일 타입 확인
+        if any(file_mime_type.startswith(allowed_type) for allowed_type in allowed_mime_types):
+            # 파일 크기 확인
+            file.seek(0, 2)  # 파일의 끝으로 이동
+            file_size = file.tell()  # 파일 크기를 바이트 단위로 얻음
+            file.seek(0)  # 파일 읽기 위치를 다시 시작점으로 이동
+
+            # 20MB = 20 * 1024 * 1024 바이트
+            if file_size <= 20 * 1024 * 1024:
+                try:
+                    default_storage.save(
+                        path, ContentFile(file.read())
+                    )
+                except ClientError:
+                    raise ClientError
+            else:
+                raise ValueError("File size exceeds the maximum limit of 20MB.")
+        else:
+            raise ValueError("Unsupported file type.")
+
 
     @classmethod
     def s3_delete_file(cls, file_path):
