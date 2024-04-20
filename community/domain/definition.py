@@ -35,9 +35,11 @@ class PostCategoriesParam(Enum):
     KOREAN_QUESTION = "KQ"
     ENG_QUESTION = "EQ"
     MATH_QUESTION = "MQ"
+    TAMGU_QUESTION = "TQ"
     KOREAN_DATA = "KD"
     ENG_DATA = "ED"
     MATH_DATA = "MD"
+    TAMGU_DATA = "TD"
 
     def __str__(self):
         return self.value
@@ -65,6 +67,7 @@ class LectureCategoriesDepth1Param(Enum):
     KOREAN = "KO"
     ENGLISH = "EN"
     MATH = "MA"
+    TAMGU = "TM"
 
     def __str__(self):
         return self.value
@@ -134,9 +137,11 @@ class PostCategories(models.TextChoices):
     KOREAN_QUESTION = "KQ"
     ENG_QUESTION = "EQ"
     MATH_QUESTION = "MQ"
+    TAMGU_QUESTION = "TQ"
     KOREAN_DATA = "KD"
     ENG_DATA = "ED"
     MATH_DATA = "MD"
+    TAMGU_DATA = "TD"
 
 
 TREE_STRUCTURE = {
@@ -150,6 +155,7 @@ TREE_STRUCTURE = {
     "KO": [],
     "EN": ["SC", "SA", "GR"],
     "MA": ["CC", "PS", "M1", "M2", "MH"],
+    "TM": [],
     # eng-depth2
     "SC": ["TB", "EBS", "SCM"],
     "SA": ["SAM"],
@@ -164,6 +170,7 @@ class CategoryDepth1(models.TextChoices):
     KOREAN = "KO"
     ENGLISH = "EN"
     MATH = "MA"
+    TAMGU = "TM"
 
 
 class CategoryDepth2(models.TextChoices):

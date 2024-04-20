@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import Mock
 from datetime import datetime
 from django.db.models import QuerySet
 
@@ -138,3 +139,16 @@ def search_lecture_instances(make_user_instance, make_lecture_instance):
     queryset._result_cache = [inst for inst in ret]
 
     return queryset
+
+
+@pytest.fixture
+def mock_upload_file():
+    # Create a mock file object
+    file = Mock()
+    file.read = Mock(side_effect=[
+        b'file data up to 1024 bytes',  # for MIME type check
+        b'full file data'  # for actual file save
+    ])
+    file.seek = Mock()
+    file.tell = Mock(return_value=1024 * 1024 * 5)  # 5MB
+    return file

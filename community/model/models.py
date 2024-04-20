@@ -113,6 +113,7 @@ class File(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=100)
     file_location = models.TextField()
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, null=True, related_name="files", default=None
