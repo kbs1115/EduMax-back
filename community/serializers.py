@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 
 from edumax_account.models import User
-from .model.models import Post, Comment, File, Lecture, Like
+from .model.models import Post, Comment, File, Lecture, Like, Alarm
 from community.domain.validation import CategoryValidator
 
 
@@ -205,3 +205,8 @@ class LectureCreateSerializer(serializers.ModelSerializer):
         return data
 
 
+class AlarmRetrieveSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Alarm
+        fields = "__all__"

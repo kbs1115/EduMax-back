@@ -5,6 +5,7 @@ from community.view.like_view import LikeToPostView, LikeToCommentView
 from community.view.post_view import PostView, GetPostsView
 from community.view.comment_view import MakeCommentToPostView, CommentView, RetrieveCommentView, RetrieveChildCommentView
 from community.view.lecture_view import LectureView, GetLecturesView
+from community.view.alarm_view import AlarmListView
 
 app_name = "community"
 
@@ -26,5 +27,7 @@ urlpatterns = [
     path("lectures/", GetLecturesView.as_view(), name="lectures"),
     path("lecture/", LectureView.as_view(), name="lectures"),
     path("lecture/<int:lecture_id>", LectureView.as_view(), name="lecture"),
-    path("s3_files/", s3_uploader)
+    path("s3_files/", s3_uploader),
+    
+    path("alarms/", AlarmListView.as_view(), name="alarms"),
 ]
