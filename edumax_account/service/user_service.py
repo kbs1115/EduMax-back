@@ -6,7 +6,6 @@ from django.db import transaction
 from rest_framework import exceptions
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from allauth.socialaccount.models import SocialAccount
 
 from edumax_account.model.temp_access import create_password_change_param_model_inst
 from edumax_account.model.user_access import (
@@ -112,6 +111,7 @@ class UserService:
     def delete_user(cls, user):
         delete_user_db(user)
 
+    # TODO: 이런거 utils 함수로 빼버리는게나은듯?
     @staticmethod
     def generate_random_string(length=8):
         """
@@ -131,6 +131,7 @@ class UserService:
         if EmailService().check_authentication(email=email, auth_key=auth_key):
             return get_user_with_email(email=email)
 
+    # TODO: 이거 이메알 service로 옮기는게 맞아보임
     def make_random_query_param_with_email_auth(self, email, auth_key):
         """
         이메일 인증이 성공할시 임의의 8자리 string을 db에 1분동안 임시저장후
