@@ -3,6 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import FormParser, MultiPartParser, JSONParser
 from rest_framework.response import Response
 
+from edumax_account.models import User
 from .post_view import IsOwner, ReadOnly
 from community.view.validation import (
     validate_body_request,
@@ -14,8 +15,9 @@ from community.view.validation import (
 )
 from community.service.comment_service import CommentService
 
+
 class MakeCommentToPostView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     @validate_body_request(CreateCommentRequestBody)
@@ -25,7 +27,8 @@ class MakeCommentToPostView(APIView):
             "content": validated_request_body.content,
             "html_content": validated_request_body.html_content,
             "files": request.FILES.getlist("files", None),
-            "author": request.user,
+            # "author": request.user,
+            "author": User.objects.get(id=2),
             "parent_comment_id": None,
             "post_id": post_id,
         }
@@ -37,8 +40,8 @@ class MakeCommentToPostView(APIView):
                 "data": response.get("data", None),
             },
         )
-        
-        
+
+
 class RetrieveCommentView(APIView):
     """
     post_id에 해당하는 comment 중 parent가 없는 것만 불러옵니다.
@@ -56,7 +59,7 @@ class RetrieveCommentView(APIView):
                 "data": res.get("data", None),
             },
         )
-        
+
 
 class RetrieveChildCommentView(APIView):
     """
