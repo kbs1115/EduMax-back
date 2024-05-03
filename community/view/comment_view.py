@@ -17,7 +17,7 @@ from community.service.comment_service import CommentService
 
 
 class MakeCommentToPostView(APIView):
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     @validate_body_request(CreateCommentRequestBody)
@@ -27,8 +27,8 @@ class MakeCommentToPostView(APIView):
             "content": validated_request_body.content,
             "html_content": validated_request_body.html_content,
             "files": request.FILES.getlist("files", None),
-            # "author": request.user,
-            "author": User.objects.get(id=2),
+            "author": request.user,
+
             "parent_comment_id": None,
             "post_id": post_id,
         }
