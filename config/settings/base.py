@@ -17,6 +17,8 @@ import os
 from pathlib import Path
 from decouple import config
 
+from datetime import timedelta
+
 load_dotenv(verbose=True)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -154,6 +156,11 @@ SITE_ID = 1
 AUTH_USER_MODEL = "edumax_account.User"
 REST_AUTH = {
     "USE_JWT": True,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 액세스 토큰의 유효 시간을 30분으로 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
