@@ -64,3 +64,14 @@ def check_pw_change_page_query_param(verify):
         PwChangeTemporaryQueryParam.objects.get(query_param=verify)
     except PwChangeTemporaryQueryParam.DoesNotExist:
         raise exceptions.ValidationError("wrong query param")
+
+
+# fcm_token
+def save_user_fcm_token(user, valid_fcm_token):
+    user.fcm_token = valid_fcm_token
+    user.save()
+
+
+def delete_user_fcm_token(user):
+    user.fcm_token = None
+    user.save()

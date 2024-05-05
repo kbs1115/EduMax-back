@@ -11,11 +11,17 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 CI/CD applied1
 """
+print("Using base settings")
 
 from dotenv import load_dotenv
 import os
 from pathlib import Path
 from decouple import config
+# settings.py
+from config.firebase_config import initialize_firebase
+
+# firebase 초기화
+initialize_firebase()
 
 from datetime import timedelta
 
@@ -101,8 +107,10 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
+
 # 유튜브 api key
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+
 # celery 세팅
 CELERY_RESULT_BACKEND = "django-db"
 # This configures Redis as the datastore between Django + Celery

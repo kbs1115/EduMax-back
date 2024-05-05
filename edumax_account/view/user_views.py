@@ -53,7 +53,7 @@ class UserAPIView(APIView):
         EmailService().check_authentication(
             email=request.data["email"],
             auth_key=request.data["auth_key"]
-        )   # 이메일 인증
+        )  # 이메일 인증
 
         is_duplicated = SignUpService.check_duplicate_field_value(email=request.data["email"])  # 중복되는 이메일인지 체크
         if is_duplicated:
@@ -69,7 +69,6 @@ class UserAPIView(APIView):
                             "message": "signup successfully",
                         }
                         )
-
 
     def patch(self, request):
         try:
