@@ -64,13 +64,16 @@ INSTALLED_APPS = [
     "allauth.account",
     "allauth.socialaccount",
     "allauth.socialaccount.providers.google",
+    # CORS
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     "allauth.account.middleware.AccountMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware', 
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -159,7 +162,7 @@ REST_AUTH = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),  # 액세스 토큰의 유효 시간을 30분으로 설정
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),  # 액세스 토큰의 유효 시간을 30분으로 설정
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -167,6 +170,9 @@ ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
 ACCOUNT_EMAIL_REQUIRED = True  # email 필드 사용 o
 ACCOUNT_USERNAME_REQUIRED = False  # username 필드 사용 x
 ACCOUNT_AUTHENTICATION_METHOD = "email"
+
+# CORS
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
