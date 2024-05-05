@@ -18,3 +18,4 @@ DATABASES = {
 
 DEBUG = False
 
+print("Using prod settings")
