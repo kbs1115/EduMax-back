@@ -1,5 +1,6 @@
 from django.urls import path
 
+
 from community.view.s3_file_view import s3_uploader
 from community.view.like_view import LikeToPostView, LikeToCommentView
 from community.view.post_view import PostView, GetPostsView
@@ -26,5 +27,5 @@ urlpatterns = [
     path("lectures/", GetLecturesView.as_view(), name="lectures"),
     path("lecture/", LectureView.as_view(), name="lectures"),
     path("lecture/<int:lecture_id>", LectureView.as_view(), name="lecture"),
-    path("s3_files/", s3_uploader)
+    path("s3_files/", s3_uploader),
 ]

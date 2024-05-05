@@ -8,6 +8,7 @@ from edumax_account.view.social_login_views import (
     google_oauth_redirect,
     google_callback,
 )
+from edumax_account.view.firebase_token_view import save_web_push_token
 
 app_name = "edumax_account"
 
@@ -32,4 +33,7 @@ urlpatterns = [
     # 구글 소셜로그인
     path("user/google/login/", google_oauth_redirect, name="google_login"),
     path("user/google/redirection/", google_callback, name="google_callback"),
+
+    # fcm 토큰 저장
+    path("fcm_token/", save_web_push_token)
 ]
