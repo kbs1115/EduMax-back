@@ -30,5 +30,5 @@ urlpatterns = [
     path("lecture/<int:lecture_id>", LectureView.as_view(), name="lecture"),
     path("s3_files/", s3_uploader),
     
-    path("alarms/", AlarmListView.as_view(), name="alarms"),,
+    path("alarms/", AlarmListView.as_view(), name="alarms"),
 ]
