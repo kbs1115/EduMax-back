@@ -144,6 +144,7 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = [
+            "id",
             "content",
             "html_content",
             "created_at",
