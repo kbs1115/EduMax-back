@@ -67,6 +67,7 @@ class PostRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
+            "id",
             "title",
             "html_content",
             "created_at",
@@ -144,6 +145,7 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = [
+            "id",
             "content",
             "html_content",
             "created_at",
