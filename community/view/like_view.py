@@ -72,7 +72,7 @@ class LikeToCommentView(APIView):
         response = LikeService().generate_like(
             model_class="comment",
             pk=comment_id,
-            voter_id=request.user
+            voter_id=request.user.id
         )
         return Response(
             status=response.get("status_code"),
