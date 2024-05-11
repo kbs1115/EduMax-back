@@ -126,6 +126,7 @@ class LectureCategoriesDepth4Param(Enum):
 
 # post list 의 페이지 size
 POST_LIST_PAGE_SIZE = 10
+ALARM_LIST_PAGE_SIZE = 8
 
 """----------------------------------------------------------------------------"""
 

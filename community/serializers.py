@@ -208,7 +208,29 @@ class LectureCreateSerializer(serializers.ModelSerializer):
 
 
 class AlarmRetrieveSerializer(serializers.ModelSerializer):
-    
+    comment_author = serializers.SerializerMethodField()
+    post_id = serializers.SerializerMethodField()
+    post_title = serializers.SerializerMethodField()
+    receive_user = serializers.SlugRelatedField(
+        queryset=User.objects.all(), slug_field='nickname'
+    )
+
     class Meta:
         model = Alarm
-        fields = "__all__"
+        fields = [
+            'id',
+            'receive_user',
+            'comment_author',
+            'post_id',
+            'post_title',
+            'created_at'
+        ]
+        
+    def get_comment_author(self, obj):
+        return obj.comment.author.nickname if obj.comment and obj.comment.author else None
+
+    def get_post_id(self, obj):
+        return obj.comment.post.id if obj.comment and obj.comment.post else None
+
+    def get_post_title(self, obj):
+        return obj.comment.post.title if obj.comment and obj.comment.post else None
