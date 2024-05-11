@@ -28,7 +28,6 @@ class IsOwner(BasePermission):
 
 class GetPostsView(APIView):
     parser_classes = [JSONParser]
-    permission_classes = [IsAuthenticated]
 
     def __init__(self):
         self.post_service = PostsService()
