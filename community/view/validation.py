@@ -91,11 +91,11 @@ class UpdateLectureRequestBody(BaseModel):
     category_d4: LectureCategoriesDepth4Param = Field(default=None)
     youtube_id: str = Field(min_length=1, default=None)
     title: str = Field(max_length=30, default=None)
-    
-    
+
+
 class AlarmQueryParam(BaseModel):
     PAGE: ClassVar[str] = "page"
-    
+
     page: int = Field(default=1, ge=1)
 
 
@@ -157,7 +157,7 @@ def validate_path_params(model: Type[BaseModel]):
     def decorated_func(f):
         @wraps(f)
         def wrapper(
-            *args, **kwargs
+                *args, **kwargs
         ):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
             try:
                 model(**kwargs)
@@ -172,17 +172,17 @@ def validate_path_params(model: Type[BaseModel]):
 
 def validate_body_request(model: Type[BaseModel]):
     """
-    <설명>
     request의 body에 있는 데이터를 검증한다.
     """
 
     def decorated_func(f):
         @wraps(f)
         def wrapper(
-            *args, **kwargs
-        ):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
+                *args, **kwargs
+        ):
             request = args[1]
-            body_data = request.data
+            body_data = request.data.dict()
+
             try:
                 validated_params = model.model_validate(body_data)
             except ValueError as e:

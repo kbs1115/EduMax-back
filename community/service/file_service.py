@@ -12,7 +12,7 @@ from community.serializers import FileSerializer
 
 
 class FileService:
-    
+
     @classmethod
     def s3_upload_file(cls, file, path):
         # 파일 MIME 타입 검사
@@ -24,7 +24,7 @@ class FileService:
         allowed_mime_types = [
             'audio/',  # 오디오 파일
             'image/',  # 이미지 파일
-            'video/'   # 비디오 파일
+            'video/'  # 비디오 파일
         ]
 
         # 파일 타입 확인
@@ -47,7 +47,6 @@ class FileService:
         else:
             raise ValueError("Unsupported file type.")
 
-
     @classmethod
     def s3_delete_file(cls, file_path):
         try:
@@ -63,14 +62,14 @@ class FileService:
         return file_path
 
     @classmethod
-    def make_dict_for_serialize(cls, file_path, related_model_instance):
+    def make_dict_for_serialize(cls, file_path, related_model_instance, file_name):
         # file 시리얼라이저을 위한 딕셔너리 만들기
         if isinstance(related_model_instance, Post):
             post = related_model_instance
-            return {"post": post.id, "file_location": file_path}
+            return {"post": post.id, "file_location": file_path, "name": file_name}
         if isinstance(related_model_instance, Comment):
             comment = related_model_instance
-            return {"comment": comment.id, "file_location": file_path}
+            return {"comment": comment.id, "file_location": file_path, "name": file_name}
 
     @classmethod
     def get_files_id_list(cls, related_model_instance):
@@ -95,9 +94,10 @@ class FileService:
 
         for file in files:
             f_path = self.make_file_path(file)
-            dict_data = self.make_dict_for_serialize(f_path, related_model_instance)
+            dict_data = self.make_dict_for_serialize(f_path, related_model_instance, file.name)
             serializer = FileSerializer(data=dict_data)
             if not serializer.is_valid():
+                print(serializer.errors)
                 raise exceptions.ValidationError(serializer.errors)
 
             with transaction.atomic():
