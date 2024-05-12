@@ -57,7 +57,7 @@ class PostsService:
                          "total_page_count": posts.count() // POST_LIST_PAGE_SIZE + 1,
                          "list_size": list_size,  # 게시글 개수
                          "post_list": post_serializer.data,
-                }}
+                         }}
 
 
 class PostService:
@@ -65,7 +65,7 @@ class PostService:
 
     def update_hit(self, request, post, response):
         cookie_key = f'viewed_article_{post.id}'
-        
+
         last_viewed = request.COOKIES.get(cookie_key)
         should_update = False
 
@@ -75,16 +75,16 @@ class PostService:
             last_viewed_time = timezone.datetime.strptime(last_viewed, "%Y-%m-%d %H:%M:%S.%f")
             last_viewed_time = timezone.make_aware(last_viewed_time, timezone.get_default_timezone())
             if timezone.now() - last_viewed_time > timedelta(minutes=1):
-                should_update = True 
-                
+                should_update = True
+
         if should_update:
             post.views += 1
             post.save()
             response.data["data"]["views"] += 1
             response.set_cookie(cookie_key, timezone.now().strftime("%Y-%m-%d %H:%M:%S.%f"), max_age=60)
-            
+
         return response
-        
+
     def retrieve_post(self, post_id):
         """
             <설명>
@@ -93,13 +93,13 @@ class PostService:
         """
 
         post = get_post_instance(post_id)
-        
+
         serializer = PostRetrieveSerializer(post)
         # view 함수로 넘겨주기
         return post, {"status": status.HTTP_200_OK,
-                "message": "post retrieve successfully",
-                "data": serializer.data,
-                }
+                      "message": "post retrieve successfully",
+                      "data": serializer.data,
+                      }
 
     def create_post(
             self,
