@@ -6,7 +6,7 @@ from allauth.socialaccount.models import SocialAccount
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["login_id", "email", "nickname", "password"]
+        fields = ["login_id", "email", "nickname", "password", "is_staff"]
         extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
