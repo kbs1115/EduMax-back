@@ -182,7 +182,7 @@ def validate_body_request(model: Type[BaseModel]):
             *args, **kwargs
         ):  # url 캡처후 view로 보내주는 path_params 은 kwargs로 넘겨준다.
             request = args[1]
-            body_data = request.data.dict()
+            body_data = request.data
             try:
                 validated_params = model.model_validate(body_data)
             except ValueError as e:
