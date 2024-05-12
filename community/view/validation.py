@@ -91,6 +91,12 @@ class UpdateLectureRequestBody(BaseModel):
     category_d4: LectureCategoriesDepth4Param = Field(default=None)
     youtube_id: str = Field(min_length=1, default=None)
     title: str = Field(max_length=30, default=None)
+    
+    
+class AlarmQueryParam(BaseModel):
+    PAGE: ClassVar[str] = "page"
+    
+    page: int = Field(default=1, ge=1)
 
 
 """----------------------------------------------------------------------------"""
