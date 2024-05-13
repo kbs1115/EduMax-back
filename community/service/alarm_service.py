@@ -9,11 +9,11 @@ from rest_framework import status
 class AlarmListService:
     def get_alarms(self, user_id, page) -> dict[str, any]:
         alarms = get_alarm_from_user(user_id)
-        
+
         pagination = Paginator(alarms, ALARM_LIST_PAGE_SIZE)
         page_obj = pagination.page(page).object_list
         list_size = len(page_obj)
-        
+
         serializer = AlarmRetrieveSerializer(page_obj, many=True)
         return {
             "status": status.HTTP_200_OK,
@@ -26,5 +26,6 @@ class AlarmListService:
                 "alarm_list": serializer.data,
             }
         }
-            
+
+
 alarm_list_service = AlarmListService()
