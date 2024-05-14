@@ -15,7 +15,8 @@ def get_posts_from_db(
     # category와 무관하게 select 가능 추가
     if category == PostCategoriesParam.ALL:
         posts = Post.objects.all()
-
+    elif category == PostCategoriesParam.DATA:
+        posts = Post.objects.filter(Q(category="KD") | Q(category="ED") | Q(category="MD") | Q(category="TD"))
     else:  # category에 따른 select
         posts = Post.objects.filter(category=category).all()
 
