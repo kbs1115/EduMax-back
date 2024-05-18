@@ -63,10 +63,10 @@ class PostView(APIView):
         post, res = self.post_service.retrieve_post(post_id)
 
         response = Response(status=res.get("status_code"),
-            data={
-                "message": res.get("message", None),
-                "data": res.get("data", None)},
-        )
+                            data={
+                                "message": res.get("message", None),
+                                "data": res.get("data", None)},
+                            )
         res = self.post_service.update_hit(request, post, response)
         return res
 
@@ -121,4 +121,3 @@ class PostView(APIView):
                                 "message": response.get("message", None),
                                 "data": response.get("data", None)},
                             )
-

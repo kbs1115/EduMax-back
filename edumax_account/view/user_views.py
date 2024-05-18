@@ -214,7 +214,7 @@ class AuthAPIView(APIView):
         res.set_cookie("refreshToken", login_data["refreshToken"], httponly=True)
         return res
 
-    def delete(self, request):
+    def delete(self, request):  
         res = Response({"message": "logout success"}, status=status.HTTP_202_ACCEPTED)
         res.delete_cookie("refreshToken")
         return res
