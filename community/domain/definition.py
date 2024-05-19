@@ -65,10 +65,10 @@ class LectureSearchFilterParam(Enum):
 
 
 class LectureCategoriesDepth1Param(Enum):
-    KOREAN = "KO"
-    ENGLISH = "EN"
-    MATH = "MA"
-    TAMGU = "TM"
+    KOREAN = "KO"  # 국어
+    ENGLISH = "EN"  # 영어
+    MATH = "MA"  # 수학
+    TAMGU = "TM"  # 탐구
 
     def __str__(self):
         return self.value
@@ -76,16 +76,16 @@ class LectureCategoriesDepth1Param(Enum):
 
 class LectureCategoriesDepth2Param(Enum):
     # children of ENGLISH
-    SCHOOL_TEST = "SC"
-    SAT = "SA"
-    GRAMMAR = "GR"
+    SCHOOL_TEST = "SC"  #내신
+    SAT = "SA"  #수능
+    GRAMMAR = "GR"  #문법
 
     # children of MATH
-    CALCULUS = "CC"
-    PROBABILITY_AND_STATIC = "PS"
-    MATH_1 = "M1"
-    MATH_2 = "M2"
-    MATH_HIGH = "MH"
+    CALCULUS = "CC" #미적분
+    PROBABILITY_AND_STATIC = "PS"   #확률과 통계
+    MATH_1 = "M1"   #수1
+    MATH_2 = "M2"   #수2
+    MATH_HIGH = "MH"    #고등수학
 
     def __str__(self):
         return self.value
@@ -348,14 +348,14 @@ PLAYLIST_ID_KEY_CATEGORY_VALUE = {
     "PLVNEoWri1a_CY4V8w5-v9sBNlqLrqlhaV": CATEGORY_DEPTH_LIST[8],
     "PLVNEoWri1a_Aonp4LemUe7vR14CYqDrKL": CATEGORY_DEPTH_LIST[8],
 
-    # 수학유튜브 PLAYLIST, CATOEGORY 매핑
-    "PLC7mOOjykyW_9jMWqwHh_jcmud8hW91om": CATEGORY_DEPTH_LIST[13],
-    # M2
-    "PLC7mOOjykyW-B6sB_DFOvR0OdiVQdDrSa": CATEGORY_DEPTH_LIST[12],
-    # M1
-    "PLC7mOOjykyW9o0at7hQNKTUyStVYuLIuC": CATEGORY_DEPTH_LIST[11],
-    # PS
-    "PLC7mOOjykyW-ZkxpTTcw1AowXl6yIvIzB": CATEGORY_DEPTH_LIST[10],
-    # CC
-    "PLC7mOOjykyW_l8uOAOdL_vTPFSEVHpiey": CATEGORY_DEPTH_LIST[9]
+    # # 수학유튜브 PLAYLIST, CATOEGORY 매핑
+    # "PLC7mOOjykyW_9jMWqwHh_jcmud8hW91om": CATEGORY_DEPTH_LIST[13],
+    # # M2
+    # "PLC7mOOjykyW-B6sB_DFOvR0OdiVQdDrSa": CATEGORY_DEPTH_LIST[12],
+    # # M1
+    # "PLC7mOOjykyW9o0at7hQNKTUyStVYuLIuC": CATEGORY_DEPTH_LIST[11],
+    # # PS
+    # "PLC7mOOjykyW-ZkxpTTcw1AowXl6yIvIzB": CATEGORY_DEPTH_LIST[10],
+    # # CC
+    # "PLC7mOOjykyW_l8uOAOdL_vTPFSEVHpiey": CATEGORY_DEPTH_LIST[9]
 }

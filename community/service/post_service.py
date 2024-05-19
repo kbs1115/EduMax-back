@@ -54,7 +54,7 @@ class PostsService:
                 "message": "post list successfully",
                 "data": {"page": page,  # 현재 페이지
                          "page_size": POST_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
-                         "total_page_count": posts.count() // POST_LIST_PAGE_SIZE + 1,
+                         "total_page_count": (posts.count() + POST_LIST_PAGE_SIZE - 1) // POST_LIST_PAGE_SIZE,
                          "list_size": list_size,  # 게시글 개수
                          "post_list": post_serializer.data,
                          }}

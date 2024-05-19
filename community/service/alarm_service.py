@@ -21,7 +21,7 @@ class AlarmListService:
             "data": {
                 "page": page,  # 현재 페이지
                 "page_size": ALARM_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
-                "total_page_count": alarms.count() // ALARM_LIST_PAGE_SIZE + 1,
+                "total_page_count": (alarms.count() + ALARM_LIST_PAGE_SIZE - 1) // ALARM_LIST_PAGE_SIZE,
                 "list_size": list_size,  # 게시글 개수
                 "alarm_list": serializer.data,
             }
