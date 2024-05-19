@@ -101,8 +101,10 @@ class AlarmQueryParam(BaseModel):
 
 class MyCommentQueryParam(BaseModel):
     PAGE: ClassVar[str] = "page"
+    Q: ClassVar[str] = "q"
 
     page: int = Field(default=1, ge=1)
+    q: str = Field(default=None)
 
 
 """----------------------------------------------------------------------------"""

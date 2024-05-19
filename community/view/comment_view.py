@@ -164,7 +164,7 @@ class GetMyCommentsView(APIView):
     
     @validate_query_params(MyCommentQueryParam)
     def get(self, request, validated_query_params):
-        response = self.comment_service.get_my_comments(request.user.nickname, validated_query_params.page)
+        response = self.comment_service.get_my_comments(request.user.nickname, validated_query_params.page, validated_query_params.q)
         
         return Response(
             status=response.get("status_code"),

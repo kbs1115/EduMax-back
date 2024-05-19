@@ -59,6 +59,18 @@ class PostsService:
                          "list_size": list_size,  # 게시글 개수
                          "post_list": post_serializer.data,
                          }}
+        
+    def get_like_posts(
+            self,
+            category,
+            search_filter,
+            kw,
+            sort,
+            page,
+            my_name
+    ):
+        # 일단 검색 조건을 통해 post를 가져옴.
+        posts = get_posts_from_db(category, search_filter, kw, sort, None)
 
 
 class PostService:

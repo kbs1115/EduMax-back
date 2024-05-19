@@ -3,6 +3,7 @@ import rest_framework.status as status
 from django.db import transaction
 from django.core.paginator import Paginator, EmptyPage
 from rest_framework import status, exceptions
+from django.db.models import Q, Count
 
 from community.serializers import CommentCreateSerializer, CommentRetrieveSerializer
 from community.service.file_service import FileService
@@ -170,8 +171,12 @@ class CommentService:
                 "status_code": status.HTTP_204_NO_CONTENT,
             }
             
-    def get_my_comments(self, user_nickname, page):
+    def get_my_comments(self, user_nickname, page, q):
         comments = Comment.objects.filter(author__nickname=user_nickname)
+        
+        # kw에 따른 select
+        if q:
+            comments = comments.filter(Q(content__icontains=q)).distinct()
         
         # paging 처리
         try:
