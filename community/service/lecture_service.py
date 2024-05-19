@@ -40,6 +40,7 @@ class LecturesService:
             "data": {
                 "page": page,  # 현재 페이지
                 "page_size": POST_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
+                "total_page_count": (search_lectures.count() + POST_LIST_PAGE_SIZE - 1) // POST_LIST_PAGE_SIZE,
                 "list_size": list_size,  # 게시글 개수
                 "post_list": lecture_serializer.data,
             },
@@ -82,7 +83,7 @@ class LectureService:
             "youtube_id": youtube_id,
             "author": author.id,
         }
-
+        print(lecture_data)
         serializer = LectureCreateSerializer(data=lecture_data)
         if not serializer.is_valid():
             raise ValidationError(serializer.errors)
