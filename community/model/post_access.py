@@ -2,7 +2,7 @@ from django.db.models import Q, Count
 from rest_framework import exceptions
 
 from community.domain.definition import PostSearchFilterParam, PostSortCategoryParam, PostCategoriesParam
-from community.model.models import Post
+from community.model.models import Post, Comment
 
 
 def get_posts_from_db(
@@ -10,6 +10,7 @@ def get_posts_from_db(
         search_filter,
         kw,
         sort,
+        my_name
 
 ):
     # category와 무관하게 select 가능 추가
@@ -36,6 +37,9 @@ def get_posts_from_db(
         posts = posts.order_by("-" + str(PostSortCategoryParam.CREATED_AT))
     elif posts and sort == PostSortCategoryParam.MOST_LIKE:
         posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
+        
+    if my_name:
+        posts = posts.filter(author__nickname=my_name)
 
     return posts
 

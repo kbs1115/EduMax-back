@@ -23,7 +23,8 @@ class PostsService:
             search_filter,
             kw,
             sort,
-            page
+            page,
+            my_name
     ):
         """
             <설명>
@@ -38,7 +39,7 @@ class PostsService:
 
         """
         # 조건에 맞는 posts select
-        posts = get_posts_from_db(category, search_filter, kw, sort)
+        posts = get_posts_from_db(category, search_filter, kw, sort, my_name)
 
         # paging 처리
         try:

@@ -8,10 +8,12 @@ from .post_view import IsOwner, ReadOnly
 from community.view.validation import (
     validate_body_request,
     validate_path_params,
+    validate_query_params,
     CreateCommentRequestBody,
     UpdateCommentRequestBody,
     PostPathParam,
     CommentPathParam,
+    MyCommentQueryParam
 )
 from community.service.comment_service import CommentService
 
@@ -149,5 +151,25 @@ class CommentView(APIView):
             status=response.get("status_code"),
             data={
                 "message": response.get("message", None),
+            },
+        )
+        
+        
+class GetMyCommentsView(APIView):
+    parser_classes = [JSONParser]
+    permission_classes = [IsAuthenticated]
+    
+    def __init__(self):
+        self.comment_service = CommentService()
+    
+    @validate_query_params(MyCommentQueryParam)
+    def get(self, request, validated_query_params):
+        response = self.comment_service.get_my_comments(request.user.nickname, validated_query_params.page)
+        
+        return Response(
+            status=response.get("status_code"),
+            data={
+                "message": response.get("message", None),
+                "data": response.get("data", None)
             },
         )
