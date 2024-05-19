@@ -2,10 +2,8 @@ from django.core.management import BaseCommand
 from django.db import transaction
 from googleapiclient.discovery import build
 from django.conf import settings
-from rest_framework.exceptions import ValidationError
 
 from community.domain.definition import PLAYLIST_ID_KEY_CATEGORY_VALUE
-from community.serializers import LectureCreateSerializer
 from community.service.lecture_service import LectureService
 from edumax_account.model.user_access import get_user_with_pk
 
