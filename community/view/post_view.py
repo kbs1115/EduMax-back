@@ -40,6 +40,7 @@ class GetPostsView(APIView):
             "search_filter": validated_query_params.search_filter,
             "kw": validated_query_params.q,
             "sort": validated_query_params.sort,
+            "my_name": None
         }
         response = self.post_service.get_posts(**params)
 
@@ -48,6 +49,57 @@ class GetPostsView(APIView):
                             "message": response.get("message", None),
                             "data": response.get("data", None)},
                         )
+        
+
+class GetMyPostsView(APIView):
+    parser_classes = [JSONParser]
+    permission_classes = [IsAuthenticated]
+
+    def __init__(self):
+        self.post_service = PostsService()
+
+    @validate_query_params(PostQueryParam)
+    def get(self, request, validated_query_params):
+        params = {
+            "page": validated_query_params.page,
+            "category": validated_query_params.category,
+            "search_filter": validated_query_params.search_filter,
+            "kw": validated_query_params.q,
+            "sort": validated_query_params.sort,
+            "my_name": request.user.nickname
+        }
+        response = self.post_service.get_posts(**params)
+
+        return Response(status=response.get("status_code"),
+                        data={
+                            "message": response.get("message", None),
+                            "data": response.get("data", None)},
+                        )
+        
+        
+class GetLikePostsView(APIView):
+    parser_classes = [JSONParser]
+    permission_classes = [IsAuthenticated]
+
+    def __init__(self):
+        self.post_service = PostsService()
+
+    @validate_query_params(PostQueryParam)
+    def get(self, request, validated_query_params):
+        params = {
+            "page": validated_query_params.page,
+            "category": validated_query_params.category,
+            "search_filter": validated_query_params.search_filter,
+            "kw": validated_query_params.q,
+            "sort": validated_query_params.sort,
+            "my_id": request.user.id
+        }
+        response = self.post_service.get_like_posts(**params)
+
+        return Response(status=response.get("status_code"),
+                        data={
+                            "message": response.get("message", None),
+                            "data": response.get("data", None)})
 
 
 class PostView(APIView):
