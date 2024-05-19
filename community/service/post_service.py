@@ -6,6 +6,7 @@ from django.db import transaction
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
 
 from community.model.post_access import get_posts_from_db, get_post_instance
+from community.model.models import Like
 from community.serializers import PostRetrieveSerializer, PostListSerializer, PostCreateSerializer
 from community.domain.definition import POST_LIST_PAGE_SIZE, PostFilesState
 from rest_framework import status, exceptions
@@ -67,10 +68,32 @@ class PostsService:
             kw,
             sort,
             page,
-            my_name
+            my_id
     ):
         # 일단 검색 조건을 통해 post를 가져옴.
         posts = get_posts_from_db(category, search_filter, kw, sort, None)
+        
+        # 특정 사용자가 좋아요를 누른 Post ID들을 가져옴
+        liked_post_ids = Like.objects.filter(user_id=my_id).values_list('post_id', flat=True)
+
+        # 검색 조건에 맞는 게시물 중 사용자가 좋아요를 누른 게시물만 필터링
+        liked_posts = posts.filter(id__in=liked_post_ids)
+        
+        pagination = Paginator(liked_posts, POST_LIST_PAGE_SIZE)
+        page_obj = pagination.page(page).object_list
+        list_size = len(page_obj)
+        
+        post_serializer = PostListSerializer(page_obj, many=True)
+        return {"status": status.HTTP_200_OK,
+                "message": "post list successfully",
+                "data": {"page": page,  # 현재 페이지
+                         "page_size": POST_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
+                         "total_page_count": liked_posts.count() // POST_LIST_PAGE_SIZE + 1,
+                         "list_size": list_size,  # 게시글 개수
+                         "post_list": post_serializer.data,
+                         }}
+        
+        
 
 
 class PostService:

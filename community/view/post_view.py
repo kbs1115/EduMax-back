@@ -92,9 +92,9 @@ class GetLikePostsView(APIView):
             "search_filter": validated_query_params.search_filter,
             "kw": validated_query_params.q,
             "sort": validated_query_params.sort,
-            "my_name": request.user.nickname
+            "my_id": request.user.id
         }
-        response = self.post_service.get_posts(**params)
+        response = self.post_service.get_like_posts(**params)
 
         return Response(status=response.get("status_code"),
                         data={
