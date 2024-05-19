@@ -3,7 +3,7 @@ from django.urls import path
 
 from community.view.s3_file_view import s3_uploader
 from community.view.like_view import LikeToPostView, LikeToCommentView
-from community.view.post_view import PostView, GetPostsView, GetMyPostsView
+from community.view.post_view import PostView, GetPostsView, GetMyPostsView, GetLikePostsView
 from community.view.comment_view import MakeCommentToPostView, CommentView, RetrieveCommentView, RetrieveChildCommentView, GetMyCommentsView
 from community.view.lecture_view import LectureView, GetLecturesView
 from community.view.alarm_view import AlarmListView
@@ -16,6 +16,7 @@ urlpatterns = [
     path("post/<int:post_id>/like", LikeToPostView.as_view(), name="post_like"),
     path("posts/", GetPostsView.as_view(), name="posts"),
     path("posts/me/", GetMyPostsView.as_view(), name="my_posts"),
+    path("posts/like/", GetLikePostsView.as_view(), name="my_like_posts"),
     path(
         "post/<int:post_id>/comment/",
         MakeCommentToPostView.as_view(),
