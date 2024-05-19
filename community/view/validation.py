@@ -97,6 +97,12 @@ class AlarmQueryParam(BaseModel):
     PAGE: ClassVar[str] = "page"
 
     page: int = Field(default=1, ge=1)
+    
+
+class MyCommentQueryParam(BaseModel):
+    PAGE: ClassVar[str] = "page"
+
+    page: int = Field(default=1, ge=1)
 
 
 """----------------------------------------------------------------------------"""
@@ -110,6 +116,10 @@ class CreateCommentRequestBody(BaseModel):
 
 class CommentPathParam(BaseModel):
     comment_id: int = Field(ge=0)
+    
+
+class MyCommentPathParam(BaseModel):
+    page: int = Field(ge=0)
 
 
 class UpdateCommentRequestBody(BaseModel):

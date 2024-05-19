@@ -1,6 +1,8 @@
 from rest_framework.exceptions import ValidationError, NotFound
 import rest_framework.status as status
 from django.db import transaction
+from django.core.paginator import Paginator, EmptyPage
+from rest_framework import status, exceptions
 
 from community.serializers import CommentCreateSerializer, CommentRetrieveSerializer
 from community.service.file_service import FileService
@@ -13,7 +15,7 @@ from community.model.access import (
     get_child_comments
 )
 from community.model.models import Comment
-from community.domain.definition import PostFilesState
+from community.domain.definition import PostFilesState, POST_LIST_PAGE_SIZE
 
 
 class CommentService:
@@ -167,3 +169,27 @@ class CommentService:
                 "message": "Comment deleted successfully",
                 "status_code": status.HTTP_204_NO_CONTENT,
             }
+            
+    def get_my_comments(self, user_nickname, page):
+        comments = Comment.objects.filter(author__nickname=user_nickname)
+        
+        # paging 처리
+        try:
+            pagination = Paginator(comments, POST_LIST_PAGE_SIZE)
+            page_obj = pagination.page(page).object_list
+            list_size = len(page_obj)
+        except EmptyPage:
+            raise exceptions.NotFound
+
+        # 직렬화
+        comment_serializer = CommentRetrieveSerializer(page_obj, many=True)
+        return {"status": status.HTTP_200_OK,
+                "message": "comment list successfully",
+                "data": {
+                    "page": page,  # 현재 페이지
+                    "page_size": POST_LIST_PAGE_SIZE,  # 한페이지당 게시글 개수
+                    "total_page_count": comments.count() // POST_LIST_PAGE_SIZE + 1,
+                    "list_size": list_size,  # 게시글 개수
+                    "comment_list": comment_serializer.data,
+            }
+        }
