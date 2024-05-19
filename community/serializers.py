@@ -135,12 +135,15 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         queryset=User.objects.all(), slug_field="nickname"
     )
+    post_id = serializers.PrimaryKeyRelatedField(read_only=True)
 
     # 해당 post_id 와 관련된 files
     files = FileSerializer(many=True, read_only=True)
 
     # 해당 post_id 와 관련된 likes
     likes = LikeRetrieveSerializer(many=True, read_only=True)
+    
+    likes_count = serializers.SerializerMethodField(method_name="get_likes_count")
 
     class Meta:
         model = Comment
@@ -152,8 +155,14 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
             "modified_at",
             "author",
             "files",
-            "likes"
+            "likes",
+            "likes_count",
+            "post_id"
         ]
+        
+    def get_likes_count(self, obj):
+        # obj는 Post 모델의 인스턴스
+        return obj.likes.count()
 
 
 class LectureListSerializer(serializers.ModelSerializer):
