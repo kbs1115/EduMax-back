@@ -169,6 +169,7 @@ class LectureListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lecture
         fields = [
+            "id",
             "title",
             "youtube_id",
             "created_at",
