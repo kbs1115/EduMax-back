@@ -37,7 +37,6 @@ class CreatePostRequestBody(BaseModel):
     content: str = Field(min_length=1)
     title: str = Field(max_length=30)
     html_content: str = Field(min_length=1)
-    # files 도 valid 하면 좋을듯
 
 
 class UpdatePostRequestBody(BaseModel):
@@ -97,7 +96,7 @@ class AlarmQueryParam(BaseModel):
     PAGE: ClassVar[str] = "page"
 
     page: int = Field(default=1, ge=1)
-    
+
 
 class MyCommentQueryParam(BaseModel):
     PAGE: ClassVar[str] = "page"
@@ -118,7 +117,7 @@ class CreateCommentRequestBody(BaseModel):
 
 class CommentPathParam(BaseModel):
     comment_id: int = Field(ge=0)
-    
+
 
 class MyCommentPathParam(BaseModel):
     page: int = Field(ge=0)
