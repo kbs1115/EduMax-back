@@ -57,11 +57,7 @@ class UserAPIView(APIView):
 
         is_duplicated = SignUpService.check_duplicate_field_value(email=request.data["email"])  # 중복되는 이메일인지 체크
         if is_duplicated:
-            return Response(status=status.HTTP_400_BAD_REQUEST,
-                            data={
-                                "message": "email already exist"
-                            }
-                            )
+            raise exceptions.ValidationError("email already exist")
         SignUpService().create_user(request.data)
 
         return Response(status=status.HTTP_200_OK,
@@ -227,9 +223,9 @@ class DuplicateCheckerAPIView(APIView):
 
     @validate_body_request(UserUniqueFieldModel)
     def post(self, request, validated_request_body):
-        field = {'login_id': validated_request_body.nickname,
-                 'email': validated_request_body.login_id,
-                 'nickname': validated_request_body.email}
+        field = {'login_id': validated_request_body.login_id,
+                 'email': validated_request_body.email,
+                 'nickname': validated_request_body.nickname}
         response = SignUpService.check_duplicate_field_value(**field)
         if response is True:
             return Response(status=status.HTTP_200_OK, data={"message": "duplicate"})
