@@ -82,17 +82,17 @@ class SignUpService:
 
 class UserService:
     @classmethod
-    def get_my_user_fields(cls, user, login_id=None, nickname=None, email=None, is_staff=None):
+    def get_my_user_fields(cls, user, login_id=False, nickname=False, email=False, is_staff=False):
         require_fields = []
         if user is None:
             raise exceptions.NotAuthenticated("user_id is essential param")
-        if login_id is not None:
+        if login_id is not False:
             require_fields.append('login_id')
-        if nickname is not None:
+        if nickname is not False:
             require_fields.append('nickname')
-        if email is not None:
+        if email is not False:
             require_fields.append('email')
-        if is_staff is not None:
+        if is_staff is not False:
             require_fields.append('is_staff')
 
         serializer = UserSerializer(user, fields=require_fields)
