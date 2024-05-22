@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 
-from edumax_account.model.user_access import get_user_with_pk
+from edumax_account.model.user_access import get_user_with_pk, check_pw_change_is_owner
 from edumax_account.service.user_service import *
 from rest_framework import status, viewsets, permissions, exceptions
 from rest_framework.permissions import IsAuthenticated
@@ -187,7 +187,7 @@ class RedirectPwChangeApiView(APIView):
         return Response(status=status.HTTP_200_OK,
                         data={
                             "message": "email authenticate successfully",
-                            "data": {"redirect_url": f"user/pw-change/?verify={random_query_param}"}
+                            "data": {"redirect_url": f"auth/user/pw-change/?verify={random_query_param}"}
                         }
                         )
 
@@ -200,6 +200,8 @@ class PasswordChangeApiView(APIView):
     @validate_body_request(PasswordModel)
     @validate_query_params(PasswordPageQueryParamModel)
     def post(self, request, validated_query_params, validated_request_body):
+        check_pw_change_is_owner(verify=validated_query_params.verify, email=validated_request_body.email)
+
         new_pw = {'pw': validated_request_body.new_pw, "email": validated_request_body.email}
         UserService().change_password(**new_pw)
         return Response(status=status.HTTP_200_OK,
