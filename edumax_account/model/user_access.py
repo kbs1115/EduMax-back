@@ -61,9 +61,22 @@ def delete_user_db(user):
 
 def check_pw_change_page_query_param(verify):
     try:
-        PwChangeTemporaryQueryParam.objects.get(query_param=verify)
+        pw_change = PwChangeTemporaryQueryParam.objects.filter(query_param=verify).order_by(
+            '-created_at').first()
+        if not pw_change:
+            raise PwChangeTemporaryQueryParam.DoesNotExist
     except PwChangeTemporaryQueryParam.DoesNotExist:
-        raise exceptions.ValidationError("wrong query param")
+        raise exceptions.ValidationError("key is not valid")
+
+
+def check_pw_change_is_owner(verify, email):
+    try:
+        pw_change = PwChangeTemporaryQueryParam.objects.filter(query_param=verify, email=email).order_by(
+            '-created_at').first()
+        if not pw_change:
+            raise PwChangeTemporaryQueryParam.DoesNotExist
+    except PwChangeTemporaryQueryParam.DoesNotExist:
+        raise exceptions.ValidationError("not owner or expired")
 
 
 # fcm_token

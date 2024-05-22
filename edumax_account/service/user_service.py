@@ -163,10 +163,10 @@ class UserService:
                     email, random_query_params
                 )
 
-                eta = datetime.now(timezone.utc) + timedelta(minutes=1)
+                eta = datetime.now(timezone.utc) + timedelta(minutes=5)
                 delete_query_param_instance.apply_async(
                     (inst.id,), eta=eta
-                )  # 1분후에 worker에게 삭제 명령
+                )  # 5분후에 worker에게 삭제 명령
             return random_query_params
 
     def change_password(self, pw, email):
