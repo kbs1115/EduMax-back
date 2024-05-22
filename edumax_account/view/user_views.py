@@ -41,11 +41,10 @@ class UserDetailApiView(APIView):
             "is_staff": validated_query_params.is_staff
         }
         my_user_fields = UserService.get_my_user_fields(**valid_query_params)
-        res = Response(my_user_fields, status=status.HTTP_200_OK)
         return Response(status=status.HTTP_200_OK,
                         data={
                             "message": "email authenticate successfully",
-                            "data": res
+                            "data": my_user_fields
                         }
                         )
 
