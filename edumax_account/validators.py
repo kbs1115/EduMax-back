@@ -46,6 +46,13 @@ class LoginParamModel(BaseModel):
     password: str
 
 
+class CanAccessUserFieldModel(BaseModel):
+    login_id: Optional[str] = None
+    nickname: Optional[str] = None
+    email: Optional[str] = None
+    is_staff: Optional[str] = None
+
+
 class PatchUserModel(BaseModel):
     email: Optional[str] = None
     nickname: Optional[str] = None

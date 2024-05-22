@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from community.view.validation import validate_body_request, validate_query_params
 from edumax_account.validators import SignupParamModel, LoginParamModel, PatchUserModel, UserUniqueFieldModel, \
-    EmailCheckFieldModel, PasswordPageQueryParamModel, PasswordModel
+    EmailCheckFieldModel, PasswordPageQueryParamModel, PasswordModel, CanAccessUserFieldModel
 from pydantic import ValidationError
 
 
@@ -25,6 +25,29 @@ class UserPermission(permissions.BasePermission):
                 return True
             raise exceptions.PermissionDenied()
         raise exceptions.NotAuthenticated()
+
+
+class UserDetailApiView(APIView):
+    permission_classes = [UserPermission]
+
+    @validate_query_params(CanAccessUserFieldModel)
+    def get(self, request, validated_query_params):
+        user = UserAPIView().get_authenticated_user(request)
+        valid_query_params = {
+            "user": user,
+            "login_id": validated_query_params.login_id,
+            "email": validated_query_params.email,
+            "nickname": validated_query_params.nickname,
+            "is_staff": validated_query_params.is_staff
+        }
+        my_user_fields = UserService.get_my_user_fields(**valid_query_params)
+        res = Response(my_user_fields, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_200_OK,
+                        data={
+                            "message": "email authenticate successfully",
+                            "data": res
+                        }
+                        )
 
 
 class UserAPIView(APIView):
@@ -210,7 +233,7 @@ class AuthAPIView(APIView):
         res.set_cookie("refreshToken", login_data["refreshToken"], httponly=True)
         return res
 
-    def delete(self, request):  
+    def delete(self, request):
         res = Response({"message": "logout success"}, status=status.HTTP_202_ACCEPTED)
         res.delete_cookie("refreshToken")
         return res
