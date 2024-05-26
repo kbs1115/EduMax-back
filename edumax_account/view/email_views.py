@@ -1,9 +1,10 @@
 from django.http import JsonResponse
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 
 from edumax_account.service.email_service import EmailService
-from edumax_account.validators import EmailFieldModel
-from community.view.validation import validate_body_request
+from edumax_account.validators import EmailFieldModel, EmailCheckFieldModel
+from community.view.validation import validate_body_request, validate_query_params
 
 
 class EmailSenderApiView(APIView):
@@ -23,3 +24,5 @@ class EmailSenderApiView(APIView):
                 "data": response.get("data", None),
             },
         )
+
+

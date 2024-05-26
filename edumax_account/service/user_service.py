@@ -81,6 +81,23 @@ class SignUpService:
 
 
 class UserService:
+    @classmethod
+    def get_my_user_fields(cls, user, login_id=False, nickname=False, email=False, is_staff=False):
+        require_fields = []
+        if user is None:
+            raise exceptions.NotAuthenticated("user_id is essential param")
+        if login_id is not False:
+            require_fields.append('login_id')
+        if nickname is not False:
+            require_fields.append('nickname')
+        if email is not False:
+            require_fields.append('email')
+        if is_staff is not False:
+            require_fields.append('is_staff')
+
+        serializer = UserSerializer(user, fields=require_fields)
+
+        return serializer.data
 
     @classmethod
     def get_me(cls, request):
@@ -146,10 +163,10 @@ class UserService:
                     email, random_query_params
                 )
 
-                eta = datetime.now(timezone.utc) + timedelta(minutes=1)
+                eta = datetime.now(timezone.utc) + timedelta(minutes=5)
                 delete_query_param_instance.apply_async(
                     (inst.id,), eta=eta
-                )  # 1분후에 worker에게 삭제 명령
+                )  # 5분후에 worker에게 삭제 명령
             return random_query_params
 
     def change_password(self, pw, email):
