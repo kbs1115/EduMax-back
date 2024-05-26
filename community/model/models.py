@@ -56,7 +56,7 @@ class Comment(models.Model):
     content = models.TextField()
     html_content = models.TextField()
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="comments")
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name="comments")
     parent_comment = models.ForeignKey(
         "self",
         on_delete=models.CASCADE,

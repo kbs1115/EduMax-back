@@ -100,6 +100,7 @@ class PostListSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(), slug_field="nickname"
     )
     likes_count = serializers.SerializerMethodField(method_name="get_likes_count")
+    comments_count = serializers.SerializerMethodField(method_name="get_comments_count")
 
     class Meta:
         model = Post
@@ -113,12 +114,17 @@ class PostListSerializer(serializers.ModelSerializer):
             "content",
             "author",
             "likes_count",
+            "comments_count",
             "views"
         ]
 
     def get_likes_count(self, obj):
         # obj는 Post 모델의 인스턴스
         return obj.likes.count()
+    
+    def get_comments_count(self, obj):
+        # obj는 Post 모델의 인스턴스
+        return obj.comments.count()
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
