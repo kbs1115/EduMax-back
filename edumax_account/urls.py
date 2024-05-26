@@ -15,6 +15,7 @@ app_name = "edumax_account"
 urlpatterns = [
     path("email-send/", EmailSenderApiView.as_view()),  # 이메일 보내기
     path("user/", UserAPIView.as_view(), name="user"),
+    path("user/info", UserDetailApiView.as_view()),
     path(
         "user/<int:pk>/", CertainUserAPIView.as_view(), name="certainUser"
     ),  # user auth

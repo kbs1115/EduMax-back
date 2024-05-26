@@ -17,7 +17,6 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
-
 # We used CELERY_BROKER_URL in base.py instead of:
 # app.conf.broker_url = ''
 
