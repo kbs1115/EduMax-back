@@ -170,8 +170,8 @@ REST_AUTH = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=10),  # 액세스 토큰의 유효 시간을 30분으로 설정
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),  # 액세스 토큰의 유효 시간을 30분으로 설정
+    'REFRESH_TOKEN_LIFETIME': timedelta(minutes=5),
 }
 
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
