@@ -28,9 +28,10 @@ GOOGLE_CALLBACK_URI = BASE_URL + "auth/user/google/redirection/"
 def google_oauth_redirect(request):
     scope = "https://www.googleapis.com/auth/userinfo.email"
     client_id = os.getenv("SOCIAL_AUTH_GOOGLE_CLIENT_ID")
-    return redirect(
+    redirect_url = (
         f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}"
     )
+    return Response({'redirect_url': redirect_url})
 
 
 @api_view(["GET"])
