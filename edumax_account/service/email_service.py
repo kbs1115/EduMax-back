@@ -4,6 +4,7 @@ from smtplib import SMTPException
 
 from django.core.mail import EmailMessage
 from django.db import transaction
+from django.template.loader import render_to_string
 from rest_framework import exceptions, status
 
 from edumax_account.model.temp_access import (
@@ -35,14 +36,19 @@ class EmailService:
         to = [email]  # 수신할 이메일 주소
         from_email = EMAIL_HOST_USER  # 발신할 이메일 주소
         auth_key = self.generate_random_number()
-        message = f"인증번호: \n{auth_key}"  # 본문 내용
+
+        context = {'verification_code': auth_key}
+        html_content = render_to_string('email_template.html', context)
 
         try:
             with transaction.atomic():
                 inst = create_email_key_model_instance(email, auth_key)
-                EmailMessage(
-                    subject=subject, body=message, to=to, from_email=from_email
-                ).send()  # 만약 없는 메일이라고 하면 아무런 응답이 없음 에러도 안뜸
+
+                email_message = EmailMessage(
+                    subject=subject, body=html_content, to=to, from_email=from_email
+                )
+                email_message.content_subtype = 'html'  # HTML 형식으로 설정
+                email_message.send()
 
                 eta = datetime.now(timezone.utc) + timedelta(minutes=5)
                 delete_email_key_instance.apply_async(
