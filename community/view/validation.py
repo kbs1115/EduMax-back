@@ -1,9 +1,10 @@
 from functools import wraps
 from typing import Type, ClassVar, Union
 from rest_framework import exceptions
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from community.domain.definition import *
+import bleach
 
 """validator에 사용되는 임시 model class"""
 
@@ -38,6 +39,11 @@ class CreatePostRequestBody(BaseModel):
     title: str = Field(max_length=30)
     html_content: str = Field(min_length=1)
 
+    @field_validator('html_content')
+    @classmethod
+    def sanitize_html_content(cls, value):
+        return sanitize_html(value)
+
 
 class UpdatePostRequestBody(BaseModel):
     CATEGORY: ClassVar[str] = "category"
@@ -51,6 +57,11 @@ class UpdatePostRequestBody(BaseModel):
     title: str = Field(max_length=30, default=None)
     html_content: str = Field(min_length=1, default=None)
     files_state: PostFilesState = Field(default=None)
+
+    @field_validator('html_content')
+    @classmethod
+    def sanitize_html_content(cls, value):
+        return sanitize_html(value)
     # files 도 valid 하면 좋을듯
 
 
@@ -112,6 +123,11 @@ class MyCommentQueryParam(BaseModel):
 class CreateCommentRequestBody(BaseModel):
     content: str = Field(min_length=1)
     html_content: str = Field(min_length=1)
+
+    @field_validator('html_content')
+    @classmethod
+    def sanitize_html_content(cls, value):
+        return sanitize_html(value)
     # files 도 valid 하면 좋을듯
 
 
@@ -127,6 +143,12 @@ class UpdateCommentRequestBody(BaseModel):
     content: str = Field(min_length=1)
     html_content: str = Field(min_length=1)
     files_state: PostFilesState = Field(default=None)
+
+    @field_validator('html_content')
+    @classmethod
+    def sanitize_html_content(cls, value):
+        return sanitize_html(value)
+
     # files 도 valid 하면 좋을듯
 
     """validator 모음"""
@@ -203,3 +225,25 @@ def validate_body_request(model: Type[BaseModel]):
         return wrapper
 
     return decorated_func
+
+
+def sanitize_html(html_content):
+    # 허용된 태그와 속성 정의
+    allowed_tags = [
+        'p', 'br', 'div', 'span', 'img', 'a', 'ul', 'ol', 'li', 'strong', 'em', 'blockquote'
+    ]
+    allowed_attributes = {
+        '*': ['class', 'style'],
+        'a': ['href', 'title'],
+        'img': ['src', 'alt']
+    }
+
+    # HTML 콘텐츠를 sanitize
+    cleaned_html = bleach.clean(
+        html_content,
+        tags=allowed_tags,
+        attributes=allowed_attributes,
+        strip=True  # 허용되지 않은 태그를 제거하고 내용만 남김
+    )
+
+    return cleaned_html
