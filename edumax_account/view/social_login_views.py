@@ -20,8 +20,8 @@ from edumax_account.service.user_service import SignUpService, AuthService
 
 load_dotenv(verbose=True)
 
-BASE_URL = "http://localhost:8000/"
-GOOGLE_CALLBACK_URI = BASE_URL + "auth/user/google/redirection/"
+BASE_URL = "http://localhost:3000/"
+GOOGLE_CALLBACK_URI = BASE_URL + "login/google"
 
 
 @api_view(["GET"])
