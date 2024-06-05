@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Type, ClassVar, Union
 from rest_framework import exceptions
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from community.domain.definition import *
 import bleach
@@ -39,10 +39,13 @@ class CreatePostRequestBody(BaseModel):
     title: str = Field(max_length=30)
     html_content: str = Field(min_length=1)
 
-    @field_validator('html_content')
+    @model_validator(mode='before')
     @classmethod
-    def sanitize_html_content(cls, value):
-        return sanitize_html(value)
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = sanitize_html(value)
+        return values
 
 
 class UpdatePostRequestBody(BaseModel):
@@ -58,10 +61,13 @@ class UpdatePostRequestBody(BaseModel):
     html_content: str = Field(min_length=1, default=None)
     files_state: PostFilesState = Field(default=None)
 
-    @field_validator('html_content')
+    @model_validator(mode='before')
     @classmethod
-    def sanitize_html_content(cls, value):
-        return sanitize_html(value)
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = sanitize_html(value)
+        return values
     # files 도 valid 하면 좋을듯
 
 
@@ -124,10 +130,13 @@ class CreateCommentRequestBody(BaseModel):
     content: str = Field(min_length=1)
     html_content: str = Field(min_length=1)
 
-    @field_validator('html_content')
+    @model_validator(mode='before')
     @classmethod
-    def sanitize_html_content(cls, value):
-        return sanitize_html(value)
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = sanitize_html(value)
+        return values
     # files 도 valid 하면 좋을듯
 
 
@@ -144,10 +153,13 @@ class UpdateCommentRequestBody(BaseModel):
     html_content: str = Field(min_length=1)
     files_state: PostFilesState = Field(default=None)
 
-    @field_validator('html_content')
+    @model_validator(mode='before')
     @classmethod
-    def sanitize_html_content(cls, value):
-        return sanitize_html(value)
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = sanitize_html(value)
+        return values
 
     # files 도 valid 하면 좋을듯
 
@@ -247,3 +259,15 @@ def sanitize_html(html_content):
     )
 
     return cleaned_html
+
+
+def reject_html_content(value: str) -> str:
+    """
+    입력된 문자열에서 HTML 태그가 포함되어 있는지 검사하고,
+    HTML 태그가 있으면 예외를 발생시킵니다.
+    """
+    allowed_tags = []  # 허용할 태그를 비워 두어 모든 태그를 제거
+    clean_value = bleach.clean(value, tags=allowed_tags, strip=True)
+    if clean_value != value:
+        raise ValueError("HTML content is not allowed.")
+    return clean_value
