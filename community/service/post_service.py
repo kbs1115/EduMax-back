@@ -4,6 +4,7 @@ from datetime import timedelta
 from django.core.paginator import Paginator, EmptyPage
 from django.db import transaction
 from rest_framework.parsers import MultiPartParser, JSONParser, FormParser
+from django.core.cache import cache
 
 from community.model.post_access import get_posts_from_db, get_post_instance
 from community.model.models import Like
@@ -98,9 +99,12 @@ class PostService:
     parser_classes = [JSONParser, FormParser, MultiPartParser]
 
     def update_hit(self, request, post, response):
-        cookie_key = f'viewed_article_{post.id}'
+        # 사용자 IP 주소 가져오기
+        ip_address = self.get_client_ip(request)
+        cache_key = f'viewed_article_{post.id}_{ip_address}'
 
-        last_viewed = request.COOKIES.get(cookie_key)
+        # 마지막 조회 시간 가져오기
+        last_viewed = cache.get(cache_key)
         should_update = False
 
         if not last_viewed:
@@ -115,9 +119,18 @@ class PostService:
             post.views += 1
             post.save()
             response.data["data"]["views"] += 1
-            response.set_cookie(cookie_key, timezone.now().strftime("%Y-%m-%d %H:%M:%S.%f"), max_age=60)
+            cache.set(cache_key, timezone.now().strftime("%Y-%m-%d %H:%M:%S.%f"), timeout=60)
 
         return response
+
+    def get_client_ip(self, request):
+        """Get the client IP address from the request"""
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return ip
 
     def retrieve_post(self, post_id):
         """
