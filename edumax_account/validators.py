@@ -1,8 +1,10 @@
 from django.core.validators import RegexValidator
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, field_validator, root_validator, model_validator
 from typing import Optional
 
 from rest_framework import exceptions
+
+from community.view.validation import sanitize_html, reject_html_content
 
 
 class UserValidator:
@@ -22,15 +24,39 @@ class UserUniqueFieldModel(BaseModel):
     login_id: str = Field(default=None)
     email: str = Field(default=None)
 
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
+
 
 #  email sending 을 위한 validate model
 class EmailFieldModel(BaseModel):
     email: EmailStr = Field(max_length=30)
 
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
+
 
 class EmailCheckFieldModel(BaseModel):
     email: EmailStr = Field(max_length=30)
     auth_key: str = Field(max_length=6)
+
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
 
 
 class SignupParamModel(BaseModel):
@@ -40,10 +66,26 @@ class SignupParamModel(BaseModel):
     password: str
     auth_key: str
 
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
+
 
 class LoginParamModel(BaseModel):
     login_id: str
     password: str
+
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
 
 
 class CanAccessUserFieldModel(BaseModel):
@@ -52,10 +94,26 @@ class CanAccessUserFieldModel(BaseModel):
     email: Optional[bool] = False
     is_staff: Optional[bool] = False
 
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
+
 
 class PatchUserModel(BaseModel):
     email: Optional[str] = None
     nickname: Optional[str] = None
+
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
 
 
 class PasswordPageQueryParamModel(BaseModel):
@@ -80,3 +138,11 @@ class PasswordModel(BaseModel):
 
     new_pw: str
     email: EmailStr = Field(max_length=30)
+
+    @model_validator(mode='before')
+    @classmethod
+    def sanitize_all_fields(cls, values):
+        for field, value in values.items():
+            if isinstance(value, str):
+                values[field] = reject_html_content(value)
+        return values
