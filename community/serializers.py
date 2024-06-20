@@ -150,6 +150,7 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
     likes = LikeRetrieveSerializer(many=True, read_only=True)
     
     likes_count = serializers.SerializerMethodField(method_name="get_likes_count")
+    post_title = serializers.SerializerMethodField(method_name="get_post_title")
 
     class Meta:
         model = Comment
@@ -163,12 +164,17 @@ class CommentRetrieveSerializer(serializers.ModelSerializer):
             "files",
             "likes",
             "likes_count",
-            "post_id"
+            "post_id",
+            "post_title"
         ]
         
     def get_likes_count(self, obj):
         # obj는 Post 모델의 인스턴스
         return obj.likes.count()
+    
+    def get_post_title(self, obj):
+        # obj는 Comment 모델의 인스턴스
+        return obj.post.title
 
 
 class LectureListSerializer(serializers.ModelSerializer):
