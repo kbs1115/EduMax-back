@@ -26,7 +26,7 @@ class PostsService:
             kw,
             sort,
             page,
-            my_name
+            my_name=None
     ):
         """
             <설명>

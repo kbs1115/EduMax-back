@@ -36,9 +36,9 @@ class TestValidators:
         # 글자 수 4 미만
         with pytest.raises(ValidationError):
             validator("bb1")
-        # 글자 수 16 초과
+        # 글자 수 20 초과
         with pytest.raises(ValidationError):
-            validator("bb123456789012345")
+            validator("3213213bb123456789012")
         # 특수문자 포함
         with pytest.raises(ValidationError):
             validator("bb1#123")

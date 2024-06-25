@@ -23,7 +23,7 @@ class TestLectureAccessFunctions:
         assert len(korean_lectures) == 1
         assert len(math_lectures) == 0
 
-        with pytest.raises(TypeError):
+        with pytest.raises(ValidationError):
             korean_lectures = get_lectures_with_category("KOR")
 
     @pytest.mark.django_db
