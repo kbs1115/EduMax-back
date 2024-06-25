@@ -75,12 +75,12 @@ class TestUserView:
         assert res.status_code == 200
 
     def test_UserAPIView_patch(
-        self,
-        mocker,
-        valid_user_data,
-        user_instance,
-        valid_patch_data,
-        invalid_patch_data,
+            self,
+            mocker,
+            valid_user_data,
+            user_instance,
+            valid_patch_data,
+            invalid_patch_data,
     ):
         mocker_create_user = mocker.patch.object(UserService, "update_user")
         mocker_create_user.return_value = valid_user_data
@@ -163,10 +163,11 @@ class TestPasswordChangeApiView:
     view_path = "auth/user/pw-change/"
 
     def test_assert_called(
-        self,
-        mocked_check_pw_change_page_query_param,
-        valid_data_for_password_change_api_view,
-        mocked_method_change_password,
+            self,
+            mocked_check_pw_change_page_query_param,
+            valid_data_for_password_change_api_view,
+            mocked_method_change_password,
+            mocked_check_pw_change_is_owner
     ):
         """
         valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
@@ -181,13 +182,14 @@ class TestPasswordChangeApiView:
         response = PasswordChangeApiView().post(request)
         mocked_check_pw_change_page_query_param.assert_called_once()
         mocked_method_change_password.assert_called_once()
+        mocked_check_pw_change_is_owner.assert_called_once()
         assert response
 
     def test_invalid_body_data(
-        self,
-        mocked_check_pw_change_page_query_param,
-        invalid_data_for_password_change_api_view,
-        mocked_method_change_password,
+            self,
+            mocked_check_pw_change_page_query_param,
+            invalid_data_for_password_change_api_view,
+            mocked_method_change_password,
     ):
         """
         조건에 맞지않는 body_data가 입력됬을때 validator에서
@@ -209,9 +211,9 @@ class TestRedirectPwChangeApiView:
     view_path = "user/pw-change/email-auth/"
 
     def test_assert_called(
-        self,
-        mocked_method_make_random_query_param_with_email_auth,
-        valid_data_for_RedirectPwChangeApiView,
+            self,
+            mocked_method_make_random_query_param_with_email_auth,
+            valid_data_for_RedirectPwChangeApiView,
     ):
         """
         valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
@@ -226,12 +228,12 @@ class TestRedirectPwChangeApiView:
         mocked_method_make_random_query_param_with_email_auth.assert_called_once()
         assert response
         url = response.data["data"]["redirect_url"]
-        assert url == "user/pw-change/?verify=12345678"
+        assert url == "auth/user/pw-change/?verify=12345678"
 
     def test_invalid_body_data(
-        self,
-        mocked_method_make_random_query_param_with_email_auth,
-        invalid_data_for_RedirectPwChangeApiView,
+            self,
+            mocked_method_make_random_query_param_with_email_auth,
+            invalid_data_for_RedirectPwChangeApiView,
     ):
         """
         invalid 데이터를 넘겨줬을때 예외를 잡는지
@@ -250,9 +252,9 @@ class TestGetLoginIdApiView:
     view_path = "user/id-find/email-auth/"
 
     def test_assert_called(
-        self,
-        mocked_method_get_user_with_email_auth,
-        valid_data_for_RedirectPwChangeApiView,
+            self,
+            mocked_method_get_user_with_email_auth,
+            valid_data_for_RedirectPwChangeApiView,
     ):
         """
         valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
@@ -268,9 +270,9 @@ class TestGetLoginIdApiView:
         assert response
 
     def test_invalid_body_data(
-        self,
-        mocked_method_get_user_with_email_auth,
-        invalid_data_for_RedirectPwChangeApiView,
+            self,
+            mocked_method_get_user_with_email_auth,
+            invalid_data_for_RedirectPwChangeApiView,
     ):
         """
         invalid 데이터를 넘겨줬을때 예외를 잡는지
@@ -289,9 +291,9 @@ class TestDuplicateCheckerAPIView:
     view_path = "user/duplicate-check/"
 
     def test_assert_called(
-        self,
-        mocked_method_check_duplicate_field_value,
-        valid_data_for_RedirectPwChangeApiView,
+            self,
+            mocked_method_check_duplicate_field_value,
+            valid_data_for_RedirectPwChangeApiView,
     ):
         """
         valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
@@ -307,9 +309,9 @@ class TestDuplicateCheckerAPIView:
         assert response.data["message"] == "duplicate"
 
     def test_invalid_body_data(
-        self,
-        mocked_method_check_duplicate_field_value,
-        invalid_data_for_DuplicateCheckerAPIView,
+            self,
+            mocked_method_check_duplicate_field_value,
+            invalid_data_for_DuplicateCheckerAPIView,
     ):
         """
         invalid 데이터를 넘겨줬을때 예외를 잡는지
@@ -328,9 +330,9 @@ class TestEmailSenderApiView:
     view_path = "user/duplicate-check/"
 
     def test_assert_called(
-        self,
-        mocked_method_send_email,
-        valid_data_for_EmailSenderApiView,
+            self,
+            mocked_method_send_email,
+            valid_data_for_EmailSenderApiView,
     ):
         """
         valid 데이터를 넘겨줬을때 모든 메소드가 적절히 호출되는지 확인
@@ -344,9 +346,9 @@ class TestEmailSenderApiView:
         assert response
 
     def test_invalid_body_data(
-        self,
-        mocked_method_check_duplicate_field_value,
-        invalid_data_for_EmailSenderApiView,
+            self,
+            mocked_method_check_duplicate_field_value,
+            invalid_data_for_EmailSenderApiView,
     ):
         """
         invalid 데이터를 넘겨줬을때 예외를 잡는지
@@ -357,4 +359,3 @@ class TestEmailSenderApiView:
         request = Request(request, parsers=[MultiPartParser()])
         with pytest.raises(exceptions.ParseError):
             EmailSenderApiView().post(request)
-

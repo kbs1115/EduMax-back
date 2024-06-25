@@ -28,7 +28,8 @@ class TestGetPostsService:
     def test_paging_with_valid_page(
             self,
             mocked_function_get_posts_from_db_return_queryset,
-            mocked_serializer_method_get_likes_count
+            mocked_serializer_method_get_likes_count,
+            mocked_serializer_method_get_comments_count
     ):
         page = 1
         # page 제외 나머지 매개변수 안씀
@@ -44,7 +45,8 @@ class TestGetPostsService:
     def test_paging_with_valid_page_and_no_post(
             self,
             mocked_function_get_posts_from_db_return_empty_queryset,
-            mocked_serializer_method_get_likes_count
+            mocked_serializer_method_get_likes_count,
+            mocked_serializer_method_get_comments_count
     ):
         page = 1
         # page 제외 나머지 매개변수 안씀
@@ -209,13 +211,20 @@ class TestFileService:
             assert mocked_get_file_instance.call_count == number_of_files
             assert mock_delete.call_count == number_of_files
             assert mocked_s3_delete_file_method.call_count == number_of_files
-            
+
     @patch('magic.Magic')
-    def test_s3_upload_file_success(self, mock_magic, mock_upload_file):
+    def test_s3_upload_file_success(self, mock_magic):
         mock_magic_instance = mock_magic.return_value
         mock_magic_instance.from_buffer.return_value = 'image/jpeg'
+
+        mock_upload_file = Mock()
+        mock_upload_file.name = 'test_image.jpg'
+        mock_upload_file.read = Mock(return_value=b'test content')
+        mock_upload_file.tell = Mock(return_value=1024)
+        mock_upload_file.seek = Mock()
+
         path = 'path/to/upload'
-        
+
         with patch('django.core.files.storage.default_storage.save') as mock_save:
             FileService.s3_upload_file(mock_upload_file, path)
             mock_upload_file.seek.assert_called_with(0)  # Checks file.seek(0) is called to reset the pointer
@@ -232,10 +241,15 @@ class TestFileService:
         assert str(e.value) == "Unsupported file type."
 
     @patch('magic.Magic')
-    def test_s3_upload_file_exceeds_size_limit(self, mock_magic, mock_upload_file):
+    def test_s3_upload_file_exceeds_size_limit(self, mock_magic):
         mock_magic_instance = mock_magic.return_value
         mock_magic_instance.from_buffer.return_value = 'video/mp4'
+
+        mock_upload_file = Mock()
+        mock_upload_file.name = 'test_video.mp4'
         mock_upload_file.tell = Mock(return_value=1024 * 1024 * 25)  # 25MB
+        mock_upload_file.read = Mock(return_value=b'test content')
+        mock_upload_file.seek = Mock()
 
         path = 'path/to/upload'
         with pytest.raises(ValueError) as e:

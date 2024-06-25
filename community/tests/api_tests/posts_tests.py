@@ -25,7 +25,7 @@ class TestGetPostsApi:
         post_list = data.get("data").get("post_list")
         assert page == 1
         assert page_size == POST_LIST_PAGE_SIZE
-        assert list_size == 15
+        assert list_size == 10
         assert post_list[0]["created_at"] >= post_list[1]["created_at"]
         assert post_list[0]["category"] == str(PostCategoriesParam.ENG_QUESTION)
 
@@ -45,7 +45,7 @@ class TestGetPostsApi:
 
         assert page == 2
         assert page_size == POST_LIST_PAGE_SIZE
-        assert list_size == 5
+        assert list_size == 10
 
     @pytest.mark.django_db
     def test_check_response_if_query_params_contain_search_filter_and_kw(
@@ -64,7 +64,7 @@ class TestGetPostsApi:
         assert page == 1
         assert page_size == POST_LIST_PAGE_SIZE
         # 1,10, 11, 12,13,14,15,16,17,18,19
-        assert list_size == 11
+        assert list_size == 10
         assert post_list[0]["created_at"] >= post_list[1]["created_at"]
 
     @pytest.mark.django_db
@@ -84,6 +84,6 @@ class TestGetPostsApi:
         assert page == 1
         assert page_size == POST_LIST_PAGE_SIZE
         # 1,10, 11, 12,13,14,15,16,17,18,19
-        assert list_size == 11
+        assert list_size == 10
 
     # like 만들어지면 like 순으로 정렬되는지 확인해야함
