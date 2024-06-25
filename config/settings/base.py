@@ -211,6 +211,12 @@ REST_FRAMEWORK = {
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.AllowAny",),
     "EXCEPTION_HANDLER": "config.exceptions.custom_exception_handler.custom_exception_handler",
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.ScopedRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'ip': '30/day',  # 특정 IP에 대해 30회 제한
+    }
 }
 
 CACHES = {
