@@ -1,6 +1,7 @@
 import pytest
 from rest_framework.exceptions import ValidationError
 
+from community.domain.definition import POST_LIST_PAGE_SIZE
 from community.service.lecture_service import LecturesService, LectureService
 
 
@@ -15,8 +16,8 @@ class TestLecturesService:
         response = LecturesService.get_lectures(**valid_get_lectures_param_data[0])
 
         assert response["status_code"] == 200
-        assert response["data"]["list_size"] == 5
-        assert response["data"]["page_size"] == 15
+        assert response["data"]["list_size"] == 10
+        assert response["data"]["page_size"] == POST_LIST_PAGE_SIZE
         assert response["data"]["page"] == 2
         assert response["data"]["post_list"] == mocked_lecture_list_serializer.data
 

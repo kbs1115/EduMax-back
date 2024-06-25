@@ -34,6 +34,7 @@ class TestUserAPI:
             "login_id": "kbs1115",
             "email": "abcdetest123@naver.com",
             "nickname": "KKKBBBSSS",
+            "is_staff": False
         }
         assert res.status_code == 200
 
@@ -97,6 +98,7 @@ class TestCertainUserAPI:
             "login_id": "kbs1115",
             "email": "abcdetest123@naver.com",
             "nickname": "KKKBBBSSS",
+            "is_staff": False
         }
         assert res.status_code == 200
 

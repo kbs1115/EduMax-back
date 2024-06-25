@@ -218,7 +218,7 @@ def mocked_function_get_posts_from_db_return_queryset(mocker, valid_post_instanc
 
 @pytest.fixture
 def mocked_function_get_posts_from_db_return_empty_queryset(
-    mocker, valid_post_instance_list
+        mocker, valid_post_instance_list
 ):
     mocked_posts = queryset_factory(Post)
     mocker = mocker.patch(
@@ -231,6 +231,13 @@ def mocked_function_get_posts_from_db_return_empty_queryset(
 @pytest.fixture
 def mocked_serializer_method_get_likes_count(mocker):
     mocker = mocker.patch.object(PostListSerializer, "get_likes_count")
+    mocker.return_value = 3
+    return mocker
+
+
+@pytest.fixture
+def mocked_serializer_method_get_comments_count(mocker):
+    mocker = mocker.patch.object(PostListSerializer, "get_comments_count")
     mocker.return_value = 3
     return mocker
 
@@ -254,6 +261,13 @@ def mocked_service_response():
         "data": "mocked_data",
     }
 
+@pytest.fixture
+def mocked_retrieve_post_response(valid_post_instance_list):
+    return valid_post_instance_list[0], {
+        "status": status.HTTP_200_OK,
+        "message": "mocked_message",
+        "data": "mocked_data",
+    }
 
 @pytest.fixture
 def valid_post_query_params_list():
