@@ -37,10 +37,10 @@ class TestPostView:
                 PostView().get(request, post_id=path_param)
 
     def test_get_method_with_valid_path_params(
-            self, mocker, valid_post_path_param, mocked_service_response
+            self, mocker, valid_post_path_param, mocked_retrieve_post_response
     ):
         mocker = mocker.patch.object(PostService, "retrieve_post")
-        mocker.return_value = mocked_service_response
+        mocker.return_value = mocked_retrieve_post_response
 
         factory = APIRequestFactory()
         request = factory.get(self.PostViewPath)

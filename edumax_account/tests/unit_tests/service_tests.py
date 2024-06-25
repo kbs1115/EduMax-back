@@ -67,6 +67,7 @@ class TestUserService:
             "login_id": "kbs1115",
             "email": "bruce1115@naver.com",
             "nickname": "KKKBBBSSS",
+            "is_staff": False
         }
 
     def test_update_user_with_valid_data(self, mocker, user_instance):
@@ -81,6 +82,7 @@ class TestUserService:
             "login_id": "kbs1115",
             "email": "abcdetest123@naver.com",
             "nickname": "KKKBBBSSS",
+            "is_staff": False
         }
 
     def test_update_user_with_invalid_data(self, mocker, user_instance):

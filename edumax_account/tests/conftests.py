@@ -20,6 +20,7 @@ def client():
 @pytest.fixture
 def logined_client():
     client = APIClient()
+
     user = User(
         id=1,
         login_id="kbs1115",
@@ -41,7 +42,7 @@ def valid_request_data():
     return {
         "login_id": "bruce1118",
         "email": "bruce1118@naver.com",
-        "auth_key":"123456",
+        "auth_key": "123456",
         "nickname": "KBS3",
         "password": "Bb3848948389!!!",
     }
@@ -129,6 +130,7 @@ def valid_user_data():
         "login_id": "kbs1115",
         "email": "bruce1115@naver.com",
         "nickname": "KKKBBBSSS",
+        "is_staff": False
     }
 
 
@@ -225,6 +227,13 @@ def mocked_user_access(mocker):
 def mocked_check_pw_change_page_query_param(mocker):
     mocker = mocker.patch(
         "edumax_account.model.user_access.check_pw_change_page_query_param"
+    )
+    return mocker
+
+
+def mocked_check_pw_change_is_owner(mocker):
+    mocker = mocker.patch(
+        "edumax_account.model.user_access.check_pw_change_is_owner"
     )
     return mocker
 

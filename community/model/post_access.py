@@ -10,7 +10,7 @@ def get_posts_from_db(
         search_filter,
         kw,
         sort,
-        my_name
+        my_name=None
 
 ):
     # category와 무관하게 select 가능 추가
