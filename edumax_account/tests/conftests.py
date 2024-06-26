@@ -230,10 +230,10 @@ def mocked_check_pw_change_page_query_param(mocker):
     )
     return mocker
 
-
+@pytest.fixture
 def mocked_check_pw_change_is_owner(mocker):
     mocker = mocker.patch(
-        "edumax_account.model.user_access.check_pw_change_is_owner"
+        "edumax_account.view.user_views.check_pw_change_is_owner"
     )
     return mocker
 
