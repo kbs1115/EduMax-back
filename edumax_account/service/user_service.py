@@ -49,7 +49,7 @@ class SignUpService:
     def create_social_user(cls, email):
         with transaction.atomic():
             # 현재는 nickname도 랜덤 설정하고 있는데, Frontend가 완성되면 회원가입창에서 받도록 할 예정
-            login_id = email.split("@")[0] + UserService.generate_random_string(4)
+            login_id = UserService.generate_random_string(8)
             password = UserService.generate_random_string(12)
             nickname = UserService.generate_random_string(6)
 

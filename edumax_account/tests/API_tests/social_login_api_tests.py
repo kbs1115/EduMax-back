@@ -5,8 +5,8 @@ from edumax_account.view.social_login_views import *
 from edumax_account.models import User
 
 load_dotenv(verbose=True)
-BASE_URL = "http://localhost:8000/"
-GOOGLE_CALLBACK_URI = BASE_URL + "auth/user/google/redirection/"
+BASE_URL = "http://localhost:3000/"
+GOOGLE_CALLBACK_URI = BASE_URL + "login/google"
 
 
 class TestSocialLoginAPI:
@@ -22,7 +22,7 @@ class TestSocialLoginAPI:
         res = client.get(endpoint)
 
         assert (
-            res["Location"]
+            res.data["redirect_url"]
             == f"https://accounts.google.com/o/oauth2/v2/auth?client_id={client_id}&response_type=code&redirect_uri={GOOGLE_CALLBACK_URI}&scope={scope}"
         )
 
