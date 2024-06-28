@@ -6,7 +6,7 @@ from firebase_admin import credentials
 
 def initialize_firebase():
     # Path to your service account key file
-    key_path = os.path.join(os.path.dirname(__file__), '..', 'edumax-414706-firebase-adminsdk-zhqgs-ae9abf87f9.json')
+    key_path = os.path.join(os.path.dirname(__file__), '..', 'edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json')
 
     # Initialize credentials
     cred = credentials.Certificate(key_path)
