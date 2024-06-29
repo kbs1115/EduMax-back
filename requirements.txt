@@ -4,6 +4,7 @@ asgiref==3.7.2
 async-timeout==4.0.3
 bcrypt==4.1.2
 billiard==4.2.0
+bleach==6.1.0
 boto3==1.34.1
 botocore==1.34.79
 CacheControl==0.14.0
@@ -55,6 +56,7 @@ iniconfig==2.0.0
 jmespath==1.0.1
 kombu==5.3.5
 lazy-object-proxy==1.10.0
+libmagic==1.0
 msgpack==1.0.8
 mysqlclient==2.2.4
 Naked==0.1.32
@@ -89,8 +91,6 @@ python-crontab==3.0.0
 python-dateutil==2.8.2
 python-decouple==3.8
 python-dotenv==1.0.1
-python-magic==0.4.27
-python-magic-bin==0.4.14
 python3-openid==3.2.0
 pytz==2023.3.post1
 PyYAML==6.0.1
@@ -112,4 +112,5 @@ uritemplate==4.1.1
 urllib3==2.0.7
 vine==5.1.0
 wcwidth==0.2.13
+webencodings==0.5.1
 wrapt==1.16.0
