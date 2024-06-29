@@ -48,6 +48,7 @@ google-resumable-media==2.7.0
 googleapis-common-protos==1.62.0
 grpcio==1.63.0
 grpcio-status==1.62.2
+gunicorn==22.0.0
 httplib2==0.22.0
 humanize==4.9.0
 idna==3.6
@@ -91,6 +92,7 @@ python-crontab==3.0.0
 python-dateutil==2.8.2
 python-decouple==3.8
 python-dotenv==1.0.1
+python-magic-bin==0.4.14
 python3-openid==3.2.0
 pytz==2023.3.post1
 PyYAML==6.0.1
