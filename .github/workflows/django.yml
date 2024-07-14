@@ -22,7 +22,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
-        
+
     - name: Install Dependencies
       run: |
         python -m pip install --upgrade pip
@@ -48,8 +48,8 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest --ds=config.settings.local
+        pytest
       env:
         DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
