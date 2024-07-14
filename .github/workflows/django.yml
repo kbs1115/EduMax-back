@@ -52,7 +52,7 @@ jobs:
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
         DB_HOST: localhost
         DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
@@ -64,7 +64,7 @@ jobs:
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
         DB_HOST: localhost
         DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
@@ -76,7 +76,7 @@ jobs:
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
         DB_HOST: localhost
         DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
