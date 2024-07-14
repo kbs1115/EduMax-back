@@ -48,7 +48,7 @@ jobs:
 
     - name: Make Migrations
       run: |
-        python manage.py makemigrations
+        python manage.py makemigrations --ds=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
@@ -59,8 +59,8 @@ jobs:
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
 
     - name: Run Migrations
-      run: |
-        python manage.py migrate
+      run: | 
+        python manage.py migrate --ds=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
@@ -72,7 +72,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest
+        pytest --ds=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
