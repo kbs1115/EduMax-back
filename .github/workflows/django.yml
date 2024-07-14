@@ -46,16 +46,26 @@ jobs:
           sleep 2
         done
 
+    - name: Check MySQL Container Logs
+      run: |
+        docker logs mysql-container
+
+    - name: List Running Docker Containers
+      run: |
+        docker ps -a
+
+    - name: List MySQL Databases
+      run: |
+        docker exec mysql-container mysql -u${{ secrets.DB_USER }} -p${{ secrets.LOCAL_DB_PASSWORD }} -e "SHOW DATABASES;"
+
     - name: Make Migrations
       run: |
-        sleep 10  # Add delay to ensure MySQL is fully ready
+        sleep 20  # Add delay to ensure MySQL is fully ready
         python manage.py makemigrations --settings=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
-        DB_HOST: 127.0.0.1  # Use IP instead of 'localhost'
-        DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
 
@@ -66,8 +76,28 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
-        DB_HOST: 127.0.0.1  # Use IP instead of 'localhost'
-        DB_PORT: 3306
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+
+    - name: Print Installed Apps
+      run: |
+        python -c "import os; from django.conf import settings; print(settings.INSTALLED_APPS)"
+      env:
+        DJANGO_SETTINGS_MODULE: config.settings.local
+
+    - name: Print Database Configuration
+      run: |
+        python -c "import os; from django.conf import settings; print(settings.DATABASES)"
+      env:
+        DJANGO_SETTINGS_MODULE: config.settings.local
+
+    - name: List Migrations
+      run: |
+        python manage.py showmigrations --settings=config.settings.local
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
 
@@ -78,7 +108,5 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
-        DB_HOST: 127.0.0.1  # Use IP instead of 'localhost'
-        DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
