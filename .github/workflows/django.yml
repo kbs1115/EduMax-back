@@ -39,9 +39,9 @@ jobs:
 
     - name: Start MySQL container
       run: |
-        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} -e MYSQL_DATABASE=${{ secrets.DB_NAME }} -e MYSQL_USER=${{ secrets.DB_USER }} -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} -p 3306:3306 -d mysql:latest
+        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=${{ secrets.LOCAD_DB_PASSWORD }} -e MYSQL_DATABASE=${{ secrets.DB_NAME }} -e MYSQL_USER=${{ secrets.DB_USER }} -e MYSQL_PASSWORD=${{ secrets.LOCAL_DB_PASSWORD }} -p 3306:3306 -d mysql:latest
         # Wait for MySQL to be ready
-        while ! docker exec mysql-container mysqladmin --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASSWORD }} ping --silent &> /dev/null ; do
+        while ! docker exec mysql-container mysqladmin --user=${{ secrets.DB_USER }} --password=${{ secrets.LOCAL_DB_PASSWORD }} ping --silent &> /dev/null ; do
           echo "Waiting for database connection..."
           sleep 2
         done
