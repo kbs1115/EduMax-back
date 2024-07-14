@@ -13,7 +13,7 @@ DATABASES = {
         "NAME": os.getenv("DB_NAME"),
         "USER": "admin",
         "PASSWORD": os.getenv("LOCAL_DB_PASSWORD"),
-        "HOST":"localhost",
+        "HOST": "127.0.0.1",  # Use IP instead of 'localhost'
         "PORT": "3306",
     }
 }
