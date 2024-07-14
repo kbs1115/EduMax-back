@@ -1,0 +1,83 @@
+name: Django CI
+
+on:
+  push:
+    branches: ["prod"]
+  pull_request:
+    branches: ["prod"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Decode Firebase config and save to file
+      run: |
+        echo "${{ secrets.FIREBASE_CONFIG_JSON }}" | base64 --decode > $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+      env:
+        FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
+
+    - name: Set up MySQL
+      uses: docker/setup-buildx-action@v1
+
+    - name: Start MySQL container
+      run: |
+        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} -e MYSQL_DATABASE=${{ secrets.DB_NAME }} -e MYSQL_USER=${{ secrets.DB_USER }} -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} -p 3306:3306 -d mysql:latest
+        # Wait for MySQL to be ready
+        while ! docker exec mysql-container mysqladmin --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASSWORD }} ping --silent &> /dev/null ; do
+          echo "Waiting for database connection..."
+          sleep 2
+        done
+
+    - name: Make Migrations
+      run: |
+        python manage.py makemigrations
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 3306
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+
+    - name: Run Migrations
+      run: |
+        python manage.py migrate
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 3306
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+
+    - name: Run Tests
+      run: |
+        pytest
+      env:
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 3306
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
