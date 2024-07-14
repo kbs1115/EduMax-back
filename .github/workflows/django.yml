@@ -58,17 +58,6 @@ jobs:
       run: |
         docker exec mysql-container mysql -u${{ secrets.DB_USER }} -p${{ secrets.LOCAL_DB_PASSWORD }} -e "SHOW DATABASES;"
 
-    - name: Make Migrations
-      run: |
-        sleep 20  # Add delay to ensure MySQL is fully ready
-        python manage.py makemigrations --settings=config.settings.local
-      env:
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
-        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
-
     - name: Run Migrations
       run: |
         python manage.py migrate --settings=config.settings.local
@@ -79,34 +68,13 @@ jobs:
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
 
-    - name: Print Installed Apps
-      run: |
-        python -c "import os; from django.conf import settings; print(settings.INSTALLED_APPS)"
-      env:
-        DJANGO_SETTINGS_MODULE: config.settings.local
-
-    - name: Print Database Configuration
-      run: |
-        python -c "import os; from django.conf import settings; print(settings.DATABASES)"
-      env:
-        DJANGO_SETTINGS_MODULE: config.settings.local
-
-    - name: List Migrations
-      run: |
-        python manage.py showmigrations --settings=config.settings.local
-      env:
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_USER: ${{ secrets.DB_USER }}
-        LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
-        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
-
     - name: Run Tests
       run: |
-        pytest --settings=config.settings.local
+        pytest
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
         LOCAL_DB_PASSWORD: ${{ secrets.LOCAL_DB_PASSWORD }}
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        DJANGO_SETTINGS_MODULE: config.settings.local
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
