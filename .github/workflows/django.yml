@@ -45,6 +45,8 @@ jobs:
           echo "Waiting for database connection..."
           sleep 2
         done
+        # Grant privileges to the user
+        docker exec mysql-container mysql -uroot -p${{ secrets.LOCAL_DB_PASSWORD }} -e "GRANT ALL PRIVILEGES ON *.* TO '${{ secrets.DB_USER }}'@'%' WITH GRANT OPTION; FLUSH PRIVILEGES;"
 
     - name: Check MySQL Container Logs
       run: |
