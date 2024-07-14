@@ -8,9 +8,16 @@ ALLOWED_HOSTS = []
 DEBUG = True
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.mysql",
+        "NAME": os.getenv("DB_NAME"),
+        "USER": "admin",
+        "PASSWORD": os.getenv("LOCAL_DB_PASSWORD"),
+        "HOST":"localhost",
+        "PORT": "3306",
     }
 }
-print("Using local settings")
+
+DEBUG = False
+
+print("Using prod settings")
