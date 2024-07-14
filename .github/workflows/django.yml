@@ -39,9 +39,9 @@ jobs:
 
     - name: Start MySQL container
       run: |
-        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=test_db -e MYSQL_USER=test_user -e MYSQL_PASSWORD=testpassword -p 3306:3306 -d mysql:latest
+        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} -e MYSQL_DATABASE=${{ secrets.DB_NAME }} -e MYSQL_USER=${{ secrets.DB_USER }} -e MYSQL_PASSWORD=${{ secrets.DB_PASSWORD }} -p 3306:3306 -d mysql:latest
         # Wait for MySQL to be ready
-        while ! docker exec mysql-container mysqladmin --user=test_user --password=testpassword ping --silent &> /dev/null ; do
+        while ! docker exec mysql-container mysqladmin --user=${{ secrets.DB_USER }} --password=${{ secrets.DB_PASSWORD }} ping --silent &> /dev/null ; do
           echo "Waiting for database connection..."
           sleep 2
         done
@@ -50,22 +50,34 @@ jobs:
       run: |
         python manage.py makemigrations
       env:
-        DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
-        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
 
     - name: Run Migrations
       run: |
         python manage.py migrate
       env:
-        DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
-        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
 
     - name: Run Tests
       run: |
         pytest
       env:
-        DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
-        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        DB_HOST: localhost
+        DB_PORT: 3306
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
