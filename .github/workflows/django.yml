@@ -48,7 +48,7 @@ jobs:
 
     - name: Make Migrations
       run: |
-        python manage.py makemigrations --ds=config.settings.local
+        python manage.py makemigrations --settings=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
@@ -60,7 +60,7 @@ jobs:
 
     - name: Run Migrations
       run: | 
-        python manage.py migrate --ds=config.settings.local
+        python manage.py migrate --settings=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
@@ -72,7 +72,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest --ds=config.settings.local
+        pytest --settings=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
