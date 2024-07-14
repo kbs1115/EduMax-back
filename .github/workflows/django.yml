@@ -30,11 +30,26 @@ jobs:
 
     - name: Decode Firebase config and save to file
       run: |
-        mkdir -p ../  # 상위 디렉토리를 만듭니다
+        mkdir -p ../  
         echo $FIREBASE_CONFIG_JSON | base64 --decode > ../edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
       env:
         FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
 
+    - name: Set up MySQL
+      uses: docker/setup-buildx-action@v1
+
+    - name: Start MySQL container
+      run: |
+        docker run --name mysql-container -e MYSQL_ROOT_PASSWORD=rootpassword -e MYSQL_DATABASE=test_db -e MYSQL_USER=test_user -e MYSQL_PASSWORD=testpassword -p 3306:3306 -d mysql:latest
+        # Wait for MySQL to be ready
+        while ! docker exec mysql-container mysqladmin --user=test_user --password=testpassword ping --silent &> /dev/null ; do
+          echo "Waiting for database connection..."
+          sleep 2
+        done
+
     - name: Run Tests
       run: |
         pytest --ds=config.settings.local
+      env:
+        DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
+        FIREBASE_CONFIG_PATH: ../edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
