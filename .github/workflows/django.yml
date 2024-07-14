@@ -52,3 +52,4 @@ jobs:
       env:
         DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
         FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+        SECRET_KEY: ${{ secrets.SECRET_KEY }}
