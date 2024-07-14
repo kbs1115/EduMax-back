@@ -30,7 +30,7 @@ jobs:
 
     - name: Decode Firebase config and save to file
       run: |
-        echo "${{ secrets.FIREBASE_CONFIG_JSON }}" | base64 --decode > $GITHUB_WORKSPACE/../edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+        echo "${{ secrets.FIREBASE_CONFIG_JSON }}" | base64 --decode > $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
       env:
         FIREBASE_CONFIG_JSON: ${{ secrets.FIREBASE_CONFIG_JSON }}
 
@@ -51,4 +51,4 @@ jobs:
         pytest --ds=config.settings.local
       env:
         DATABASE_URL: mysql://test_user:testpassword@localhost:3306/test_db
-        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/../edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
+        FIREBASE_CONFIG_PATH: $GITHUB_WORKSPACE/edumaxprod-5fa4e-firebase-adminsdk-rcs4p-f3aba62466.json
