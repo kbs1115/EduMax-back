@@ -72,7 +72,7 @@ jobs:
 
     - name: Run Tests
       run: |
-        pytest
+        pytest --ds=config.settings.local
       env:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_USER: ${{ secrets.DB_USER }}
