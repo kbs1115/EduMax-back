@@ -20,7 +20,7 @@ from edumax_account.service.user_service import SignUpService, AuthService
 
 load_dotenv(verbose=True)
 
-BASE_URL = "http://edumax-kr/"
+BASE_URL = "http://edumax-kr.com/"
 GOOGLE_CALLBACK_URI = BASE_URL + "login/google"
 
 
