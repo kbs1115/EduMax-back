@@ -3,6 +3,8 @@
 EduMax 학원 사이트의 백엔드 코드입니다.
 
 ========================================================
+<img src="https://github.com/user-attachments/assets/d495be50-c65b-46e6-acbe-bb77f3bf5172" alt="image" width="500">
+
 
 ### 로컬 서버 구동 순서
 
