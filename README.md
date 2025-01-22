@@ -28,8 +28,9 @@ EduMax 학원 사이트의 백엔드 코드입니다.
 #### 선생님 강의  
 ![image](https://github.com/user-attachments/assets/19af700c-bb98-4404-9db9-7b25503f5efa)  
 
+---
 
-### 로컬 서버 구동 순서
+### Redis 로컬 서버 구동 순서
 
 1. **Redis를 다운로드 받지 않았다면 다음 사이트에서 다운로드 받습니다.**
 
