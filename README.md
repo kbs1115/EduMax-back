@@ -1,10 +1,36 @@
 # EduMax-back
 
 EduMax 학원 사이트의 백엔드 코드입니다.
+사이트 방문을 원하시면 [여기](https://edumax-kr.com/)를 클릭해주세요.
 
-========================================================
+### 사이트 화면
 
-### 로컬 서버 구동 순서
+#### 메인 페이지  
+![image](https://github.com/user-attachments/assets/d756ffe1-b4e9-43af-a04f-534b5ba36bc3)  
+
+---
+
+#### 소개 페이지1  
+![image](https://github.com/user-attachments/assets/61c3f621-707b-45a6-b0d3-3de63e08387d)  
+
+---
+
+#### 소개 페이지2  
+![image](https://github.com/user-attachments/assets/42fdbb04-1f7d-4255-91b8-dabc07d3fead)  
+
+---
+
+#### 게시글 작성  
+![image](https://github.com/user-attachments/assets/111e9f6c-4a9b-4ffd-a6b1-e64a5aa9ae2a)  
+
+---
+
+#### 선생님 강의  
+![image](https://github.com/user-attachments/assets/19af700c-bb98-4404-9db9-7b25503f5efa)  
+
+---
+
+### Redis 로컬 서버 구동 순서
 
 1. **Redis를 다운로드 받지 않았다면 다음 사이트에서 다운로드 받습니다.**
 
