@@ -18,6 +18,5 @@ DATABASES = {
     }
 }
 
-DEBUG = False
 
-print("Using prod settings")
+print("Using local settings")

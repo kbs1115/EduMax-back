@@ -57,7 +57,7 @@ iniconfig==2.0.0
 jmespath==1.0.1
 kombu==5.3.5
 lazy-object-proxy==1.10.0
-libmagic==1.0
+libmagic
 msgpack==1.0.8
 mysqlclient==2.2.4
 Naked==0.1.32

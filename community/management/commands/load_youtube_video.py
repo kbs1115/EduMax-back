@@ -1,10 +1,10 @@
 from django.core.management import BaseCommand
 from django.db import transaction
 from googleapiclient.discovery import build
-from django.conf import settings
 
 from community.domain.definition import PLAYLIST_ID_KEY_CATEGORY_VALUE
 from community.service.lecture_service import LectureService
+from config.settings import base
 from edumax_account.model.user_access import get_user_with_pk
 
 
@@ -15,7 +15,7 @@ class Command(BaseCommand):
         self.load_youtube_video_id()
 
     def load_youtube_video_id(self):
-        youtube = build('youtube', 'v3', developerKey=settings.YOUTUBE_API_KEY)
+        youtube = build('youtube', 'v3', developerKey=base.YOUTUBE_API_KEY)
         next_page_token = None
         print("_________________________________________________________________________")
         print("youtube로 부터 video id load를 시작합니다.")
